@@ -14,4 +14,4 @@ for dIdx = 1:dim1
     d(:,:,dIdx) = (A-B).^2;
 end
 distMat = T.*sqrt(sum(d,3));
-end
+end 

@@ -13,6 +13,7 @@ function NewRecipe(recipeName)
 f = fopen(sprintf('%s%s',recipeName,'.rcp'),'wt');
 fprintf(f,'%s\n','<description> Describe the simulation here... </description>');
 fprintf(f,'%s\n','<func> SetRecipeParams </func>');
+fprintf(f,'%s\n','%Insert parameters as obj.params');
 fprintf(f,'%s\n','<func> PreSimulationBatchActions </func>');
 fprintf(f,'%s\n','<func> PreRunActions </func>');
 fprintf(f,'%s\n','<func> PreStepActions </func>');

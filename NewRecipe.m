@@ -21,7 +21,7 @@ fprintf(f,'%s\n','%Actions performed before each simulation batch');
 
 fprintf(f,'%s\n','<func> PreRunActions </func>');
 fprintf(f,'%s\n','%Actions performed before each simulation run.');
-fprintf(f,'%s\n','Note that Simplerouse class is initialized before each simulation');
+fprintf(f,'%s\n','%Note that SimpleRouse class is initialized before each simulation');
 
 fprintf(f,'%s\n','<func> PreStepActions </func>');
 fprintf(f,'%s\n','%Actions performed before each step of the Rouse chain.');

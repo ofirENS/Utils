@@ -53,9 +53,9 @@ classdef PeakCalling<handle
     function EstimateMeanSignal(obj)
         m = mean(obj.signals,1);
         if strcmpi(obj.params.fitType,'model')
-        d = 1:numel(m);
-        [f, ~] =fit(d',m',obj.params.fitModel, obj.params.fOptions);
-        obj.meanSignal = (1/sum(d.^(-f.slope)))*d.^(-f.slope);
+            d = 1:numel(m);
+            [f, ~] =fit(d',m',obj.params.fitModel, obj.params.fOptions);
+            obj.meanSignal = (1/sum(d.^(-f.slope)))*d.^(-f.slope);
         elseif strcmpi(obj.params.fitType,'loess')
             obj.meanSignal = smooth(m,round(numel(m)/10));
         end
@@ -71,16 +71,17 @@ classdef PeakCalling<handle
             end
         end
         obj.globalMinZ = min(obj.zScores(:));
+        obj.zScores = obj.zScores-obj.globalMinZ+eps;
         % combine all z Score from all distances, assuming they have
         % similar background distribution 
-        obj.backgroundDistribution= fitdist(obj.zScores(:)-obj.globalMinZ+eps,'wbl','options',obj.params.stOptions);
+        obj.backgroundDistribution = fitdist(obj.zScores(:),'wbl','options',obj.params.stOptions);
         obj.backgroundRejectionVal = obj.backgroundDistribution.icdf(obj.params.rejectionThresh);
     end
     
     function EstimateSignalDistribution(obj)
         for dIdx = 1:size(obj.signals,2)
             obj.signalDistribution(dIdx).dist = makedist('wbl');
-            obj.signalDistribution(dIdx).dist = fitdist(obj.zScores(:,dIdx)-obj.globalMinZ+eps,'wbl','options',obj.params.stOptions);
+            obj.signalDistribution(dIdx).dist = fitdist(obj.zScores(:,dIdx),'wbl','options',obj.params.stOptions);
             % Calculate the value for above which we treat observations as
             % peaks (corresponding to 0.99% of each cdf)
             obj.signalRejectionVal(dIdx) = obj.signalDistribution(dIdx).dist.icdf(obj.params.rejectionThresh);
@@ -90,14 +91,17 @@ classdef PeakCalling<handle
     function EstimateRejectionDistribution(obj)
         % calculate the distribution of the difference between rejection
         % region of signals and rejection region of background 
-        tVal = (obj.signalRejectionVal-obj.backgroundRejectionVal)./std(obj.signalRejectionVal);
-        
+        tVal  = (obj.signalRejectionVal-obj.backgroundRejectionVal);
+        sTval =  std(tVal);
+        tVal  = tVal./sTval;
+%         mtVal = min(tVal);
+%         tVal = tVal-mtVal +eps;
         % Fit this statistics with a normal distribution 
         n = fitdist(tVal','normal','options',obj.params.stOptions);
-        obj.rejectionTval = n.icdf(0.99);
+        obj.rejectionTval = n.icdf(0.95)*sTval+obj.backgroundRejectionVal;
                         
         % return to the zScores and eliminate type I errors 
-        peaks = obj.zScores>(obj.rejectionTval)*std(obj.signalRejectionVal) +obj.backgroundRejectionVal-obj.globalMinZ;
+        peaks = (obj.zScores)>(obj.rejectionTval);
         [obj.peakList(:,1),obj.peakList(:,2)] = find(peaks);
     end
     

@@ -26,6 +26,7 @@ classdef PeakCalling<handle
     methods
         
     function obj = PeakCalling()
+            obj.params.smoothingSpan        = 7; % smoothing span for the loess smoothing
             obj.params.fitType              = 'loess';% options [model loess]
             obj.params.fitModel             = fittype(@(slope,x)(1./(sum(x.^(-slope)))).*x.^(-slope));
             obj.params.fOptions             = fitoptions(obj.params.fitModel);
@@ -44,26 +45,36 @@ classdef PeakCalling<handle
     function FindPeaks(obj, signals)
         obj.numSignals = size(signals,2);
         obj.signals    = signals;
-        obj.EstimateMeanSignal;
+        obj.EstimateBackgroundSignal;
         obj.EstimateBackgroundDistribution
         obj.EstimateSignalDistribution
         obj.EstimateRejectionDistribution
     end
     
-    function EstimateMeanSignal(obj)
+    function EstimateBackgroundSignal(obj)
         m = mean(obj.signals,1);
         if strcmpi(obj.params.fitType,'model')
             d = 1:numel(m);
             [f, ~] =fit(d',m',obj.params.fitModel, obj.params.fOptions);
             obj.meanSignal = (1/sum(d.^(-f.slope)))*d.^(-f.slope);
         elseif strcmpi(obj.params.fitType,'loess')
-            obj.meanSignal = smooth(m,round(numel(m)/10));
+                
+            obj.meanSignal = smooth(m,obj.params.smoothingSpan);%round(numel(m)/10));
+            
         end
     end
     
     function EstimateBackgroundDistribution(obj)
         % estimate the distribution over all distances
-        obj.zScores = zeros(size(obj.signals,1),size(obj.signals,2));
+         obj.CalculateZScores
+        % combine all z Score from all distances, assuming they have
+        % similar background distribution 
+        obj.backgroundDistribution = fitdist(obj.zScores(:),'wbl','options',obj.params.stOptions);
+        obj.backgroundRejectionVal = obj.backgroundDistribution.icdf(obj.params.rejectionThresh);
+    end
+    
+    function CalculateZScores(obj)
+            obj.zScores = zeros(size(obj.signals,1),size(obj.signals,2));
         for dIdx = 1:size(obj.signals,2)
             s = std(obj.signals(:,dIdx));
             if s~=0
@@ -72,10 +83,6 @@ classdef PeakCalling<handle
         end
         obj.globalMinZ = min(obj.zScores(:));
         obj.zScores = obj.zScores-obj.globalMinZ+eps;
-        % combine all z Score from all distances, assuming they have
-        % similar background distribution 
-        obj.backgroundDistribution = fitdist(obj.zScores(:),'wbl','options',obj.params.stOptions);
-        obj.backgroundRejectionVal = obj.backgroundDistribution.icdf(obj.params.rejectionThresh);
     end
     
     function EstimateSignalDistribution(obj)
@@ -111,6 +118,54 @@ classdef PeakCalling<handle
             peakMat(obj.peakList(pIdx,1),obj.peakList(pIdx,2))=1;
         end
         figure, imshow(peakMat)
+    end
+    
+    function DisplaySignalDistributions(obj)
+       f = figure; 
+       a = axes('Parent', f,'NextPlot','add');
+       t = 0:.001:max(obj.zScores(:));
+       for dIdx = 1:obj.numSignals
+        line('XData',t,...
+             'YData',obj.signalDistribution(dIdx).dist.pdf(t),...
+             'DisplayName',['Distance ',num2str(dIdx)],...
+             'Parent',a);
+       end
+       % display background distributioin 
+               line('XData',t,...
+             'YData',obj.backgroundDistribution.pdf(t),...
+             'DisplayName','Background signal',...
+             'Parent',a,...
+             'Color','r',...
+             'LineWidth',4);
+         
+         % add line representing the rejection 
+         line('XData',[obj.rejectionTval obj.rejectionTval],...
+              'YData',[0 0.5],...
+              'Parent',a,...
+              'Color','r',...
+              'DisplayName','rejection value',...
+              'LineStyle','-.');
+    end
+     
+    function DisplayRejectionValDistribution(obj)
+       f = figure;
+       a = axes('Parent',f,'NextPlot','Add','FontSize',30);
+       for dIdx = 1:obj.numSignals
+           line('XData',dIdx,...
+                'YData',obj.signalRejectionVal(dIdx),...
+                'DisplayName',['distance', num2str(dIdx)],...
+                'Parent',a,...
+                'Marker','o',...
+                'MarkerFaceColor','b',...
+                'MarkerSize',6)
+       end
+       
+       line('XData', [1 size(obj.signals,2)],...
+           'YData',[obj.rejectionTval obj.rejectionTval],...
+           'Color','r',...
+           'Parent',a,...
+           'LineWidth',4);
+           
     end
     
     end

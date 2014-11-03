@@ -38,10 +38,18 @@ classdef PeakCalling<handle
             obj.params.fOptions.StartPoint  = 1.5; % [slope]
             obj.params.fOptions.Lower       = 0.05; % [slope]
             obj.params.fOptions.Robust      = 'Bisquare';
+            
             % statistics optimization params
-            obj.params.stOptions            = statset('Robust','on','TolFun',1e-10,'TolX',1e-10);
-            obj.params.rejectionThresh      = 0.99; % set the cdf value for the background signal rejection
-            obj.params.rejectionTNew        = 0.99;% the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
+            obj.params.stOptions            = statset('Robust','on',...
+                                                      'TolFun',1e-12,...
+                                                      'TolX',1e-12,...
+                                                      'MaxFunEvals',1e5,...
+                                                      'MaxIter',1e5,...
+                                                      'TolTypeFun','rel',...
+                                                      'TolTypeX','rel',...
+                                                      'RobustWgtFun','bisquare');
+            obj.params.rejectionThresh      = 0.95; % set the cdf value for the background signal rejection
+            obj.params.rejectionTNew        = 0.95;% the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
         end
         
         function FindPeaks(obj, signals)
@@ -105,6 +113,7 @@ classdef PeakCalling<handle
         end
         
         function EstimateSignalDistribution(obj)
+            obj.params.stOptions.Robust='off';
             for dIdx = 1:size(obj.signals,2)
                 obj.signalDistribution(dIdx).dist = makedist('wbl');
                 z       = obj.zScores(:,dIdx);
@@ -115,6 +124,7 @@ classdef PeakCalling<handle
                 % peaks (corresponding to 0.99% of each cdf)
                 obj.signalRejectionVal(dIdx) = obj.signalDistribution(dIdx).dist.icdf(obj.params.rejectionThresh);
             end
+            obj.params.stOptions.Robust='on';
         end
         
         function EstimateRejectionDistribution(obj)
@@ -140,14 +150,15 @@ classdef PeakCalling<handle
         
         function DisplayPeaks(obj)
             peakMat = zeros(size(obj.signals,1), size(obj.signals,2));
-            figure, surf(obj.signals), hold on
+            figure, surf(obj.signals),colormap summer, hold on
             for pIdx = 1:size(obj.peakList,1)
                 % places the zScore value
                 peakMat(obj.peakList(pIdx,1),obj.peakList(pIdx,2))=...
-                    obj.signalDistribution(obj.peakList(pIdx,1)).dist.cdf(obj.zScores(obj.peakList(pIdx,1), obj.peakList(pIdx,2)));
-                plot3(obj.peakList(pIdx,2), obj.peakList(pIdx,1),obj.signals(obj.peakList(pIdx,1), obj.peakList(pIdx,2)),'or')
+                    obj.zScores(obj.peakList(pIdx,1),obj.peakList(pIdx,2))./sum(obj.zScores(:,obj.peakList(pIdx,2)));
+%                     obj.signalDistribution(obj.peakList(pIdx,1)).dist.cdf(obj.zScores(obj.peakList(pIdx,1), obj.peakList(pIdx,2)));
+                plot3(obj.peakList(pIdx,2), obj.peakList(pIdx,1),obj.signals(obj.peakList(pIdx,1), obj.peakList(pIdx,2)),'or','MarkerSize',10,'LineWidth',2)
             end
-            figure, imshow(peakMat,[])
+%             figure, surf(peakMat)
         end
         
         function DisplaySignalDistributions(obj,distType)

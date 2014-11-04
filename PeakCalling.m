@@ -1,6 +1,7 @@
 classdef PeakCalling<handle
     % this class applies the peakCalling procedure to find peaks in an
-    % expression arrays
+    % expression arrays. The input is a matrix of n signals of the same
+    % length 
     properties
         params
         numSignals
@@ -27,20 +28,30 @@ classdef PeakCalling<handle
     methods
         
         function obj = PeakCalling()
-            obj.params.smoothingSpan        = 7; % smoothing span for the loess smoothing
-            obj.params.fitType              = 'loess';% options [model loess]
-            obj.params.fitModel             = fittype(@(slope,x)(1./(sum(x.^(-slope)))).*x.^(-slope));
+            obj.SetDefaultParams;            
+        end
+        
+        function SetDefaultParams(obj)
+            obj.params.peaksDirection       = 'high';  % find peaks in high/low/twoSides
+            obj.params.smoothingSpan        = 10;       % smoothing span for the loess smoothing
+            obj.params.fitType              = 'loess'; % options [model/loess/mean]
+            
+            % fOptions applies only for fitType=model
+            obj.params.fitModel             = fittype(@(slope,x)(1./(sum(x.^(-slope)))).*x.^(-slope));% in case of fitType='model'
             obj.params.fOptions             = fitoptions(obj.params.fitModel);
             obj.params.fOptions.TolX        = 1e-8;
             obj.params.fOptions.TolFun      = 1e-8;
             obj.params.fOptions.MaxFunEvals = 1e3;
             obj.params.fOptions.MaxIter     = 1e3;
-            obj.params.fOptions.StartPoint  = 1.5; % [slope]
-            obj.params.fOptions.Lower       = 0.05; % [slope]
+            obj.params.fOptions.StartPoint  = 1.5;  % [slope] % applies for fitType=model
+            obj.params.fOptions.Lower       = 0.05; % [slope] 
             obj.params.fOptions.Robust      = 'Bisquare';
             
-            % statistics optimization params
-            obj.params.stOptions            = statset('Robust','on',...
+            % Statistics optimization params
+            obj.params.backgroundZDistribution   = 'wbl';
+            obj.params.signalZDistribution       = 'wbl';
+            obj.params.rejectionValDistribution  = 'wbl';
+            obj.params.stOptions            = statset('Robust','off',...
                                                       'TolFun',1e-12,...
                                                       'TolX',1e-12,...
                                                       'MaxFunEvals',1e5,...
@@ -48,22 +59,23 @@ classdef PeakCalling<handle
                                                       'TolTypeFun','rel',...
                                                       'TolTypeX','rel',...
                                                       'RobustWgtFun','bisquare');
-            obj.params.rejectionThresh      = 0.95; % set the cdf value for the background signal rejection
-            obj.params.rejectionTNew        = 0.95;% the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
+            obj.params.rejectionThresh      = 0.99; % set the cdf value for the background signal rejection
+            obj.params.rejectionTNew        = 0.99; % the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
         end
-        
+            
         function FindPeaks(obj, signals)
             obj.numSignals = size(signals,2);
             obj.signals    = signals;
             obj.EstimateBackgroundSignal;
-            obj.EstimateBackgroundDistribution
-            obj.EstimateSignalDistribution
-            obj.EstimateRejectionDistribution
+            obj.CalculateZScores
+            obj.CalculateBackgroundDistribution;
+            obj.CalculateZScoreDistribution         
+            obj.CalculateRejectionDistribution
             obj.MarkPeaks
         end
         
         function EstimateBackgroundSignal(obj)
-            m = mean(obj.signals,1);
+            m = obj.MeanIgnoreNaN(obj.signals);
             if strcmpi(obj.params.fitType,'model')
                 d      = 1:numel(m);
                 [f, ~] = fit(d',m',obj.params.fitModel, obj.params.fOptions);
@@ -75,71 +87,84 @@ classdef PeakCalling<handle
             end
         end
         
-        function EstimateBackgroundDistribution(obj)
-            % estimate the distribution over all distances
-            obj.CalculateZScores
+        function CalculateBackgroundDistribution(obj)
+            % Esstimate the distribution over all distances
             % combine all z Score from all distances, assuming they have
-            % similar background distribution
-            
-            z      = obj.zScores(:);
-            %         cens   = z<0;
-            %         z(z<0) = eps;
-            
-            obj.backgroundDistribution = fitdist(z,'wbl','options',obj.params.stOptions);
+            % similar background z distribution            
+            z    = obj.zScores(:); 
+            inds = ~isnan(z);
+            obj.backgroundDistribution = fitdist(z(inds),obj.params.backgroundZDistribution,...
+                                                   'options',obj.params.stOptions);
             obj.backgroundRejectionVal = obj.backgroundDistribution.icdf(obj.params.rejectionThresh);
         end
         
         function CalculateZScores(obj)
-            obj.zScores = zeros(size(obj.signals,1),size(obj.signals,2));
+            obj.zScores = nan(size(obj.signals,1),size(obj.signals,2));
             s           = zeros(1,size(obj.signals,2));
             for dIdx = 1:size(obj.signals,2)
-                obj.zScores(:,dIdx) = ((obj.signals(:,dIdx)-obj.meanSignal(dIdx)));
-                s(dIdx)             = std(obj.signals(:,dIdx));
-                if s(dIdx)~=0
-                    obj.zScores(:,dIdx) = obj.zScores(:,dIdx)./s(dIdx);
+                inds = ~isnan(obj.signals(:,dIdx));
+                if strcmpi(obj.params.peaksDirection,'twoSides')
+                    z = (abs(obj.signals(inds,dIdx)-obj.meanSignal(dIdx)));
+                elseif strcmpi(obj.params.peaksDirection,'high')
+                    z = (obj.signals(inds,dIdx)-obj.meanSignal(dIdx));
+                elseif strcmpi(obj.params.peaksDirection,'low')
+                    warning('peaksDirection=low is unsupported yet, changing to twoSides')
+                    z = (abs(obj.signals(inds,dIdx)-obj.meanSignal(dIdx)));
                 end
-                %               m(dIdx) = min(obj.zScores(:,dIdx));
-                %               if m(dIdx)<0
-                %                   obj.zScores(:,dIdx) = obj.zScores(:,dIdx)-m(dIdx)+eps;
-                %               end
                 
+                obj.zScores(inds,dIdx) = z;
+                
+                s(dIdx)             = std(obj.signals(inds,dIdx));
+                if s(dIdx)~=0
+                    obj.zScores(inds,dIdx) = obj.zScores(inds,dIdx)./s(dIdx);
+                end                
             end
             
-            [obj.globalMinZ.value, obj.globalMinZ.signal] = min(obj.zScores(:));
+            [obj.globalMinZ.value, obj.globalMinZ.signal] = obj.MinIgnoreNaN(obj.zScores(:));
             [obj.globalMinZ.signal, ~] = ind2sub(size(obj.signals),obj.globalMinZ.signal);
             if obj.globalMinZ.value<0
                 obj.zScores = obj.zScores-obj.globalMinZ.value+eps;
             end
         end
         
-        function EstimateSignalDistribution(obj)
-            obj.params.stOptions.Robust='off';
+        function CalculateZScoreDistribution(obj)
+            obj.params.stOptions            = statset('Robust','on');
             for dIdx = 1:size(obj.signals,2)
-                obj.signalDistribution(dIdx).dist = makedist('wbl');
-                z       = obj.zScores(:,dIdx);
-                %             cens    = z<0;
-                %             z(cens) = eps;
-                obj.signalDistribution(dIdx).dist = fitdist(z,'wbl','options',obj.params.stOptions);
+                inds = ~isnan(obj.zScores(:,dIdx));
+                obj.signalDistribution(dIdx).dist = makedist(obj.params.signalZDistribution);
+                z       = obj.zScores(inds,dIdx);
+                obj.signalDistribution(dIdx).dist = fitdist(z,obj.params.signalZDistribution,...
+                                                              'options',obj.params.stOptions);
                 % Calculate the value for above which we treat observations as
                 % peaks (corresponding to 0.99% of each cdf)
                 obj.signalRejectionVal(dIdx) = obj.signalDistribution(dIdx).dist.icdf(obj.params.rejectionThresh);
             end
-            obj.params.stOptions.Robust='on';
+      obj.params.stOptions            = statset('Robust','on');
         end
         
-        function EstimateRejectionDistribution(obj)
-            % calculate the distribution of the difference between rejection
+        function CalculateRejectionDistribution(obj)
+            % Calculate the distribution of the difference between rejection
             % region of signals and rejection region of background
-            tVal  = (obj.signalRejectionVal-obj.backgroundRejectionVal);
-            sTval = std(obj.signalRejectionVal);
-            tVal  = tVal./sTval;
-            
+%             tVal  = (obj.signalRejectionVal-obj.backgroundRejectionVal);
+%             sTval = std(obj.signalRejectionVal);
+%             sTval = 1;
+            tVal = obj.signalRejectionVal;
+%             tVal  = tVal./sTval;
+
+%             mTval = min(tVal);
+%             if mTval<0
+%                 tVal = tVal-mTval+eps;
+%             else 
+%                 mTval = 0;
+%             end
             % Fit this statistic with a normal distribution [need to prove that
             % the variable is nornally distributed]
-            obj.rejectionValDistribution = fitdist(tVal','normal','options',obj.params.stOptions);
-            
+            obj.params.stOptions.Robust = 'off';
+            obj.rejectionValDistribution = fitdist(tVal',obj.params.rejectionValDistribution,...
+                                                        'options',obj.params.stOptions);            
             % set the new rejection value
-            obj.rejectionTval = obj.rejectionValDistribution.icdf(obj.params.rejectionTNew)*sTval+obj.backgroundRejectionVal;
+            obj.rejectionTval = obj.rejectionValDistribution.icdf(obj.params.rejectionTNew);%+...
+%                                                                   obj.backgroundRejectionVal;%+mTval;
         end
         
         function MarkPeaks(obj)
@@ -154,11 +179,12 @@ classdef PeakCalling<handle
             for pIdx = 1:size(obj.peakList,1)
                 % places the zScore value
                 peakMat(obj.peakList(pIdx,1),obj.peakList(pIdx,2))=...
-                    obj.zScores(obj.peakList(pIdx,1),obj.peakList(pIdx,2))./sum(obj.zScores(:,obj.peakList(pIdx,2)));
+                    obj.zScores(obj.peakList(pIdx,1),obj.peakList(pIdx,2))./mean(obj.zScores(obj.peakList(pIdx,1),:));
 %                     obj.signalDistribution(obj.peakList(pIdx,1)).dist.cdf(obj.zScores(obj.peakList(pIdx,1), obj.peakList(pIdx,2)));
-                plot3(obj.peakList(pIdx,2), obj.peakList(pIdx,1),obj.signals(obj.peakList(pIdx,1), obj.peakList(pIdx,2)),'or','MarkerSize',10,'LineWidth',2)
+                plot3(obj.peakList(pIdx,2), obj.peakList(pIdx,1),obj.signals(obj.peakList(pIdx,1), obj.peakList(pIdx,2)),...
+                        'or','MarkerSize',10,'LineWidth',2)
             end
-%             figure, surf(peakMat)
+            figure, surf(peakMat)
         end
         
         function DisplaySignalDistributions(obj,distType)
@@ -225,13 +251,41 @@ classdef PeakCalling<handle
             % display the distribution of z score for a certain distance
             f  = figure;
             a  = axes('Parent',f,'NextPlot','Add');
+            if ~exist('dist','var')
+                dist = 1:size(obj.signals,2);
+            end
             for dIdx =1:numel(dist)
                 [v,e] = ecdf(obj.zScores(:,dist(dIdx)));
-                line('XData',e,'YData',v,'Parent',a)
-                line('XData',e,'YData',obj.signalDistribution(dist(dIdx)).dist.cdf(e),...
-                    'Color','r');
+                line('XData',e,...
+                     'YData',v,...
+                     'Parent',a,...
+                     'DisplayName',['empirical CDF distance ', num2str(dist(dIdx))] )
+                line('XData',e,...
+                     'YData',obj.signalDistribution(dist(dIdx)).dist.cdf(e),...
+                     'Color','r',...
+                     'Parent',a,...
+                     'DisplayName',['fitted CDF distance ', num2str(dist(dIdx))]);
             end
         end
         
+    end
+    
+    methods (Static)
+        function m = MeanIgnoreNaN(signalIn)
+            % calculate the mean of a matrix ignoring nan values,
+            % the mean gives the mean of each column 
+            m = zeros(1,size(signalIn,2));
+            for mIdx = 1:size(signalIn,2)
+                inds = ~isnan(signalIn(:,mIdx));
+                m(mIdx) = mean(signalIn(inds,mIdx));
+            end
+        end
+        
+        function [m,ind] = MinIgnoreNaN(signalIn)
+            % find the minimum of a signal ignoring NaN values 
+            inds = isnan(signalIn);
+            signalIn(inds) = inf;
+            [m,ind] = min(signalIn);
+        end
     end
 end

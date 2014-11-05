@@ -128,18 +128,22 @@ classdef PeakCalling<handle
         end
         
         function CalculateZScoreDistribution(obj)
-            obj.params.stOptions            = statset('Robust','on');
+            obj.params.stOptions.Robust = 'off';
             for dIdx = 1:size(obj.signals,2)
-                inds = ~isnan(obj.zScores(:,dIdx));
+                inds = ~isnan(obj.zScores(:,dIdx))&obj.zScores(:,dIdx)~=0;
                 obj.signalDistribution(dIdx).dist = makedist(obj.params.signalZDistribution);
                 z       = obj.zScores(inds,dIdx);
-                obj.signalDistribution(dIdx).dist = fitdist(z,obj.params.signalZDistribution,...
+                if numel(z)>2
+                obj.signalDistribution(dIdx).dist = fitdist(z,obj.params.signalZDistribution,'Censoring',z==eps,...
                                                               'options',obj.params.stOptions);
                 % Calculate the value for above which we treat observations as
                 % peaks (corresponding to 0.99% of each cdf)
                 obj.signalRejectionVal(dIdx) = obj.signalDistribution(dIdx).dist.icdf(obj.params.rejectionThresh);
+                else 
+                    obj.signalRejectionVal(dIdx)=eps;
+                end
             end
-      obj.params.stOptions            = statset('Robust','on');
+      obj.params.stOptions.Robust = 'on';
         end
         
         function CalculateRejectionDistribution(obj)
@@ -159,8 +163,8 @@ classdef PeakCalling<handle
 %             end
             % Fit this statistic with a normal distribution [need to prove that
             % the variable is nornally distributed]
-            obj.params.stOptions.Robust = 'off';
-            obj.rejectionValDistribution = fitdist(tVal',obj.params.rejectionValDistribution,...
+            obj.params.stOptions.Robust = 'on';
+            obj.rejectionValDistribution = fitdist(tVal',obj.params.rejectionValDistribution,'Censoring',tVal'==eps,...
                                                         'options',obj.params.stOptions);            
             % set the new rejection value
             obj.rejectionTval = obj.rejectionValDistribution.icdf(obj.params.rejectionTNew);%+...
@@ -171,6 +175,7 @@ classdef PeakCalling<handle
             % return to the zScores and eliminate type I errors
             peaks = (obj.zScores)>(obj.rejectionTval);
             [obj.peakList(:,1),obj.peakList(:,2)] = find(peaks);
+            obj.peakList = sortrows(obj.peakList,1);
         end
         
         function DisplayPeaks(obj)

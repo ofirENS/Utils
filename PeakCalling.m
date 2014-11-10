@@ -34,7 +34,7 @@ classdef PeakCalling<handle
         function SetDefaultParams(obj)
             obj.params.peaksDirection       = 'high';  % find peaks in high/low/twoSides
             obj.params.smoothingSpan        = 10;       % smoothing span for the loess smoothing
-            obj.params.fitType              = 'loess'; % options [model/loess/mean]
+            obj.params.fitType              = 'mean'; % options [model/loess/mean]
             
             % fOptions applies only for fitType=model
             obj.params.fitModel             = fittype(@(slope,x)(1./(sum(x.^(-slope)))).*x.^(-slope));% in case of fitType='model'
@@ -48,9 +48,9 @@ classdef PeakCalling<handle
             obj.params.fOptions.Robust      = 'Bisquare';
             
             % Statistics optimization params
-            obj.params.backgroundZDistribution   = 'wbl';
-            obj.params.signalZDistribution       = 'wbl';
-            obj.params.rejectionValDistribution  = 'wbl';
+            obj.params.backgroundZDistribution   = 'normal';
+            obj.params.signalZDistribution       = 'normal';
+            obj.params.rejectionValDistribution  = 'normal';
             obj.params.stOptions            = statset('Robust','off',...
                                                       'TolFun',1e-12,...
                                                       'TolX',1e-12,...
@@ -96,6 +96,11 @@ classdef PeakCalling<handle
             obj.backgroundDistribution = fitdist(z(inds),obj.params.backgroundZDistribution,...
                                                    'options',obj.params.stOptions);
             obj.backgroundRejectionVal = obj.backgroundDistribution.icdf(obj.params.rejectionThresh);
+%             [e,v] = ecdf(z(~isnan(z)));
+%             % Find the 0.99 percent 
+%             [fTop]    = find(e>obj.params.rejectionThresh,1,'first');
+%             [fButtom] = find(e<obj.params.rejectionThresh,1,'last'); 
+%              obj.backgroundRejectionVal=(obj.backgroundRejectionVal+(v(fTop)+v(fButtom))/2)/2;
         end
         
         function CalculateZScores(obj)
@@ -116,25 +121,28 @@ classdef PeakCalling<handle
                 
                 s(dIdx)             = std(obj.signals(inds,dIdx));
                 if s(dIdx)~=0
+                   
                     obj.zScores(inds,dIdx) = obj.zScores(inds,dIdx)./s(dIdx);
+%                      c=obj.zScores(:,dIdx)<0;
+%                     obj.zScores(c,dIdx) = eps;
                 end                
             end
             
-            [obj.globalMinZ.value, obj.globalMinZ.signal] = obj.MinIgnoreNaN(obj.zScores(:));
-            [obj.globalMinZ.signal, ~] = ind2sub(size(obj.signals),obj.globalMinZ.signal);
-            if obj.globalMinZ.value<0
-                obj.zScores = obj.zScores-obj.globalMinZ.value+eps;
-            end
+%             [obj.globalMinZ.value, obj.globalMinZ.signal] = obj.MinIgnoreNaN(obj.zScores(:));
+%             [obj.globalMinZ.signal, ~] = ind2sub(size(obj.signals),obj.globalMinZ.signal);
+%             if obj.globalMinZ.value<0
+%                 obj.zScores = obj.zScores-obj.globalMinZ.value+eps;
+%             end
         end
         
         function CalculateZScoreDistribution(obj)
             obj.params.stOptions.Robust = 'off';
             for dIdx = 1:size(obj.signals,2)
-                inds = ~isnan(obj.zScores(:,dIdx))&obj.zScores(:,dIdx)~=0;
+                inds = ~isnan(obj.zScores(:,dIdx));%&obj.zScores(:,dIdx)>eps;
                 obj.signalDistribution(dIdx).dist = makedist(obj.params.signalZDistribution);
                 z       = obj.zScores(inds,dIdx);
-                if numel(z)>2
-                obj.signalDistribution(dIdx).dist = fitdist(z,obj.params.signalZDistribution,'Censoring',z==eps,...
+                if numel(z)>10
+                obj.signalDistribution(dIdx).dist = fitdist(z,obj.params.signalZDistribution,...
                                                               'options',obj.params.stOptions);
                 % Calculate the value for above which we treat observations as
                 % peaks (corresponding to 0.99% of each cdf)
@@ -143,7 +151,7 @@ classdef PeakCalling<handle
                     obj.signalRejectionVal(dIdx)=eps;
                 end
             end
-      obj.params.stOptions.Robust = 'on';
+           obj.params.stOptions.Robust = 'on';
         end
         
         function CalculateRejectionDistribution(obj)
@@ -153,6 +161,10 @@ classdef PeakCalling<handle
 %             sTval = std(obj.signalRejectionVal);
 %             sTval = 1;
             tVal = obj.signalRejectionVal;
+            tVal = tVal(tVal~=eps);
+%             mt   = obj.backgroundRejectionVal;% mean(tVal(tVal~=eps));
+%             st   = std(tVal);
+%             tVal = (tVal -mt)/st;
 %             tVal  = tVal./sTval;
 
 %             mTval = min(tVal);
@@ -163,11 +175,11 @@ classdef PeakCalling<handle
 %             end
             % Fit this statistic with a normal distribution [need to prove that
             % the variable is nornally distributed]
-            obj.params.stOptions.Robust = 'on';
+            obj.params.stOptions.Robust = 'off';
             obj.rejectionValDistribution = fitdist(tVal',obj.params.rejectionValDistribution,'Censoring',tVal'==eps,...
                                                         'options',obj.params.stOptions);            
             % set the new rejection value
-            obj.rejectionTval = obj.rejectionValDistribution.icdf(obj.params.rejectionTNew);%+...
+            obj.rejectionTval = obj.rejectionValDistribution.icdf(obj.params.rejectionTNew);%-obj.globalMinZ.value;%...
 %                                                                   obj.backgroundRejectionVal;%+mTval;
         end
         
@@ -199,7 +211,7 @@ classdef PeakCalling<handle
             
             f = figure;
             a = axes('Parent', f,'NextPlot','add');
-            t = 0:.001:max(obj.signalRejectionVal);
+            t = obj.MinIgnoreNaN(obj.zScores(:)):.001:obj.MaxIgnoreNaN(obj.zScores(:));
             for dIdx = 1:obj.numSignals
                 line('XData',t,...
                     'YData',obj.signalDistribution(dIdx).dist.(distType)(t),...
@@ -273,6 +285,25 @@ classdef PeakCalling<handle
             end
         end
         
+        function TestZScoreDistributionSimilarityToNull(obj)
+            % for each one of the empirical distribution of the zScore,
+            % test its similarity to the null (background distribution)
+            backgroundSignal = obj.zScores(:);            
+            inds = ~isnan(backgroundSignal)&backgroundSignal~=eps;
+            backgroundSignal = backgroundSignal(inds);            
+            testResult       = zeros(size(obj.zScores,2),1);
+            for dIdx = 1:size(obj.zScores,2)                
+                zScore = obj.zScores(:,dIdx);
+                inds   = zScore~=eps & ~isnan(zScore);
+                zScore = zScore(inds);
+                % run Kolmogorov smirnoff test 
+                testResult(dIdx) = kstest2(zScore,backgroundSignal);
+            end
+            figure, plot(testResult,'o'), title('comparison to mean');
+            
+            % run pairwise distribution 
+            
+        end
     end
     
     methods (Static)
@@ -292,5 +323,13 @@ classdef PeakCalling<handle
             signalIn(inds) = inf;
             [m,ind] = min(signalIn);
         end
+        
+        function [m,ind] = MaxIgnoreNaN(signalIn)
+            % find the minimum of a signal ignoring NaN values 
+            inds = isnan(signalIn);
+            signalIn(inds) = -inf;
+            [m,ind] = max(signalIn);
+        end
+        
     end
 end

@@ -61,7 +61,7 @@ classdef PeakCalling<handle
                                                            'RobustWgtFun','bisquare');
             obj.params.peakExludeNeighborhoodSpan = [5, 10, 15]; % the radius of the neighborhood around each peak used for the scoring of the peak 
             obj.params.rejectionThresh      = 0.99; % set the cdf value for the background signal rejection
-            obj.params.rejectionTNew        = 0.99; % the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
+            obj.params.rejectionTNew        = 0.95; % the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
         end
         
         function FindPeaks(obj, signals)
@@ -102,7 +102,7 @@ classdef PeakCalling<handle
             z    = obj.zScores(:);
             inds = ~isnan(z);
             obj.backgroundDistribution = fitdist(z(inds),obj.params.backgroundZDistribution,...
-                'options',obj.params.stOptions);
+                'Censoring',z(inds)==eps,'options',obj.params.stOptions);
             obj.backgroundRejectionVal = obj.backgroundDistribution.icdf(obj.params.rejectionThresh);
             
         end
@@ -129,6 +129,7 @@ classdef PeakCalling<handle
                 if s(dIdx)~=0
                     obj.zScores(inds,dIdx) = obj.zScores(inds,dIdx)./s(dIdx);
                 end
+                obj.zScores(obj.zScores(:,dIdx)<=0,dIdx)=nan;
                 else
                     % keep it nan
                 end
@@ -149,7 +150,8 @@ classdef PeakCalling<handle
                 z       = obj.zScores(inds,dIdx);
                 if numel(z)>obj.params.minimumZSamples
                     cens = z==eps;
-                    obj.signalDistribution(dIdx).dist = fitdist(z,obj.params.signalZDistribution,'Censoring',cens,...
+                    obj.signalDistribution(dIdx).dist = fitdist(z,obj.params.signalZDistribution,...
+                        'Censoring',cens,...
                         'options',obj.params.stOptions);
                     % Calculate the value for above which we treat observations as
                     % peaks (corresponding to 0.99% of each cdf)
@@ -223,21 +225,23 @@ classdef PeakCalling<handle
             end
             % filter the peaks             
             obj.peakList = obj.peakList(includeList,:);
-           
-           
+                      
         end
         
         function ApplyFDROnPeaks(obj)
             % Apply FDR on peaks' pvvalues according to background
             % distribution 
-            p = zeros(size(obj.peakList,1),1);
-            for pIdx = 1:size(obj.peakList,1)
-              p(pIdx) = 1-obj.backgroundDistribution.cdf(obj.zScores(obj.peakList(pIdx,1), obj.peakList(pIdx,2)));
+            if ~isempty(obj.peakList) && size(obj.peakList,1)>=2
+                p = zeros(size(obj.peakList,1),1);
+                for pIdx = 1:size(obj.peakList,1)
+                    p(pIdx) = 1-obj.backgroundDistribution.cdf(obj.zScores(obj.peakList(pIdx,1), obj.peakList(pIdx,2)));
+                end
+                
+                q = mafdr(p,'Method','bootstrap','Lambda',(min(p)+eps):.0001:max(p),'Showplot',false);
+                includeList = q<0.01;
+                % exclude peaks
+                obj.peakList = obj.peakList(includeList,:);
             end
-            q = mafdr(p,'Method','bootstrap','Lambda',min(p):.0001:max(p),'Showplot',false);
-            includeList = q<0.01;
-            % exclude peaks 
-            obj.peakList = obj.peakList(includeList,:);
         end
         
         function DisplayPeaks(obj)
@@ -357,9 +361,14 @@ classdef PeakCalling<handle
             for dIdx = 1:size(obj.zScores,2)
                 zScore = obj.zScores(:,dIdx);
                 inds   = zScore~=eps & ~isnan(zScore);
+                
                 zScore = zScore(inds);
+                if ~isempty(zScore)
                 % run Kolmogorov smirnoff test
                 testResult(dIdx) = kstest2(zScore,backgroundSignal);
+                else
+                    testResult(dIdx) = nan;
+                end
             end
             figure, plot(testResult,'o'), title('comparison to mean');
             

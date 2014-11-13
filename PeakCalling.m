@@ -60,7 +60,7 @@ classdef PeakCalling<handle
                                                            'TolTypeX','rel',...
                                                            'RobustWgtFun','bisquare');
             obj.params.peakExludeNeighborhoodSpan = [5, 10, 15]; % the radius of the neighborhood around each peak used for the scoring of the peak 
-            obj.params.rejectionThresh      = 0.99; % set the cdf value for the background signal rejection
+            obj.params.rejectionThresh      = 0.98; % set the cdf value for the background signal rejection
             obj.params.rejectionTNew        = 0.95; % the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
         end
         
@@ -185,7 +185,7 @@ classdef PeakCalling<handle
             % return to the zScores and eliminate type I errors
             peaks = (obj.zScores)>(obj.rejectionTval);
             [obj.peakList(:,1),obj.peakList(:,2)] = find(peaks);
-            obj.peakList = sortrows(obj.peakList,1);
+%             obj.peakList = sortrows(obj.peakList,1);
         end
         
         function ExcludePeaks(obj)

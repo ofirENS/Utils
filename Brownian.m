@@ -4,6 +4,7 @@ classdef Brownian<handle
     % the std of the sampled process is then std*(1/2^(scale+1)/2)
     properties
         position
+        tcf % time correlation function of direction correlation 
         time
         params
         debug
@@ -15,6 +16,7 @@ classdef Brownian<handle
     end
     
     methods
+        
         function obj = Brownian(varargin)
             % parameters should come in a name-value pairs in varargin
             % to see the list of parameter names, see SetDefaultParams
@@ -31,6 +33,9 @@ classdef Brownian<handle
         function GetPath(obj)
             % construct the brownian motion trajectory by iterative
             % refinement
+            
+            % reset the time correlation function 
+            obj.tcf = [];
             if strcmpi(obj.params.constructionType,'Levy')
                 % the Levy process mimicks the sampling of a Brownian path
                 % on different time scales, begining with coarse scale
@@ -178,20 +183,38 @@ classdef Brownian<handle
         function TimeCorrelationFunction(obj)
             % calculate the time correlation function (TCF)
 %             as <A(0)A(t)> with <.> the average over realizations at time
-%             t
-            tcf = zeros(numel(obj.time)-1,obj.params.dimension,obj.params.realizations);
-            
+% %             t
+   % The time correlation function calculates the correlation between the
+   % increments of the Brownian particles
+
+        if isempty(obj.tcf)
+            obj.tcf = zeros(numel(obj.time)-1,obj.params.dimension,obj.params.realizations);            
             for rIdx = 1:obj.params.realizations
                 for tIdx = 2:numel(obj.time)
                     for dIdx = 1:obj.params.dimension
-                     tcf(tIdx-1,dIdx,rIdx) = obj.position(rIdx).(['dim',num2str(dIdx)])(tIdx)*obj.position(rIdx).(['dim',num2str(dIdx)])(2);
+                      a0 = obj.position(rIdx).(['dim',num2str(dIdx)])(2)-obj.position(rIdx).(['dim',num2str(dIdx)])(1);
+                      at = obj.position(rIdx).(['dim',num2str(dIdx)])(tIdx)-obj.position(rIdx).(['dim',num2str(dIdx)])(tIdx-1);
+                      obj.tcf(tIdx-1,dIdx,rIdx) = a0*at;
                     end
                 end
             end
-            tcf = mean(tcf,3);
-            figure, plot(obj.time(2:end),tcf), title('time correlation function')
-        end
-        
+        end         
+            obj.tcf = mean(obj.tcf,3);
+            f = figure('Units','norm','Name','Time Correlation Function');
+            a = axes('Parent',f,'Units','norm','NextPlot','Add','FontSize',30);
+            c ={'r','g','b'};
+            for dIdx =1:obj.params.dimension
+            line('XData',obj.time(2:end),...
+                'YData',obj.tcf(:,dIdx),...
+                'Color',c{dIdx},...
+                'Parent',a,...
+                'LineWidth',3,...
+                'DisplayName',['dim ' num2str(dIdx)])
+            end
+            title('Time correlation function')
+            xlabel(a,'Time')
+            ylabel(a,'TCF');
+        end        
     end
     
     methods (Access=private)
@@ -200,8 +223,7 @@ classdef Brownian<handle
             % Get random variables from the standard normal distribution
             % the output is a column vector
             %             Y = zeros(numPoints,obj.params.dimension);
-            Y = obj.params.noiseSTD*randn(numPoints,obj.params.dimension)+obj.params.noiseMean;
-            
+            Y = obj.params.noiseSTD*randn(numPoints,obj.params.dimension)+obj.params.noiseMean;            
         end
                         
         function SetDefaultParams(obj)

@@ -60,8 +60,8 @@ classdef PeakCalling<handle
                                                            'TolTypeX','rel',...
                                                            'RobustWgtFun','bisquare');
             obj.params.peakExludeNeighborhoodSpan = [5, 10, 15]; % the radius of the neighborhood around each peak used for the scoring of the peak 
-            obj.params.rejectionThresh      = 0.98; % set the cdf value for the background signal rejection
-            obj.params.rejectionTNew        = 0.95; % the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
+            obj.params.rejectionThresh      = 0.99; % set the cdf value for the background signal rejection
+            obj.params.rejectionTNew        = 0.98; % the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
         end
         
         function FindPeaks(obj, signals)
@@ -77,7 +77,7 @@ classdef PeakCalling<handle
             obj.ApplyFDROnPeaks
         end
         
-        function EstimateBackgroundSignal(obj)
+        function EstimateBackgroundSignal(obj)% normalize encounter signal after loess
             % calculate the mean signal
            
             if strcmpi(obj.params.fitType,'model')
@@ -87,9 +87,8 @@ classdef PeakCalling<handle
                 obj.meanSignal = (1/sum(d.^(-f.slope)))*d.^(-f.slope);
             elseif strcmpi(obj.params.fitType,'loess')     
                  m      = obj.MeanIgnoreNaN(obj.signals);
-                 obj.meanSignal = smooth(m,obj.params.smoothingSpan);
-%                 obj.meanSignal = smooth(obj.signals,obj.params.smoothingSpan);%round(numel(m)/10));
-%                 obj.meanSignal = mean(reshape(obj.meanSignal,size(obj.signals)));
+                 obj.meanSignal = smooth(m,obj.params.smoothingSpan); % need to normalize?
+                 obj.meanSignal = obj.meanSignal./sum(obj.meanSignal);
             elseif strcmpi(obj.params.fitType,'mean')             
                 obj.meanSignal = obj.MeanIgnoreNaN(obj.signals);% leave it as the mean at each distance
             end
@@ -107,7 +106,7 @@ classdef PeakCalling<handle
             
         end
         
-        function CalculateZScores(obj)
+        function CalculateZScores(obj)% first truncate, then calculate the std?
             %             For each site, calculate the z score
             obj.zScores = nan(size(obj.signals,1),size(obj.signals,2));
             s           = zeros(1,size(obj.signals,2));
@@ -143,9 +142,8 @@ classdef PeakCalling<handle
         end
         
         function CalculateZScoreDistribution(obj)
-            obj.params.stOptions.Robust = 'on';
             for dIdx = 1:size(obj.signals,2)
-                inds = ~isnan(obj.zScores(:,dIdx));%&obj.zScores(:,dIdx)>eps;
+                inds = ~isnan(obj.zScores(:,dIdx));
                 obj.signalDistribution(dIdx).dist = makedist(obj.params.signalZDistribution);
                 z       = obj.zScores(inds,dIdx);
                 if numel(z)>obj.params.minimumZSamples
@@ -154,13 +152,12 @@ classdef PeakCalling<handle
                         'Censoring',cens,...
                         'options',obj.params.stOptions);
                     % Calculate the value for above which we treat observations as
-                    % peaks (corresponding to 0.99% of each cdf)
+                    % peaks 
                     obj.signalRejectionVal(dIdx) = obj.signalDistribution(dIdx).dist.icdf(obj.params.rejectionThresh);
                 else
                     obj.signalRejectionVal(dIdx)=eps;
                 end
             end
-            obj.params.stOptions.Robust = 'on';
         end
         
         function CalculateRejectionDistribution(obj)
@@ -171,21 +168,19 @@ classdef PeakCalling<handle
             % subtract the mean values from the rejection distribution          
             tVal = tVal(tVal~=eps);
             
-            % Fit this statistic with a distributionof choice            
+            % Fit this statistic with a distribution of choice            
             obj.params.stOptions.Robust = 'on';
             obj.rejectionValDistribution = fitdist(tVal',obj.params.rejectionValDistribution,...
                 'options',obj.params.stOptions);
             
             % set the new rejection value
-            obj.rejectionTval = obj.rejectionValDistribution.icdf(obj.params.rejectionTNew);%-obj.globalMinZ.value;%...
-            %                                                                   obj.backgroundRejectionVal;%+mTval;
+            obj.rejectionTval = obj.rejectionValDistribution.icdf(obj.params.rejectionTNew);
         end
         
         function MarkPeaks(obj)
-            % return to the zScores and eliminate type I errors
+            % Return to the zScores and eliminate type I errors
             peaks = (obj.zScores)>(obj.rejectionTval);
-            [obj.peakList(:,1),obj.peakList(:,2)] = find(peaks);
-%             obj.peakList = sortrows(obj.peakList,1);
+            [obj.peakList(:,1),obj.peakList(:,2)] = find(peaks);% output in the form of (bead1, bead2)
         end
         
         function ExcludePeaks(obj)
@@ -205,10 +200,10 @@ classdef PeakCalling<handle
                     % fit a distribution to the zScores in the neighborhood of
                     % the peak
                     peakZVal = obj.zScores(obj.peakList(pIdx,1),obj.peakList(pIdx,2))+obj.globalMinZ.value;
-                    inds = setdiff(inds,peakNum);% remove the peak from the dist fitting
-                    z = obj.zScores(:,inds)+obj.globalMinZ.value;
-                    z = z(:);
-                    m = obj.MinIgnoreNaN(z);
+                    inds     = setdiff(inds,peakNum);% remove the peak from the dist fitting
+                    z        = obj.zScores(:,inds)+obj.globalMinZ.value;
+                    z        = z(:);
+                    m        = obj.MinIgnoreNaN(z);
                     if m<=0
                      z = z-m+eps;
                      peakZVal = peakZVal-m+eps;
@@ -219,7 +214,7 @@ classdef PeakCalling<handle
                     
                     pv(dIdx) = peakBgDist.cdf(peakZVal)>obj.params.rejectionThresh;
                 end
-                % decide according to the concensus 
+                % Decide according to the concensus 
                 includeList(pIdx) = sum(pv)>=numel(pv)/2;  
                 
             end

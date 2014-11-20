@@ -61,7 +61,7 @@ classdef PeakCalling<handle
                                                            'RobustWgtFun','bisquare');
             obj.params.peakExludeNeighborhoodSpan = [5, 10, 15]; % the radius of the neighborhood around each peak used for the scoring of the peak 
             obj.params.rejectionThresh      = 0.99; % set the cdf value for the background signal rejection
-            obj.params.rejectionTNew        = 0.98; % the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
+            obj.params.rejectionTNew        = 0.97; % the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
         end
         
         function FindPeaks(obj, signals)
@@ -232,10 +232,12 @@ classdef PeakCalling<handle
                     p(pIdx) = 1-obj.backgroundDistribution.cdf(obj.zScores(obj.peakList(pIdx,1), obj.peakList(pIdx,2)));
                 end
                 
-                q = mafdr(p,'Method','bootstrap','Lambda',(min(p)+eps):.0001:max(p),'Showplot',false);
-                includeList = q<0.01;
+                if numel(p)> obj.params.minimumZSamples 
+                 q = mafdr(p,'Method','bootstrap','Lambda',(min(p)+eps):.0001:max(p),'Showplot',false);
+                 includeList = q<0.01;
                 % exclude peaks
-                obj.peakList = obj.peakList(includeList,:);
+                 obj.peakList = obj.peakList(includeList,:);
+                end
             end
         end
         

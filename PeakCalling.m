@@ -7,7 +7,7 @@ classdef PeakCalling<handle
         numSignals
         
         signals
-        meanSignal
+        expectedSignal
         
         zScores
         globalMinZ
@@ -60,7 +60,7 @@ classdef PeakCalling<handle
                                                            'TolTypeX','rel',...
                                                            'RobustWgtFun','bisquare');
             obj.params.peakExludeNeighborhoodSpan = [5, 10, 15]; % the radius of the neighborhood around each peak used for the scoring of the peak 
-            obj.params.rejectionThresh      = 0.99; % set the cdf value for the background signal rejection
+            obj.params.rejectionThresh      = 0.98; % set the cdf value for the background signal rejection
             obj.params.rejectionTNew        = 0.97; % the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
         end
         
@@ -77,20 +77,24 @@ classdef PeakCalling<handle
             obj.ApplyFDROnPeaks
         end
         
-        function EstimateBackgroundSignal(obj)% normalize encounter signal after loess
-            % calculate the mean signal
-           
+        function EstimateBackgroundSignal(obj)
+            % Calculate the expected signal           
             if strcmpi(obj.params.fitType,'model')
                 m      = obj.MeanIgnoreNaN(obj.signals);
                 d      = 1:numel(m);
                 [f, ~] = fit(d',m',obj.params.fitModel, obj.params.fOptions);
-                obj.meanSignal = (1/sum(d.^(-f.slope)))*d.^(-f.slope);
+                obj.expectedSignal = (1/sum(d.^(-f.slope)))*d.^(-f.slope);
             elseif strcmpi(obj.params.fitType,'loess')     
-                 m      = obj.MeanIgnoreNaN(obj.signals);
-                 obj.meanSignal = smooth(m,obj.params.smoothingSpan); % need to normalize?
-                 obj.meanSignal = obj.meanSignal./sum(obj.meanSignal);
+                % The median is used since distances with sparse
+                % observations but high peaks are sensitive to the high
+                % peaks 
+                 m              = obj.MedianIgnoreNaN(obj.signals); 
+                 obj.expectedSignal = smooth(m,obj.params.smoothingSpan); % smooth the median signal
+                 obj.expectedSignal = obj.expectedSignal./sum(obj.expectedSignal);
             elseif strcmpi(obj.params.fitType,'mean')             
-                obj.meanSignal = obj.MeanIgnoreNaN(obj.signals);% leave it as the mean at each distance
+                obj.expectedSignal = obj.MeanIgnoreNaN(obj.signals);% leave it as the mean at each distance
+            elseif strcmpi(obj.params.fitType,'median')
+                obj.expectedSignal = obj.MedianIgnoreNaN(obj.signals);% leave it as the median at each distance
             end
         end
         
@@ -114,12 +118,12 @@ classdef PeakCalling<handle
                 inds = ~isnan(obj.signals(:,dIdx));
                 if sum(double(inds))>obj.params.minimumZSamples
                 if strcmpi(obj.params.peaksDirection,'twoSides')
-                    z = (abs(obj.signals(inds,dIdx)-obj.meanSignal(dIdx)));
+                    z = (abs(obj.signals(inds,dIdx)-obj.expectedSignal(dIdx)));
                 elseif strcmpi(obj.params.peaksDirection,'high')
-                    z = (obj.signals(inds,dIdx)-obj.meanSignal(dIdx));
+                    z = (obj.signals(inds,dIdx)-obj.expectedSignal(dIdx));
                 elseif strcmpi(obj.params.peaksDirection,'low')
                     warning('peaksDirection=low is unsupported yet, changing to twoSides')
-                    z = (abs(obj.signals(inds,dIdx)-obj.meanSignal(dIdx)));
+                    z = (abs(obj.signals(inds,dIdx)-obj.expectedSignal(dIdx)));
                 end
                 
                 obj.zScores(inds,dIdx) = z;
@@ -257,7 +261,7 @@ classdef PeakCalling<handle
         
         function DisplaySignalDistributions(obj,distType)
             if ~exist('distType','var')
-                distType = 'cdf';
+                distType = 'cdf';% dist can be cdf of pdf
             end
             
             f = figure;
@@ -388,22 +392,32 @@ classdef PeakCalling<handle
                 m(mIdx) = mean(signalIn(inds,mIdx));
             end
         end
+
+        function m = MedianIgnoreNaN(signalIn)
+            % calculate the median of a matrix ignoring nan values,
+            % the mean gives the mean of each column
+            m = zeros(1,size(signalIn,2));
+            for mIdx = 1:size(signalIn,2)
+                inds = ~isnan(signalIn(:,mIdx));
+                m(mIdx) = median(signalIn(inds,mIdx));
+            end
+        end
         
-        function [m,ind] = MinIgnoreNaN(signalIn)
+        function [m,ind]   = MinIgnoreNaN(signalIn)
             % find the minimum of a signal ignoring NaN values
             inds = isnan(signalIn);
             signalIn(inds) = inf;
             [m,ind] = min(signalIn);
         end
         
-        function [m,ind] = MaxIgnoreNaN(signalIn)
+        function [m,ind]   = MaxIgnoreNaN(signalIn)
             % find the minimum of a signal ignoring NaN values
             inds = isnan(signalIn);
             signalIn(inds) = -inf;
             [m,ind] = max(signalIn);
         end
         
-        function signalOut   = MakePositive(signalIn)
+        function signalOut = MakePositive(signalIn)
             % Make the signals positive 
             signalOut = signalIn;
             m         = min(signalOut(:));

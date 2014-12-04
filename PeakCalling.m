@@ -32,10 +32,12 @@ classdef PeakCalling<handle
         end
         
         function SetDefaultParams(obj)
-            obj.params.peaksDirection       = 'high';  % find peaks in high/low/twoSides
-            obj.params.smoothingSpan        = 10;       % smoothing span for the loess smoothing
-            obj.params.fitType              = 'loess'; % options [model/loess/mean]
-            obj.params.minimumZSamples      = 10;  % minimum number of z values required to fit a distribution
+            obj.params.peaksDirection              = 'high';  % find peaks in high/low/twoSides
+            obj.params.smoothingSpan               = 10;      % smoothing span for the loess smoothing
+            obj.params.fitType                     = 'loess'; % options [model/loess/mean]
+            obj.params.minimumZSamples             = 10;      % minimum number of z values required to fit a distribution
+            obj.params.pValueThresholdMethod       = 'fdr';   % how to set the new threshold for the zScores [fdr/pDistribution]
+            obj.params.checkPeakForLocalMaximality = true; % check if the peak is also locally a peak
             % fOptions applies only for fitType=model
             obj.params.fitModel             = fittype(@(slope,x)(1./(sum(x.^(-slope)))).*x.^(-slope));% in case of fitType='model'
             obj.params.fOptions             = fitoptions(obj.params.fitModel);
@@ -59,22 +61,23 @@ classdef PeakCalling<handle
                                                            'TolTypeFun','rel',...
                                                            'TolTypeX','rel',...
                                                            'RobustWgtFun','bisquare');
-            obj.params.peakExludeNeighborhoodSpan = [5, 10, 15]; % the radius of the neighborhood around each peak used for the scoring of the peak 
+            obj.params.peakExludeNeighborhoodSpan = [5, 10, 15]; % the radius of the neighborhood around each peak used for the scoring of the peak. only applicable if checkPeakForLocalMaximality=true
             obj.params.rejectionThresh      = 0.98; % set the cdf value for the background signal rejection
-            obj.params.rejectionTNew        = 0.97; % the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
+            obj.params.rejectionTNew        = 0.99; % the rejection region of the distribution of (rejections values - background rejection)/std(rejection)
         end
         
         function FindPeaks(obj, signals)
             obj.numSignals = size(signals,2);
-            obj.signals    = obj.MakePositive(signals);            
+%             obj.signals    = obj.MakePositive(signals);            
+            obj.signals = signals;
             obj.EstimateBackgroundSignal;
             obj.CalculateZScores
             obj.CalculateBackgroundDistribution;
             obj.CalculateZScoreDistribution
             obj.CalculateRejectionDistribution
             obj.MarkPeaks
-            obj.ExcludePeaks
-            obj.ApplyFDROnPeaks
+            obj.ExcludePeaksByLocalMaximality
+%             obj.ApplyFDROnPeaks
         end
         
         function EstimateBackgroundSignal(obj)
@@ -88,7 +91,7 @@ classdef PeakCalling<handle
                 % The median is used since distances with sparse
                 % observations but high peaks are sensitive to the high
                 % peaks 
-                 m              = obj.MedianIgnoreNaN(obj.signals); 
+                 m              = obj.MeanIgnoreNaN(obj.signals); 
                  obj.expectedSignal = smooth(m,obj.params.smoothingSpan); % smooth the median signal
                  obj.expectedSignal = obj.expectedSignal./sum(obj.expectedSignal);
             elseif strcmpi(obj.params.fitType,'mean')             
@@ -146,6 +149,7 @@ classdef PeakCalling<handle
         end
         
         function CalculateZScoreDistribution(obj)
+            % Calculate the zScores for the signals
             for dIdx = 1:size(obj.signals,2)
                 inds = ~isnan(obj.zScores(:,dIdx));
                 obj.signalDistribution(dIdx).dist = makedist(obj.params.signalZDistribution);
@@ -167,18 +171,34 @@ classdef PeakCalling<handle
         function CalculateRejectionDistribution(obj)
             % Calculate the distribution of the difference between rejection
             % region of signals and rejection region of background
+            % the rejection val for the peaks is determined wither by the
+            % outliers of the threshold value distribution or by using fdr
             
-            tVal = obj.signalRejectionVal;
-            % subtract the mean values from the rejection distribution          
-            tVal = tVal(tVal~=eps);
-            
-            % Fit this statistic with a distribution of choice            
-            obj.params.stOptions.Robust = 'on';
-            obj.rejectionValDistribution = fitdist(tVal',obj.params.rejectionValDistribution,...
-                'options',obj.params.stOptions);
-            
-            % set the new rejection value
-            obj.rejectionTval = obj.rejectionValDistribution.icdf(obj.params.rejectionTNew);
+            if strcmpi(obj.params.pValueThresholdMethod,'pDistribution')
+                tVal = obj.signalRejectionVal;
+                % subtract the mean values from the rejection distribution
+                tVal = tVal(tVal~=eps);
+                
+                % Fit this statistic with a distribution of choice
+                obj.params.stOptions.Robust = 'on';
+                obj.rejectionValDistribution = fitdist(tVal',obj.params.rejectionValDistribution,...
+                    'options',obj.params.stOptions);
+                
+                % set the new rejection value
+                obj.rejectionTval = obj.rejectionValDistribution.icdf(obj.params.rejectionTNew);
+            elseif strcmpi(obj.params.pValueThresholdMethod,'fdr')
+                r = zeros(1,numel(obj.signalDistribution));
+                for dIdx = 1:numel(obj.signalDistribution)
+                    r(dIdx) = obj.signalDistribution(dIdx).dist.cdf(obj.backgroundDistribution.cdf(obj.backgroundRejectionVal));
+                end
+                % apply fdr on the pValues
+                q = mafdr(r,'Method','bootstrap','Lambda',(min(r)+eps):.0001:max(r),'Showplot',false);
+                % take the minimal value
+                obj.rejectionTval = obj.backgroundDistribution.icdf(min(1-q(q<(1-obj.params.rejectionTNew))));
+                if isempty(obj.rejectionTval)
+                    obj.rejectionTval = obj.backgroundDistribution.icdf(1);                    
+                end
+            end                        
         end
         
         function MarkPeaks(obj)
@@ -187,8 +207,9 @@ classdef PeakCalling<handle
             [obj.peakList(:,1),obj.peakList(:,2)] = find(peaks);% output in the form of (bead1, bead2)
         end
         
-        function ExcludePeaks(obj)
+        function ExcludePeaksByLocalMaximality(obj)
             % Check for peaks local neighborhood and exclude peaks 
+            if obj.params.checkPeakForLocalMaximality
             includeList = false(size(obj.peakList,1),1);
             for pIdx = 1:size(obj.peakList,1)
                 % Examine the local behavior of peaks around the reported
@@ -224,10 +245,10 @@ classdef PeakCalling<handle
             end
             % filter the peaks             
             obj.peakList = obj.peakList(includeList,:);
-                      
+            end          
         end
         
-        function ApplyFDROnPeaks(obj)
+        function ApplyFDROnPeaks(obj)%obsolete
             % Apply FDR on peaks' pvvalues according to background
             % distribution 
             if ~isempty(obj.peakList) && size(obj.peakList,1)>=2
@@ -417,13 +438,13 @@ classdef PeakCalling<handle
             [m,ind] = max(signalIn);
         end
         
-        function signalOut = MakePositive(signalIn)
+        function signalOut = MakePositive(signalIn)% obsolete
             % Make the signals positive 
             signalOut = signalIn;
-            m         = min(signalOut(:));
-            if m<=0
-                signalOut = signalOut-m+eps;
-            end            
+%             m         = min(signalOut(:));
+%             if m<=0
+%                 signalOut = signalOut-m+eps;
+%             end            
         end
     end
 end

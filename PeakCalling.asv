@@ -59,9 +59,7 @@ classdef PeakCalling<handle
             % # *checkPeaksForLocalMaximality* check if the found peaks are also 
             % peaks in their local environment. The environment size is
             % determind by *peakExludeNeighborhoodSpan*
-            % # *fitModel* the background signal model to fit
-            % $\frac{d^{-\beta}}{\sum_{i=1}^N d^{-\beta}}$ in case
-            % *fitType*=model 
+            % *fitModel*
             obj.params.peaksDirection              = 'high';  % find peaks in high/low/twoSides
             obj.params.smoothingSpan               = 10;      % smoothing span for the loess smoothing
             obj.params.fitType                     = 'loess'; % options [model/loess/mean]

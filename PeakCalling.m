@@ -192,7 +192,7 @@ classdef PeakCalling<handle
                     r(dIdx) = obj.signalDistribution(dIdx).dist.cdf(obj.backgroundDistribution.cdf(obj.backgroundRejectionVal));
                 end
                 % apply fdr on the pValues
-                q = mafdr(r,'Method','bootstrap','Lambda',(min(r)+eps):.0001:max(r),'Showplot',false);
+                q = mafdr(r,'Method','bootstrap','Lambda',(min(r)+eps):.0001:max(r),'Showplot',true);
                 % take the minimal value
                 obj.rejectionTval = obj.backgroundDistribution.icdf(min(1-q(q<(1-obj.params.rejectionTNew))));
                 if isempty(obj.rejectionTval)

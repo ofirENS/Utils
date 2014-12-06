@@ -105,7 +105,7 @@ classdef PeakCalling<handle
             obj.CalculateBackgroundDistribution;
             obj.CalculateZScoreDistribution
             obj.CalculateRejectionDistribution
-            obj.MarkPeaks
+%             obj.MarkPeaks
             obj.ExcludePeaksByLocalMaximality
 %             obj.ApplyFDROnPeaks
         end
@@ -139,8 +139,7 @@ classdef PeakCalling<handle
             inds = ~isnan(z);
             obj.backgroundDistribution = fitdist(z(inds),obj.params.backgroundZDistribution,...
                 'Censoring',z(inds)==eps,'options',obj.params.stOptions);
-            obj.backgroundRejectionVal = obj.backgroundDistribution.icdf(obj.params.rejectionThresh);
-            
+            obj.backgroundRejectionVal = obj.backgroundDistribution.icdf(obj.params.rejectionThresh);            
         end
         
         function CalculateZScores(obj)% first truncate, then calculate the std?
@@ -217,17 +216,26 @@ classdef PeakCalling<handle
                 % set the new rejection value
                 obj.rejectionTval = obj.rejectionValDistribution.icdf(obj.params.rejectionTNew);
             elseif strcmpi(obj.params.pValueThresholdMethod,'fdr')
-                r = zeros(1,numel(obj.signalDistribution));
-                for dIdx = 1:numel(obj.signalDistribution)
-                    r(dIdx) = obj.signalDistribution(dIdx).dist.cdf(obj.backgroundDistribution.cdf(obj.backgroundRejectionVal));
+                obj.peakList= [];
+                for dIdx = 1:numel(obj.signals(:,1))
+                    pVals        = 1-obj.backgroundDistribution.cdf(obj.zScores(:,dIdx));
+                    qVals        = mafdr(pVals,'Method','bootstrap','Lambda',min(pVals)+eps:0.001:max(pVals),'Showplot',true);
+                    peaksInds    = find(qVals<(0.01));
+                    peakInds     = [dIdx*ones(numel(peaksInds),1), peaksInds];
+                    obj.peakList = [obj.peakList; peakInds];                    
                 end
-                % apply fdr on the pValues
-                q = mafdr(r,'Method','bootstrap','Lambda',(min(r)+eps):.0001:max(r),'Showplot',true);
-                % take the minimal value
-                obj.rejectionTval = obj.backgroundDistribution.icdf(min(1-q(q<(1-obj.params.rejectionTNew))));
-                if isempty(obj.rejectionTval)
-                    obj.rejectionTval = obj.backgroundDistribution.icdf(1);                    
-                end
+                
+%                 r = zeros(1,numel(obj.signalDistribution));
+%                 for dIdx = 1:numel(obj.signalDistribution)
+%                     r(dIdx) = obj.signalDistribution(dIdx).dist.cdf(obj.backgroundDistribution.cdf(obj.backgroundRejectionVal));
+%                 end
+%                 % apply fdr on the pValues
+%                 q = mafdr(r,'Method','bootstrap','Lambda',(min(r)+eps):.0001:max(r),'Showplot',true);
+%                 % take the minimal value
+%                 obj.rejectionTval = obj.backgroundDistribution.icdf(min(1-q(q<(1-obj.params.rejectionTNew))));
+%                 if isempty(obj.rejectionTval)
+%                     obj.rejectionTval = obj.backgroundDistribution.icdf(1);                    
+%                 end
             end                        
         end
         

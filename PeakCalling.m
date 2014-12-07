@@ -105,7 +105,7 @@ classdef PeakCalling<handle
             obj.CalculateBackgroundDistribution;
             obj.CalculateZScoreDistribution
             obj.CalculateRejectionDistribution
-%             obj.MarkPeaks
+            obj.MarkPeaks
             obj.ExcludePeaksByLocalMaximality
 %             obj.ApplyFDROnPeaks
         end
@@ -152,29 +152,31 @@ classdef PeakCalling<handle
                 if strcmpi(obj.params.peaksDirection,'twoSides')
                     z = (abs(obj.signals(inds,dIdx)-obj.expectedSignal(dIdx)));
                 elseif strcmpi(obj.params.peaksDirection,'high')
-                    z = (obj.signals(inds,dIdx)-obj.expectedSignal(dIdx));
+                    z = (obj.signals(inds,dIdx)-obj.expectedSignal(dIdx)).^2;
                 elseif strcmpi(obj.params.peaksDirection,'low')
                     warning('peaksDirection=low is unsupported yet, changing to twoSides')
                     z = (abs(obj.signals(inds,dIdx)-obj.expectedSignal(dIdx)));
                 end
                 
                 obj.zScores(inds,dIdx) = z;
+                obj.zScores(obj.zScores(:,dIdx)<=0,dIdx) = nan;
+                
                 % calculate the standard error
-                s(dIdx)             = std(obj.signals(inds,dIdx));%/sqrt(sum(double(inds)));
+                s(dIdx)             = obj.StdIgnoreNaN(obj.signals(inds,dIdx));%/sqrt(sum(double(inds)));
                 if s(dIdx)~=0
                     obj.zScores(inds,dIdx) = obj.zScores(inds,dIdx)./s(dIdx);
                 end
-                obj.zScores(obj.zScores(:,dIdx)<=0,dIdx)=nan;
+%                     obj.zScores(obj.zScores(:,dIdx)<=0,dIdx)=nan;
                 else
                     % keep it nan
                 end
             end
             
-            [obj.globalMinZ.value, obj.globalMinZ.signal] = obj.MinIgnoreNaN(obj.zScores(:));
-            [obj.globalMinZ.signal, ~] = ind2sub(size(obj.signals),obj.globalMinZ.signal);
-            if obj.globalMinZ.value<0
-                obj.zScores = obj.zScores-obj.globalMinZ.value+eps;
-            end
+%             [obj.globalMinZ.value, obj.globalMinZ.signal] = obj.MinIgnoreNaN(obj.zScores(:));
+%             [obj.globalMinZ.signal, ~] = ind2sub(size(obj.signals),obj.globalMinZ.signal);
+%             if obj.globalMinZ.value<0
+%                 obj.zScores = obj.zScores-obj.globalMinZ.value+eps;
+%             end
         end
         
         function CalculateZScoreDistribution(obj)
@@ -217,25 +219,26 @@ classdef PeakCalling<handle
                 obj.rejectionTval = obj.rejectionValDistribution.icdf(obj.params.rejectionTNew);
             elseif strcmpi(obj.params.pValueThresholdMethod,'fdr')
                 obj.peakList= [];
-                for dIdx = 1:numel(obj.signals(:,1))
-                    pVals        = 1-obj.backgroundDistribution.cdf(obj.zScores(:,dIdx));
-                    qVals        = mafdr(pVals,'Method','bootstrap','Lambda',min(pVals)+eps:0.001:max(pVals),'Showplot',true);
-                    peaksInds    = find(qVals<(0.01));
-                    peakInds     = [dIdx*ones(numel(peaksInds),1), peaksInds];
-                    obj.peakList = [obj.peakList; peakInds];                    
-                end
+%                 for dIdx = 1:numel(obj.signals(:,1))
+%                     pVals        = 1-obj.signalDistribution(dIdx).dist.cdf(obj.zScores(:,dIdx));
+% %                     inds         = ~isnan(pVals);                    
+%                     qVals        = mafdr(pVals(),'Method','bootstrap');%,'Lambda',min(pVals)+eps:0.001:max(pVals),'Showplot',false);                    
+%                     peaksInds    = find(qVals<(1-obj.params.rejectionTNew));
+%                     peakInds     = [dIdx*ones(numel(peaksInds),1), peaksInds];
+%                     obj.peakList = [obj.peakList; peakInds];                    
+%                 end
                 
-%                 r = zeros(1,numel(obj.signalDistribution));
-%                 for dIdx = 1:numel(obj.signalDistribution)
-%                     r(dIdx) = obj.signalDistribution(dIdx).dist.cdf(obj.backgroundDistribution.cdf(obj.backgroundRejectionVal));
-%                 end
-%                 % apply fdr on the pValues
-%                 q = mafdr(r,'Method','bootstrap','Lambda',(min(r)+eps):.0001:max(r),'Showplot',true);
-%                 % take the minimal value
-%                 obj.rejectionTval = obj.backgroundDistribution.icdf(min(1-q(q<(1-obj.params.rejectionTNew))));
-%                 if isempty(obj.rejectionTval)
-%                     obj.rejectionTval = obj.backgroundDistribution.icdf(1);                    
-%                 end
+                r = zeros(1,numel(obj.signalDistribution));
+                for dIdx = 1:numel(obj.signalDistribution)
+                    r(dIdx) = 1-obj.signalDistribution(dIdx).dist.cdf(obj.backgroundDistribution.cdf(obj.backgroundRejectionVal));
+                end
+                % apply fdr on the pValues
+                q = mafdr(r,'Method','bootstrap','Lambda',(min(r)+eps):.0001:max(r),'Showplot',false);
+                % take the minimal value
+                obj.rejectionTval = obj.backgroundDistribution.icdf(min(1-q(q<(1-obj.params.rejectionTNew))));
+                if isempty(obj.rejectionTval)
+                    obj.rejectionTval = obj.backgroundDistribution.icdf(1);                    
+                end
             end                        
         end
         
@@ -306,16 +309,40 @@ classdef PeakCalling<handle
         
         function DisplayPeaks(obj)
             peakMat = zeros(size(obj.signals,1), size(obj.signals,2));
-            figure, surf(obj.signals),colormap summer, hold on
+            f= figure;
+            a= axes('Parent',f,'NextPlot','Add','FontSize',40);
+            e = obj.signals;
+%             e = e./max(e(:));                                  
+            s = surface(e,'EdgeColor','none',...
+                               'FaceLighting','phong',...
+                               'FaceColor','interp');
+                 % add light 
+            l = light('Parent',a,...
+                      'Position',[-0.1 0.5 1],...
+                      'HandleVisibility','off');
+            camlight headlight
+%                   plot3(a,obj.peaks.(fNames{fIdx})(:,1),obj.peaks.(fNames{fIdx})(:,2),...
+%                         e(obj.peaks.(fNames{fIdx})(:,1),...
+%                           obj.peaks.(fNames{fIdx})(:,2)),'or','MarkerSize',8)
+
+%                      title(a,fNames{fIdx});
+                     xlabel(a,'Distance');
+                     ylabel(a,'Bead');
+                     zlabel(a,'Prob.')
+                     colormap summer
+            
+            axis tight
+            plot3(obj.peakList(:,2),obj.peakList(:,1),obj.signals(obj.peakList(:,1), obj.peakList(:,2)),'MarkerSize',10,'Marker','o','Color','r','LineStyle','none');
+%             surf(obj.signals),colormap summer, hold on
             for pIdx = 1:size(obj.peakList,1)
                 % places the zScore value
                 peakMat(obj.peakList(pIdx,1),obj.peakList(pIdx,2))=...
                     obj.zScores(obj.peakList(pIdx,1),obj.peakList(pIdx,2))./mean(obj.zScores(obj.peakList(pIdx,1),:));
                 %                     obj.signalDistribution(obj.peakList(pIdx,1)).dist.cdf(obj.zScores(obj.peakList(pIdx,1), obj.peakList(pIdx,2)));
-                plot3(obj.peakList(pIdx,2), obj.peakList(pIdx,1),obj.signals(obj.peakList(pIdx,1), obj.peakList(pIdx,2)),...
-                    'or','MarkerSize',10,'LineWidth',2)
+%                 plot3(obj.peakList(pIdx,2), obj.peakList(pIdx,1),obj.signals(obj.peakList(pIdx,1), obj.peakList(pIdx,2)),...
+%                     'or','MarkerSize',10,'LineWidth',2)
             end
-            figure, surf(peakMat)
+%             figure, surf(peakMat)
         end
         
         function DisplaySignalDistributions(obj,distType)
@@ -442,6 +469,13 @@ classdef PeakCalling<handle
     end
     
     methods (Static)
+        
+        
+        function s = StdIgnoreNaN(signalIn)
+            % calculate the std of a signal ignoring NaN values 
+            s = std(signalIn(~isnan(signalIn)));        
+        end
+        
         function m = MeanIgnoreNaN(signalIn)
             % calculate the mean of a matrix ignoring nan values,
             % the mean gives the mean of each column
@@ -479,10 +513,10 @@ classdef PeakCalling<handle
         function signalOut = MakePositive(signalIn)% obsolete
             % Make the signals positive 
             signalOut = signalIn;
-%             m         = min(signalOut(:));
-%             if m<=0
-%                 signalOut = signalOut-m+eps;
-%             end            
+            m         = min(signalOut(:));
+            if m<=0
+                signalOut = signalOut-m+eps;
+            end            
         end
     end
 end

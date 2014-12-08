@@ -172,11 +172,11 @@ classdef PeakCalling<handle
                 end
             end
             
-%             [obj.globalMinZ.value, obj.globalMinZ.signal] = obj.MinIgnoreNaN(obj.zScores(:));
-%             [obj.globalMinZ.signal, ~] = ind2sub(size(obj.signals),obj.globalMinZ.signal);
-%             if obj.globalMinZ.value<0
-%                 obj.zScores = obj.zScores-obj.globalMinZ.value+eps;
-%             end
+            [obj.globalMinZ.value, obj.globalMinZ.signal] = obj.MinIgnoreNaN(obj.zScores(:));
+            [obj.globalMinZ.signal, ~] = ind2sub(size(obj.signals),obj.globalMinZ.signal);
+            if obj.globalMinZ.value<0
+                obj.zScores = obj.zScores-obj.globalMinZ.value+eps;
+            end
         end
         
         function CalculateZScoreDistribution(obj)
@@ -332,7 +332,15 @@ classdef PeakCalling<handle
                      colormap summer
             
             axis tight
-            plot3(obj.peakList(:,2),obj.peakList(:,1),obj.signals(obj.peakList(:,1), obj.peakList(:,2)),'MarkerSize',10,'Marker','o','Color','r','LineStyle','none');
+            si= sub2ind(size(obj.signals),obj.peakList(:,1), obj.peakList(:,2));
+            line('XData',obj.peakList(:,2),...
+                'YData',obj.peakList(:,1),...
+                'ZData',obj.signals(si),...
+                'MarkerSize',10,...
+                'Marker','o',...
+                'Color','r',...
+                'LineStyle','none',...
+                'Parent',a);
 %             surf(obj.signals),colormap summer, hold on
             for pIdx = 1:size(obj.peakList,1)
                 % places the zScore value

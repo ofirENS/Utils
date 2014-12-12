@@ -122,7 +122,7 @@ classdef PeakCalling<handle
                 % The median is used since distances with sparse
                 % observations but high peaks are sensitive to the high
                 % peaks 
-                 m              = obj.MeanIgnoreNaN(obj.signals); 
+                 m                  = obj.MeanIgnoreNaN(obj.signals); 
                  obj.expectedSignal = smooth(m,obj.params.smoothingSpan); % smooth the median signal
                  obj.expectedSignal = obj.expectedSignal./sum(obj.expectedSignal);
             elseif strcmpi(obj.params.fitType,'mean')             
@@ -186,12 +186,14 @@ classdef PeakCalling<handle
             for dIdx = 1:size(obj.signals,2)
                 inds = ~isnan(obj.zScores(:,dIdx));
                 obj.signalDistribution(dIdx).dist = makedist(obj.params.signalZDistribution);
-                z       = obj.zScores(inds,dIdx);
+                z  = obj.zScores(inds,dIdx);
+                z  = z(z~=eps);
                 if numel(z)>obj.params.minimumZSamples
-                    cens = z==eps;
+%                     cens = z==eps;
                     obj.signalDistribution(dIdx).dist = fitdist(z,obj.params.signalZDistribution,...
-                        'Censoring',cens,...
                         'options',obj.params.stOptions);
+%                         'Censoring',cens,...
+                        
                     % Calculate the value for above which we treat observations as
                     % peaks 
                     obj.signalRejectionVal(dIdx) = obj.signalDistribution(dIdx).dist.icdf(obj.params.rejectionThresh);

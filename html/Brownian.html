@@ -1,0 +1,613 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Brownian</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-12-16"><meta name="DC.source" content="Brownian.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Description</a></li></ul></div><pre class="codeinput"><span class="keyword">classdef</span> Brownian&lt;handle
+</pre><h2>Description<a name="2"></a></h2><p>Get a sample of a realization of a Brownian path by either the Levy construction or the __ construction the std of the sampled process is then std*(1/2^(scale+1)/2)</p><pre class="codeinput">    properties
+        position
+        tcf <span class="comment">% time correlation function of direction correlation</span>
+        time
+        params
+        debug
+        handles
+    <span class="keyword">end</span>
+
+    properties (Access=private)
+        eq
+    <span class="keyword">end</span>
+
+    methods
+
+        <span class="keyword">function</span> obj = Brownian(varargin)
+            <span class="comment">% parameters should come in a name-value pairs in varargin</span>
+            <span class="comment">% to see the list of parameter names, see SetDefaultParams</span>
+            <span class="comment">% function</span>
+
+            obj.SetDefaultParams
+
+            obj.SetInputParams(varargin)
+
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> GetPath(obj)
+            <span class="comment">% construct the brownian motion trajectory by iterative</span>
+            <span class="comment">% refinement</span>
+
+            <span class="comment">% reset the time correlation function</span>
+            obj.tcf = [];
+            <span class="keyword">if</span> strcmpi(obj.params.constructionType,<span class="string">'Levy'</span>)
+                <span class="comment">% the Levy process mimicks the sampling of a Brownian path</span>
+                <span class="comment">% on different time scales, begining with coarse scale</span>
+                <span class="comment">% through consecutive refinements.</span>
+                <span class="keyword">for</span> rIdx = 1:obj.params.realizations
+
+                    Y      = obj.GetNoise(2);
+                    T      = obj.GetBinaryPartition(1);
+
+                    <span class="comment">% Initial point</span>
+                    <span class="keyword">for</span> dIdx = 1:obj.params.dimension
+                        dimName = sprintf(<span class="string">'%s%s'</span>,<span class="string">'dim'</span>,num2str(dIdx));
+                        prevPosition.(dimName) = T.*Y(:,dIdx)';
+                    <span class="keyword">end</span>
+
+                    <span class="keyword">for</span> nIdx = 2:obj.params.scale
+                        T                 = obj.GetBinaryPartition(nIdx);
+                        oldPoints         = 1:2:numel(T);
+                        newPoints         = 2:2:numel(T);
+
+                        Y            = obj.GetNoise(numel(newPoints));
+                        <span class="keyword">for</span> dIdx = 1:obj.params.dimension
+                            dimName = sprintf(<span class="string">'%s%s'</span>,<span class="string">'dim'</span>,num2str(dIdx));
+
+                            newPosition.(dimName)(oldPoints) = prevPosition.(dimName);
+                            pairSum = obj.PairSum(prevPosition.(dimName));
+
+                            <span class="comment">% linear interpolation between old points</span>
+                            newPosition.(dimName)(newPoints) = 0.5*(pairSum)+<span class="keyword">...</span>
+                                (1/(2^((nIdx+1)/2)))*Y(:,dIdx)';
+                            <span class="comment">% the expected STD is (1/(2^((nIdx+1)/2)))</span>
+                            obj.position(rIdx).(dimName) = newPosition.(dimName);
+                        <span class="keyword">end</span>
+
+                        prevPosition = newPosition;
+                        obj.time = T;
+                    <span class="keyword">end</span>
+                    newPosition = [];
+<span class="comment">%                     oldPosition = [];</span>
+                <span class="keyword">end</span>
+            <span class="keyword">elseif</span> strcmpi(obj.params.constructionType,<span class="string">'normal'</span>)
+                obj.time = obj.GetBinaryPartition(obj.params.scale);
+                obj.params.noiseSTD = obj.time(2)-obj.time(1);
+                <span class="keyword">for</span> rIdx = 1:obj.params.realizations
+                    y = obj.GetNoise(numel(obj.time)-1);
+                    c = cumsum(y);
+                    <span class="keyword">for</span> dIdx = 1:obj.params.dimension
+                     obj.position(rIdx).([<span class="string">'dim'</span>, num2str(dIdx)]) = [0;c(:,dIdx)];
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> PlotPath(obj)
+            <span class="comment">% Plot the trajectories</span>
+            <span class="comment">% construct axes</span>
+            f = figure(<span class="string">'Units'</span>,<span class="string">'norm'</span>);
+            a = axes(<span class="string">'Units'</span>,<span class="string">'normalized'</span>,<span class="keyword">...</span>
+                    <span class="string">'Tag'</span>,<span class="string">'mainAxes'</span>,<span class="keyword">...</span>
+                    <span class="string">'NextPlot'</span>,<span class="string">'Add'</span>,<span class="keyword">...</span>
+                    <span class="string">'Parent'</span>,f,<span class="keyword">...</span>
+                    <span class="string">'Box'</span>,<span class="string">'on'</span>);
+            obj.handles.graphical.mainAxes = a;
+            <span class="keyword">if</span> obj.params.dimension &lt;4
+                <span class="keyword">for</span> rIdx = 1:obj.params.realizations
+                    <span class="keyword">if</span> obj.params.dimension ==1
+                        plot(a,obj.time,obj.position(rIdx).dim1,<span class="string">'.-'</span>);
+                        xlabel(<span class="string">'Time'</span>), ylabel(<span class="string">'Position'</span>)
+                    <span class="keyword">elseif</span> obj.params.dimension ==2
+                        c = rand(1,3);
+                        line(<span class="string">'XData'</span>,obj.position(rIdx).dim1,<span class="keyword">...</span>
+                             <span class="string">'YData'</span>,obj.position(rIdx).dim2,<span class="keyword">...</span>
+                             <span class="string">'Parent'</span>,a,<span class="keyword">...</span>
+                             <span class="string">'Color'</span>,c,<span class="keyword">...</span>
+                             <span class="string">'DisplayName'</span>,[<span class="string">'path '</span> num2str(tIdx)]);
+
+                         <span class="comment">% add start and end point</span>
+                          line(<span class="string">'XData'</span>,obj.position(rIdx).dim1([1,end]),<span class="keyword">...</span>
+                             <span class="string">'YData'</span>,obj.position(rIdx).dim2([1 end]),<span class="keyword">...</span>
+                             <span class="string">'Parent'</span>,a,<span class="keyword">...</span>
+                             <span class="string">'HandleVisibility'</span>,<span class="string">'off'</span>,<span class="keyword">...</span>
+                             <span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="keyword">...</span>
+                             <span class="string">'LineStyle'</span>,<span class="string">'none'</span>,<span class="keyword">...</span>
+                             <span class="string">'MarkerSize'</span>,4,<span class="keyword">...</span>
+                             <span class="string">'MarkerFaceColor'</span>,c);
+
+                        xlabel(a,<span class="string">'X'</span>),ylabel(a,<span class="string">'Y'</span>)
+                    <span class="keyword">elseif</span> obj.params.dimension ==3
+                        c = rand(1,3);
+                        line(<span class="string">'XData'</span>,obj.position(rIdx).dim1,<span class="keyword">...</span>
+                             <span class="string">'YData'</span>,obj.position(rIdx).dim2,<span class="keyword">...</span>
+                             <span class="string">'ZData'</span>,obj.position(rIdx).dim3,<span class="keyword">...</span>
+                             <span class="string">'Parent'</span>,a,<span class="keyword">...</span>
+                             <span class="string">'DisplayName'</span>, [<span class="string">'path '</span> num2str(rIdx)],<span class="keyword">...</span>
+                             <span class="string">'Color'</span>,c);
+                         <span class="comment">% add start and end point</span>
+                          line(<span class="string">'XData'</span>,obj.position(rIdx).dim1([1,end]),<span class="keyword">...</span>
+                             <span class="string">'YData'</span>,obj.position(rIdx).dim2([1 end]),<span class="keyword">...</span>
+                             <span class="string">'ZData'</span>,obj.position(rIdx).dim3([1 end]),<span class="keyword">...</span>
+                             <span class="string">'Parent'</span>,a,<span class="keyword">...</span>
+                             <span class="string">'HandleVisibility'</span>,<span class="string">'off'</span>,<span class="keyword">...</span>
+                             <span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="keyword">...</span>
+                             <span class="string">'LineStyle'</span>,<span class="string">'none'</span>,<span class="keyword">...</span>
+                             <span class="string">'MarkerSize'</span>,4,<span class="keyword">...</span>
+                             <span class="string">'MarkerFaceColor'</span>,c);
+
+                        xlabel(a,<span class="string">'X'</span>),ylabel(a,<span class="string">'Y'</span>), zlabel(a,<span class="string">'Z'</span>)
+                        cameratoolbar
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+                daspect([1 1 1]);
+            <span class="keyword">end</span>
+            drawnow
+
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> Debug(obj)<span class="comment">% should not be used for now</span>
+            <span class="comment">% get point distance statistics</span>
+            <span class="keyword">if</span> obj.params.debugMode
+                <span class="comment">% Construct axes</span>
+                f = figure(<span class="string">'Units'</span>,<span class="string">'normalized'</span>, <span class="string">'Tag'</span>,<span class="string">'debugFigure'</span>);
+                figure(f)
+                obj.handles.graphical.debugFigure = f;
+                d = zeros(numel(obj.position.dim1)-1,obj.params.dimension);
+
+                <span class="keyword">for</span> dIdx = 1:obj.params.dimension
+                    dimName                      = sprintf(<span class="string">'%s%s'</span>,<span class="string">'dim'</span>,num2str(dIdx));
+                    d(:,dIdx)                    = (diff(obj.position.(dimName)))';
+                    obj.debug.meanDist.(dimName) = mean(d(:,dIdx));
+                    obj.debug.stdDist.(dimName)  = std(d(:,dIdx));
+                    [h.(dimName), bins.(dimName)] = hist(d(:,dIdx),150);
+                    subplot(obj.params.dimension,1,dIdx), bar(bins.(dimName),h.(dimName))
+                    ylabel(dimName)
+                    expectedSTD = (1/(2^((obj.params.scale-1+1)/2)));
+                    xlabel(sprintf(<span class="string">'%s%s%s%s'</span>,<span class="string">'Mean-E(Mean): '</span>,num2str(obj.debug.meanDist.(dimName)-obj.params.noiseMean),<span class="keyword">...</span>
+                        <span class="string">'  STD- E(STD): '</span>, num2str(obj.debug.stdDist.(dimName)-expectedSTD)))
+                <span class="keyword">end</span>
+                n                        = sqrt(sum(d.^2,2));
+                obj.debug.distance       = n;
+                obj.debug.meanDist.total = mean(n);
+                obj.debug.stdDist.total  = std(n);
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> TimeCorrelationFunction(obj)
+            <span class="comment">% calculate the time correlation function (TCF)</span>
+<span class="comment">%             as &lt;A(0)A(t)&gt; with &lt;.&gt; the average over realizations at time</span>
+<span class="comment">% %             t</span>
+   <span class="comment">% The time correlation function calculates the correlation between the</span>
+   <span class="comment">% increments of the Brownian particles</span>
+
+        <span class="keyword">if</span> isempty(obj.tcf)
+            obj.tcf = zeros(numel(obj.time)-1,obj.params.dimension,obj.params.realizations);
+            <span class="keyword">for</span> rIdx = 1:obj.params.realizations
+                <span class="keyword">for</span> tIdx = 2:numel(obj.time)
+                    <span class="keyword">for</span> dIdx = 1:obj.params.dimension
+                      a0 = obj.position(rIdx).([<span class="string">'dim'</span>,num2str(dIdx)])(2)-obj.position(rIdx).([<span class="string">'dim'</span>,num2str(dIdx)])(1);
+                      at = obj.position(rIdx).([<span class="string">'dim'</span>,num2str(dIdx)])(tIdx)-obj.position(rIdx).([<span class="string">'dim'</span>,num2str(dIdx)])(tIdx-1);
+                      obj.tcf(tIdx-1,dIdx,rIdx) = a0*at;
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+            obj.tcf = mean(obj.tcf,3);
+            f = figure(<span class="string">'Units'</span>,<span class="string">'norm'</span>,<span class="string">'Name'</span>,<span class="string">'Time Correlation Function'</span>);
+            a = axes(<span class="string">'Parent'</span>,f,<span class="string">'Units'</span>,<span class="string">'norm'</span>,<span class="string">'NextPlot'</span>,<span class="string">'Add'</span>,<span class="string">'FontSize'</span>,30);
+            c ={<span class="string">'r'</span>,<span class="string">'g'</span>,<span class="string">'b'</span>};
+            <span class="keyword">for</span> dIdx =1:obj.params.dimension
+            line(<span class="string">'XData'</span>,obj.time(2:end),<span class="keyword">...</span>
+                <span class="string">'YData'</span>,obj.tcf(:,dIdx),<span class="keyword">...</span>
+                <span class="string">'Color'</span>,c{dIdx},<span class="keyword">...</span>
+                <span class="string">'Parent'</span>,a,<span class="keyword">...</span>
+                <span class="string">'LineWidth'</span>,3,<span class="keyword">...</span>
+                <span class="string">'DisplayName'</span>,[<span class="string">'dim '</span> num2str(dIdx)])
+            <span class="keyword">end</span>
+            title(<span class="string">'Time correlation function'</span>)
+            xlabel(a,<span class="string">'Time'</span>)
+            ylabel(a,<span class="string">'TCF'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    methods (Access=private)
+
+        <span class="keyword">function</span> Y = GetNoise(obj,numPoints)
+            <span class="comment">% Get random variables from the standard normal distribution</span>
+            <span class="comment">% the output is a column vector</span>
+            <span class="comment">%             Y = zeros(numPoints,obj.params.dimension);</span>
+            Y = obj.params.noiseSTD*randn(numPoints,obj.params.dimension)+obj.params.noiseMean;
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> SetDefaultParams(obj)
+            obj.params.dimension    = 3; <span class="comment">% dimension of the paths</span>
+            obj.params.realizations = 1; <span class="comment">% number of paths to generate</span>
+            obj.params.scale        = 10; <span class="comment">% meaning we will have 2^10 points</span>
+            obj.params.constructionType = <span class="string">'Levy'</span>; <span class="comment">% type of path construction. curently supports only Levy</span>
+            obj.params.noiseMean    = 0;
+            obj.params.noiseSTD     = 1;
+            <span class="comment">% Set partition equation</span>
+            obj.eq.partition = @(n)(0:2^(n-1))./(2.^(n-1));
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> SetInputParams(obj,argin)
+            <span class="keyword">for</span> fIdx = 1:2:numel(argin)
+                <span class="keyword">if</span> isfield(obj.params,argin{fIdx})
+                    obj.params.(argin{fIdx}) = argin{fIdx+1};
+                <span class="keyword">else</span>
+                    error(<span class="string">'%s%s'</span>, argin{fIdx},<span class="string">' is not a valid parm name'</span>);
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    methods (Static, Access=private)
+
+        <span class="keyword">function</span> c = PairSum(vec)
+            <span class="comment">% sum pairs of adjacent entries in vec</span>
+            <span class="comment">%             n = numel(vec);</span>
+
+            n = numel(vec);
+            c = sum([vec(1:n-1);vec(2:n)]);
+            <span class="comment">%             c = zeros(1,n-1);</span>
+            <span class="comment">%             for vIdx = 1:n-1</span>
+            <span class="comment">%                 c(1,vIdx) = vec(1,vIdx)+vec(1,vIdx+1);</span>
+            <span class="comment">%             end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> T = GetBinaryPartition(scale)
+            <span class="comment">% get a division of the unit interval into obj.params.scale</span>
+            <span class="comment">% binary diviasions</span>
+            n = scale;
+            k = 0:2^(n-1);
+            T = k./(2.^(n-1));
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+classdef Brownian<handle
+    %%% Description
+    %
+    % Get a sample of a realization of a Brownian path by either the Levy
+    % construction or the ____ construction
+    % the std of the sampled process is then std*(1/2^(scale+1)/2)
+    properties
+        position
+        tcf % time correlation function of direction correlation 
+        time
+        params
+        debug
+        handles
+    end
+    
+    properties (Access=private)
+        eq
+    end
+    
+    methods
+        
+        function obj = Brownian(varargin)
+            % parameters should come in a name-value pairs in varargin
+            % to see the list of parameter names, see SetDefaultParams
+            % function
+            
+            obj.SetDefaultParams
+            
+            obj.SetInputParams(varargin)
+                                    
+        end
+                
+        function GetPath(obj)
+            % construct the brownian motion trajectory by iterative
+            % refinement
+            
+            % reset the time correlation function 
+            obj.tcf = [];
+            if strcmpi(obj.params.constructionType,'Levy')
+                % the Levy process mimicks the sampling of a Brownian path
+                % on different time scales, begining with coarse scale
+                % through consecutive refinements.
+                for rIdx = 1:obj.params.realizations
+                    
+                    Y      = obj.GetNoise(2);
+                    T      = obj.GetBinaryPartition(1);
+                    
+                    % Initial point
+                    for dIdx = 1:obj.params.dimension
+                        dimName = sprintf('%s%s','dim',num2str(dIdx));
+                        prevPosition.(dimName) = T.*Y(:,dIdx)';
+                    end
+                    
+                    for nIdx = 2:obj.params.scale
+                        T                 = obj.GetBinaryPartition(nIdx);
+                        oldPoints         = 1:2:numel(T);
+                        newPoints         = 2:2:numel(T);
+                        
+                        Y            = obj.GetNoise(numel(newPoints));
+                        for dIdx = 1:obj.params.dimension
+                            dimName = sprintf('%s%s','dim',num2str(dIdx));
+                            
+                            newPosition.(dimName)(oldPoints) = prevPosition.(dimName);
+                            pairSum = obj.PairSum(prevPosition.(dimName));
+                            
+                            % linear interpolation between old points
+                            newPosition.(dimName)(newPoints) = 0.5*(pairSum)+...
+                                (1/(2^((nIdx+1)/2)))*Y(:,dIdx)';
+                            % the expected STD is (1/(2^((nIdx+1)/2)))
+                            obj.position(rIdx).(dimName) = newPosition.(dimName);
+                        end
+                        
+                        prevPosition = newPosition;
+                        obj.time = T;
+                    end
+                    newPosition = [];
+%                     oldPosition = [];
+                end
+            elseif strcmpi(obj.params.constructionType,'normal')
+                obj.time = obj.GetBinaryPartition(obj.params.scale);
+                obj.params.noiseSTD = obj.time(2)-obj.time(1);
+                for rIdx = 1:obj.params.realizations
+                    y = obj.GetNoise(numel(obj.time)-1);
+                    c = cumsum(y);                    
+                    for dIdx = 1:obj.params.dimension
+                     obj.position(rIdx).(['dim', num2str(dIdx)]) = [0;c(:,dIdx)]; 
+                    end
+                end
+            end
+        end
+        
+        function PlotPath(obj)
+            % Plot the trajectories
+            % construct axes
+            f = figure('Units','norm');
+            a = axes('Units','normalized',...
+                    'Tag','mainAxes',...
+                    'NextPlot','Add',...
+                    'Parent',f,...
+                    'Box','on');
+            obj.handles.graphical.mainAxes = a;
+            if obj.params.dimension <4
+                for rIdx = 1:obj.params.realizations
+                    if obj.params.dimension ==1
+                        plot(a,obj.time,obj.position(rIdx).dim1,'.-');
+                        xlabel('Time'), ylabel('Position')
+                    elseif obj.params.dimension ==2
+                        c = rand(1,3);
+                        line('XData',obj.position(rIdx).dim1,...
+                             'YData',obj.position(rIdx).dim2,...
+                             'Parent',a,...
+                             'Color',c,...
+                             'DisplayName',['path ' num2str(tIdx)]);
+                         
+                         % add start and end point
+                          line('XData',obj.position(rIdx).dim1([1,end]),...
+                             'YData',obj.position(rIdx).dim2([1 end]),...
+                             'Parent',a,...
+                             'HandleVisibility','off',...
+                             'Marker','o',...
+                             'LineStyle','none',...
+                             'MarkerSize',4,...
+                             'MarkerFaceColor',c);   
+                         
+                        xlabel(a,'X'),ylabel(a,'Y')
+                    elseif obj.params.dimension ==3
+                        c = rand(1,3);
+                        line('XData',obj.position(rIdx).dim1,...
+                             'YData',obj.position(rIdx).dim2,...
+                             'ZData',obj.position(rIdx).dim3,...
+                             'Parent',a,...
+                             'DisplayName', ['path ' num2str(rIdx)],...
+                             'Color',c);
+                         % add start and end point
+                          line('XData',obj.position(rIdx).dim1([1,end]),...
+                             'YData',obj.position(rIdx).dim2([1 end]),...
+                             'ZData',obj.position(rIdx).dim3([1 end]),...
+                             'Parent',a,...
+                             'HandleVisibility','off',...
+                             'Marker','o',...
+                             'LineStyle','none',...
+                             'MarkerSize',4,...
+                             'MarkerFaceColor',c); 
+                        
+                        xlabel(a,'X'),ylabel(a,'Y'), zlabel(a,'Z')
+                        cameratoolbar
+                    end
+                end
+                daspect([1 1 1]);
+            end
+            drawnow
+            
+        end        
+        
+        function Debug(obj)% should not be used for now 
+            % get point distance statistics
+            if obj.params.debugMode
+                % Construct axes
+                f = figure('Units','normalized', 'Tag','debugFigure');
+                figure(f)
+                obj.handles.graphical.debugFigure = f;
+                d = zeros(numel(obj.position.dim1)-1,obj.params.dimension);
+                
+                for dIdx = 1:obj.params.dimension
+                    dimName                      = sprintf('%s%s','dim',num2str(dIdx));
+                    d(:,dIdx)                    = (diff(obj.position.(dimName)))';
+                    obj.debug.meanDist.(dimName) = mean(d(:,dIdx));
+                    obj.debug.stdDist.(dimName)  = std(d(:,dIdx));
+                    [h.(dimName), bins.(dimName)] = hist(d(:,dIdx),150);
+                    subplot(obj.params.dimension,1,dIdx), bar(bins.(dimName),h.(dimName))
+                    ylabel(dimName)
+                    expectedSTD = (1/(2^((obj.params.scale-1+1)/2)));
+                    xlabel(sprintf('%s%s%s%s','Mean-E(Mean): ',num2str(obj.debug.meanDist.(dimName)-obj.params.noiseMean),...
+                        '  STD- E(STD): ', num2str(obj.debug.stdDist.(dimName)-expectedSTD)))
+                end
+                n                        = sqrt(sum(d.^2,2));
+                obj.debug.distance       = n;
+                obj.debug.meanDist.total = mean(n);
+                obj.debug.stdDist.total  = std(n);
+            end
+        end
+        
+        function TimeCorrelationFunction(obj)
+            % calculate the time correlation function (TCF)
+%             as <A(0)A(t)> with <.> the average over realizations at time
+% %             t
+   % The time correlation function calculates the correlation between the
+   % increments of the Brownian particles
+
+        if isempty(obj.tcf)
+            obj.tcf = zeros(numel(obj.time)-1,obj.params.dimension,obj.params.realizations);            
+            for rIdx = 1:obj.params.realizations
+                for tIdx = 2:numel(obj.time)
+                    for dIdx = 1:obj.params.dimension
+                      a0 = obj.position(rIdx).(['dim',num2str(dIdx)])(2)-obj.position(rIdx).(['dim',num2str(dIdx)])(1);
+                      at = obj.position(rIdx).(['dim',num2str(dIdx)])(tIdx)-obj.position(rIdx).(['dim',num2str(dIdx)])(tIdx-1);
+                      obj.tcf(tIdx-1,dIdx,rIdx) = a0*at;
+                    end
+                end
+            end
+        end         
+            obj.tcf = mean(obj.tcf,3);
+            f = figure('Units','norm','Name','Time Correlation Function');
+            a = axes('Parent',f,'Units','norm','NextPlot','Add','FontSize',30);
+            c ={'r','g','b'};
+            for dIdx =1:obj.params.dimension
+            line('XData',obj.time(2:end),...
+                'YData',obj.tcf(:,dIdx),...
+                'Color',c{dIdx},...
+                'Parent',a,...
+                'LineWidth',3,...
+                'DisplayName',['dim ' num2str(dIdx)])
+            end
+            title('Time correlation function')
+            xlabel(a,'Time')
+            ylabel(a,'TCF');
+        end        
+    end
+    
+    methods (Access=private)
+        
+        function Y = GetNoise(obj,numPoints)
+            % Get random variables from the standard normal distribution
+            % the output is a column vector
+            %             Y = zeros(numPoints,obj.params.dimension);
+            Y = obj.params.noiseSTD*randn(numPoints,obj.params.dimension)+obj.params.noiseMean;            
+        end
+                        
+        function SetDefaultParams(obj)
+            obj.params.dimension    = 3; % dimension of the paths
+            obj.params.realizations = 1; % number of paths to generate
+            obj.params.scale        = 10; % meaning we will have 2^10 points
+            obj.params.constructionType = 'Levy'; % type of path construction. curently supports only Levy
+            obj.params.noiseMean    = 0;
+            obj.params.noiseSTD     = 1;
+            % Set partition equation
+            obj.eq.partition = @(n)(0:2^(n-1))./(2.^(n-1));
+        end
+        
+        function SetInputParams(obj,argin)
+            for fIdx = 1:2:numel(argin)
+                if isfield(obj.params,argin{fIdx})
+                    obj.params.(argin{fIdx}) = argin{fIdx+1};
+                else
+                    error('%s%s', argin{fIdx},' is not a valid parm name');
+                end
+            end
+        end
+    end
+    
+    methods (Static, Access=private)
+        
+        function c = PairSum(vec)
+            % sum pairs of adjacent entries in vec
+            %             n = numel(vec);
+            
+            n = numel(vec);
+            c = sum([vec(1:n-1);vec(2:n)]);
+            %             c = zeros(1,n-1);
+            %             for vIdx = 1:n-1
+            %                 c(1,vIdx) = vec(1,vIdx)+vec(1,vIdx+1);
+            %             end
+        end
+        
+        function T = GetBinaryPartition(scale)
+            % get a division of the unit interval into obj.params.scale
+            % binary diviasions
+            n = scale;
+            k = 0:2^(n-1);
+            T = k./(2.^(n-1));
+        end
+    end
+end
+##### SOURCE END #####
+--></body></html>

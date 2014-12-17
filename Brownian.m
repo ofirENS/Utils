@@ -1,4 +1,6 @@
 classdef Brownian<handle
+    %%% Description
+    %
     % Get a sample of a realization of a Brownian path by either the Levy
     % construction or the ____ construction
     % the std of the sampled process is then std*(1/2^(scale+1)/2)
@@ -25,9 +27,7 @@ classdef Brownian<handle
             obj.SetDefaultParams
             
             obj.SetInputParams(varargin)
-                        
-            obj.GetPath
-            
+                                    
         end
                 
         function GetPath(obj)
@@ -150,8 +150,8 @@ classdef Brownian<handle
             end
             drawnow
             
-        end
-                
+        end        
+        
         function Debug(obj)% should not be used for now 
             % get point distance statistics
             if obj.params.debugMode
@@ -230,7 +230,7 @@ classdef Brownian<handle
             obj.params.dimension    = 3; % dimension of the paths
             obj.params.realizations = 1; % number of paths to generate
             obj.params.scale        = 10; % meaning we will have 2^10 points
-            obj.params.constructionType = 'Levy'; % type of path construction. curently supports on ly Levy
+            obj.params.constructionType = 'Levy'; % type of path construction. curently supports only Levy
             obj.params.noiseMean    = 0;
             obj.params.noiseSTD     = 1;
             % Set partition equation

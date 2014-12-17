@@ -5,10 +5,7 @@ classdef BrownianBridge<handle
     %% Public properties
     %
     properties
-        startPt    % bridge starting point
-        endPt      % bridge end point
-        numPts      % numPoints in the bridge
-        numBridges % number of realizations
+        params=struct('startPt',[],'endPt',[],'numPtd',[],'numBridges',[]);
         paths
     end
     %% Private properties
@@ -38,20 +35,18 @@ classdef BrownianBridge<handle
         function GetBridge(obj)
             
             obj.handles.classes.brownian.GetPath;
-            for bIdx = 1:obj.numBridges    
-                for dIdx = 1:numel(obj.startPt)
+            for bIdx = 1:obj.params.numBridges    
+                for dIdx = 1:numel(obj.params.startPt)
                   dimName = sprintf('%s%s','dim',num2str(dIdx));
                    w(:,dIdx) = obj.handles.classes.brownian.position(bIdx).(dimName)';
                 end
            
             
 %             wb  = [w(1,:);zeros(2*obj.numPts-1,dim)];
-            
-            for pIdx=1:obj.numPts
-                wb(pIdx,:)  = obj.startPt+w(pIdx,:)-((pIdx-1)/(obj.numPts-1))*(w(obj.numPts,:)-obj.endPt+obj.startPt);                
+            for pIdx=1:obj.params.numPts
+                obj.paths{bIdx}(pIdx,:)  = obj.params.startPt+w(pIdx,:)-((pIdx-1)/(obj.params.numPts-1))*(w(obj.params.numPts,:)-obj.params.endPt+obj.params.startPt);                
             end
             
-            obj.paths{bIdx} = wb;
             end
         end
         
@@ -60,7 +55,7 @@ classdef BrownianBridge<handle
             % plot
             f= figure;
             a= axes('Units','norm','Parent',f,'NextPLot','Add');
-           for bIdx = 1:obj.numBridges
+           for bIdx = 1:obj.params.numBridges
                c= rand(1,3);
                line('XData',obj.paths{bIdx}(:,1),...
                     'YData',obj.paths{bIdx}(:,2),...
@@ -80,25 +75,25 @@ classdef BrownianBridge<handle
         
         %% Set Default parameters
         function SetDefualtParams(obj)
-            obj.startPt    = [0 0 0];
-            obj.endPt      = [0 0 0];
-            obj.numPts     = 100;
-            obj.numBridges = 20;
+            obj.params.startPt    = [0 0 0];
+            obj.params.endPt      = [0 0 0];
+            obj.params.numPts     = 100;
+            obj.params.numBridges = 20;
         end
         
         %% Set Input parameters
         function SetInputParams(obj,argin)% needs more work
             for fIdx = 1:2:numel(argin)
-                if isfield(obj,argin{fIdx})
-                    obj.(argin{fIdx}) = argin{fIdx+1};
+                if isfield(obj.params,argin{fIdx})
+                    obj.params.(argin{fIdx}) = argin{fIdx+1};
                 else
                     error('%s%s', argin{fIdx},' is not a valid parm name');
                 end
             end
-            dim = numel(obj.startPt);
+            dim = numel(obj.params.startPt);
             obj.handles.classes.brownian.params.dimension    = dim;
-            obj.handles.classes.brownian.params.realizations = obj.numBridges;
-            obj.handles.classes.brownian.params.scale        = nextpow2(2*obj.numPts-1)+1;
+            obj.handles.classes.brownian.params.realizations = obj.params.numBridges;
+            obj.handles.classes.brownian.params.scale        = nextpow2(2*obj.params.numPts-1)+1;
         end
         
     end

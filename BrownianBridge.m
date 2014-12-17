@@ -12,9 +12,11 @@ classdef BrownianBridge<handle
                         'realizations',[],...
                         'dimension',[]);
         paths
+        cdf 
     end
-    %%% Private properties
     
+    %%% Private properties
+    %
     properties (Access=private)
         handles
     end
@@ -58,6 +60,7 @@ classdef BrownianBridge<handle
         end
         
         %%% Plot
+        %
         function Plot(obj)%unfinished
             % plot
             f = figure('Units','norm');
@@ -78,6 +81,16 @@ classdef BrownianBridge<handle
            daspect([1 1 1]);
            cameratoolbar;
         end
+        
+        function CDF(obj)            
+            for rIdx = 1:obj.params.realizations
+                for dIdx = 1:obj.params.dimension
+                 [p,b] = ecdf(obj.paths{rIdx}(:,dIdx));   
+                 obj.cdf(rIdx).vals{dIdx} = b;
+                 obj.cdf(rIdx).prob{dIdx} = p;
+                end                
+            end
+        end
     end
     
     %%% Private methods
@@ -85,6 +98,7 @@ classdef BrownianBridge<handle
     methods (Access=private)
         
         %%% Set Default parameters
+        %
         function SetDefualtParams(obj)
             obj.params.startPoint    = [0 0 0];
             obj.params.endPoint      = [0 0 0];
@@ -94,7 +108,8 @@ classdef BrownianBridge<handle
         end
         
         %%% Set Input parameters
-        function SetInputParams(obj,argin)% needs more work
+        %
+        function SetInputParams(obj,argin)
             for fIdx = 1:2:numel(argin)
                 if isfield(obj.params,argin{fIdx})
                     obj.params.(argin{fIdx}) = argin{fIdx+1};

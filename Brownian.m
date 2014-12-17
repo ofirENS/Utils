@@ -6,7 +6,7 @@ classdef Brownian<handle
     % the std of the sampled process is then std*(1/2^(scale+1)/2)
     properties
         position
-        tcf % time correlation function of direction correlation 
+        tcf % time correlation function of direction correlation
         time
         params
         debug
@@ -27,14 +27,14 @@ classdef Brownian<handle
             obj.SetDefaultParams
             
             obj.SetInputParams(varargin)
-                                    
+            
         end
-                
+        
         function GetPath(obj)
             % construct the brownian motion trajectory by iterative
             % refinement
             
-            % reset the time correlation function 
+            % reset the time correlation function
             obj.tcf = [];
             if strcmpi(obj.params.constructionType,'Levy')
                 % the Levy process mimicks the sampling of a Brownian path
@@ -47,8 +47,9 @@ classdef Brownian<handle
                     
                     % Initial point
                     for dIdx = 1:obj.params.dimension
-                        dimName = sprintf('%s%s','dim',num2str(dIdx));
-                        prevPosition.(dimName) = T.*Y(:,dIdx)';
+%                         dimName = sprintf('%s%s','dim',num2str(dIdx));
+                        % set the begining and end points
+                        prevPosition(dIdx,1:2) = T.*Y(:,dIdx)';
                     end
                     
                     for nIdx = 2:obj.params.scale
@@ -58,32 +59,35 @@ classdef Brownian<handle
                         
                         Y            = obj.GetNoise(numel(newPoints));
                         for dIdx = 1:obj.params.dimension
-                            dimName = sprintf('%s%s','dim',num2str(dIdx));
+%                             dimName = sprintf('%s%s','dim',num2str(dIdx));
                             
-                            newPosition.(dimName)(oldPoints) = prevPosition.(dimName);
-                            pairSum = obj.PairSum(prevPosition.(dimName));
+                            newPosition(dIdx,oldPoints)= prevPosition(dIdx,:);
+                            pairSum = obj.PairSum(prevPosition(dIdx,:));
                             
                             % linear interpolation between old points
-                            newPosition.(dimName)(newPoints) = 0.5*(pairSum)+...
+                            newPosition(dIdx,newPoints) = 0.5*(pairSum)+...
                                 (1/(2^((nIdx+1)/2)))*Y(:,dIdx)';
-                            % the expected STD is (1/(2^((nIdx+1)/2)))
-                            obj.position(rIdx).(dimName) = newPosition.(dimName);
+                            % the expected STD is (1/(2^((nIdx+1)/2)))                            
                         end
-                        
-                        prevPosition = newPosition;
-                        obj.time = T;
+                        obj.position{rIdx} = newPosition;
+                        prevPosition       = newPosition;                        
                     end
-                    newPosition = [];
-%                     oldPosition = [];
+                    newPosition  = [];
+                    prevPosition = [];
+                    %                     oldPosition = [];
+                    % truncate the path according to the number of points
+                    % chosen 
+                    obj.position{rIdx}=obj.position{rIdx}(:,1:obj.params.numPoints);
                 end
+                
             elseif strcmpi(obj.params.constructionType,'normal')
-                obj.time = obj.GetBinaryPartition(obj.params.scale);
+%                 obj.time = obj.GetBinaryPartition(obj.params.scale);
                 obj.params.noiseSTD = obj.time(2)-obj.time(1);
                 for rIdx = 1:obj.params.realizations
-                    y = obj.GetNoise(numel(obj.time)-1);
-                    c = cumsum(y);                    
+                    y = obj.GetNoise(obj.params.numPoints-1);
+                    c = cumsum(y);
                     for dIdx = 1:obj.params.dimension
-                     obj.position(rIdx).(['dim', num2str(dIdx)]) = [0;c(:,dIdx)]; 
+                        obj.position{rIdx}(dIdx,:)=[0;c(:,dIdx)]';
                     end
                 end
             end
@@ -94,53 +98,54 @@ classdef Brownian<handle
             % construct axes
             f = figure('Units','norm');
             a = axes('Units','normalized',...
-                    'Tag','mainAxes',...
-                    'NextPlot','Add',...
-                    'Parent',f,...
-                    'Box','on');
+                     'Tag','mainAxes',...
+                     'NextPlot','Add',...
+                     'Parent',f,...
+                     'Box','on',...
+                     'FontSize',40);
             obj.handles.graphical.mainAxes = a;
             if obj.params.dimension <4
                 for rIdx = 1:obj.params.realizations
                     if obj.params.dimension ==1
-                        plot(a,obj.time,obj.position(rIdx).dim1,'.-');
-                        xlabel('Time'), ylabel('Position')
+                        plot(a,obj.time,obj.position{rIdx},'.-');
+                        xlabel(a,'Time'), ylabel(a,'Position')
                     elseif obj.params.dimension ==2
                         c = rand(1,3);
-                        line('XData',obj.position(rIdx).dim1,...
-                             'YData',obj.position(rIdx).dim2,...
-                             'Parent',a,...
-                             'Color',c,...
-                             'DisplayName',['path ' num2str(tIdx)]);
-                         
-                         % add start and end point
-                          line('XData',obj.position(rIdx).dim1([1,end]),...
-                             'YData',obj.position(rIdx).dim2([1 end]),...
-                             'Parent',a,...
-                             'HandleVisibility','off',...
-                             'Marker','o',...
-                             'LineStyle','none',...
-                             'MarkerSize',4,...
-                             'MarkerFaceColor',c);   
-                         
+                        line('XData',obj.position{rIdx}(1,:),...
+                            'YData',obj.position{rIdx}(2,:),...
+                            'Parent',a,...
+                            'Color',c,...
+                            'DisplayName',['path ' num2str(tIdx)]);
+                        
+                        % add start and end point
+                        line('XData',obj.position{rIdx}([1,end]),...
+                            'YData',obj.position{rIdx}([1 end]),...
+                            'Parent',a,...
+                            'HandleVisibility','off',...
+                            'Marker','o',...
+                            'LineStyle','none',...
+                            'MarkerSize',4,...
+                            'MarkerFaceColor',c);
+                        
                         xlabel(a,'X'),ylabel(a,'Y')
                     elseif obj.params.dimension ==3
                         c = rand(1,3);
-                        line('XData',obj.position(rIdx).dim1,...
-                             'YData',obj.position(rIdx).dim2,...
-                             'ZData',obj.position(rIdx).dim3,...
-                             'Parent',a,...
-                             'DisplayName', ['path ' num2str(rIdx)],...
-                             'Color',c);
-                         % add start and end point
-                          line('XData',obj.position(rIdx).dim1([1,end]),...
-                             'YData',obj.position(rIdx).dim2([1 end]),...
-                             'ZData',obj.position(rIdx).dim3([1 end]),...
-                             'Parent',a,...
-                             'HandleVisibility','off',...
-                             'Marker','o',...
-                             'LineStyle','none',...
-                             'MarkerSize',4,...
-                             'MarkerFaceColor',c); 
+                        line('XData',obj.position{rIdx}(1,:),...
+                            'YData',obj.position{rIdx}(2,:),...
+                            'ZData',obj.position{rIdx}(3,:),...
+                            'Parent',a,...
+                            'DisplayName', ['path ' num2str(rIdx)],...
+                            'Color',c);
+                        % add start and end point
+                        line('XData',obj.position{rIdx}(1,[1,end]),...
+                            'YData',obj.position{rIdx}(2,[1 end]),...
+                            'ZData',obj.position{rIdx}(3,[1 end]),...
+                            'Parent',a,...
+                            'HandleVisibility','off',...
+                            'Marker','o',...
+                            'LineStyle','none',...
+                            'MarkerSize',4,...
+                            'MarkerFaceColor',c);
                         
                         xlabel(a,'X'),ylabel(a,'Y'), zlabel(a,'Z')
                         cameratoolbar
@@ -150,20 +155,20 @@ classdef Brownian<handle
             end
             drawnow
             
-        end        
+        end
         
-        function Debug(obj)% should not be used for now 
+        function Debug(obj)% should not be used for now
             % get point distance statistics
             if obj.params.debugMode
                 % Construct axes
                 f = figure('Units','normalized', 'Tag','debugFigure');
                 figure(f)
                 obj.handles.graphical.debugFigure = f;
-                d = zeros(numel(obj.position.dim1)-1,obj.params.dimension);
+                d = zeros(numel(obj.position{1}(1,:))-1,obj.params.dimension);
                 
                 for dIdx = 1:obj.params.dimension
                     dimName                      = sprintf('%s%s','dim',num2str(dIdx));
-                    d(:,dIdx)                    = (diff(obj.position.(dimName)))';
+                    d(:,dIdx)                    = (diff(obj.position{1}(dIdx,:)))';
                     obj.debug.meanDist.(dimName) = mean(d(:,dIdx));
                     obj.debug.stdDist.(dimName)  = std(d(:,dIdx));
                     [h.(dimName), bins.(dimName)] = hist(d(:,dIdx),150);
@@ -182,39 +187,39 @@ classdef Brownian<handle
         
         function TimeCorrelationFunction(obj)
             % calculate the time correlation function (TCF)
-%             as <A(0)A(t)> with <.> the average over realizations at time
-% %             t
-   % The time correlation function calculates the correlation between the
-   % increments of the Brownian particles
-
-        if isempty(obj.tcf)
-            obj.tcf = zeros(numel(obj.time)-1,obj.params.dimension,obj.params.realizations);            
-            for rIdx = 1:obj.params.realizations
-                for tIdx = 2:numel(obj.time)
-                    for dIdx = 1:obj.params.dimension
-                      a0 = obj.position(rIdx).(['dim',num2str(dIdx)])(2)-obj.position(rIdx).(['dim',num2str(dIdx)])(1);
-                      at = obj.position(rIdx).(['dim',num2str(dIdx)])(tIdx)-obj.position(rIdx).(['dim',num2str(dIdx)])(tIdx-1);
-                      obj.tcf(tIdx-1,dIdx,rIdx) = a0*at;
+            %             as <A(0)A(t)> with <.> the average over realizations at time
+            % %             t
+            % The time correlation function calculates the correlation between the
+            % increments of the Brownian particles
+            
+            if isempty(obj.tcf)
+                obj.tcf = zeros(numel(obj.time)-1,obj.params.dimension,obj.params.realizations);
+                for rIdx = 1:obj.params.realizations
+                    for tIdx = 2:numel(obj.time)
+                        for dIdx = 1:obj.params.dimension
+                            a0 = obj.position{rIdx}(dIdx,2)-obj.position{rIdx}(dIdx,1);
+                            at = obj.position{rIdx}(dIdx,tIdx)-obj.position{rIdx}(dIdx,tIdx-1);
+                            obj.tcf(tIdx-1,dIdx,rIdx) = a0*at;
+                        end
                     end
                 end
             end
-        end         
             obj.tcf = mean(obj.tcf,3);
             f = figure('Units','norm','Name','Time Correlation Function');
             a = axes('Parent',f,'Units','norm','NextPlot','Add','FontSize',30);
             c ={'r','g','b'};
             for dIdx =1:obj.params.dimension
-            line('XData',obj.time(2:end),...
-                'YData',obj.tcf(:,dIdx),...
-                'Color',c{dIdx},...
-                'Parent',a,...
-                'LineWidth',3,...
-                'DisplayName',['dim ' num2str(dIdx)])
+                line('XData',obj.time(2:end),...
+                    'YData',obj.tcf(:,dIdx),...
+                    'Color',c{dIdx},...
+                    'Parent',a,...
+                    'LineWidth',3,...
+                    'DisplayName',['dim ' num2str(dIdx)])
             end
             title('Time correlation function')
             xlabel(a,'Time')
             ylabel(a,'TCF');
-        end        
+        end
     end
     
     methods (Access=private)
@@ -223,13 +228,14 @@ classdef Brownian<handle
             % Get random variables from the standard normal distribution
             % the output is a column vector
             %             Y = zeros(numPoints,obj.params.dimension);
-            Y = obj.params.noiseSTD*randn(numPoints,obj.params.dimension)+obj.params.noiseMean;            
+            Y = obj.params.noiseSTD*randn(numPoints,obj.params.dimension)+obj.params.noiseMean;
         end
-                        
+        
         function SetDefaultParams(obj)
             obj.params.dimension    = 3; % dimension of the paths
             obj.params.realizations = 1; % number of paths to generate
-            obj.params.scale        = 10; % meaning we will have 2^10 points
+            obj.params.numPoints    = 512; % number of points in the path 
+            obj.params.scale        = nextpow2(obj.params.numPoints)+1; % meaning we will have 2^10 points
             obj.params.constructionType = 'Levy'; % type of path construction. curently supports only Levy
             obj.params.noiseMean    = 0;
             obj.params.noiseSTD     = 1;
@@ -245,6 +251,8 @@ classdef Brownian<handle
                     error('%s%s', argin{fIdx},' is not a valid parm name');
                 end
             end
+            obj.time = 0:obj.params.numPoints-1;
+            obj.params.scale = nextpow2(obj.params.numPoints)+1;
         end
     end
     

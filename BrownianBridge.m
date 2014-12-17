@@ -2,13 +2,18 @@ classdef BrownianBridge<handle
     %%% Description
     %
     % This class cxreate a Brownian bridge between two points in any dimension
-    %% Public properties
+    
+    %%% Public properties
     %
     properties
-        params=struct('startPt',[],'endPt',[],'numPtd',[],'numBridges',[]);
+        params = struct('startPt',[],...
+                        'endPt',[],...
+                        'numPts',[],...
+                        'realizations',[],...
+                        'dimension',[]);
         paths
     end
-    %% Private properties
+    %%% Private properties
     
     properties (Access=private)
         handles
@@ -17,46 +22,52 @@ classdef BrownianBridge<handle
     %%% Public methods
     %
     methods
-        %% Constructor
+        %%% Constructor
         %
         function obj = BrownianBridge(varargin)
+            % varargin is a name value pair of class properties
+            
             % set default params
             obj.SetDefualtParams;
-            % initialize Brownian class
-            obj.handles.classes.brownian = Brownian;
+            
             % set input params
             obj.SetInputParams(varargin);
+            
+            % initialize Brownian class
+            obj.handles.classes.brownian = Brownian('realizations',obj.params.realizations,...
+                                                    'numPoints',obj.params.numPoints,...
+                                                    'dimension', obj.params.dimension);
         end
         
-        %% GetBridge
+        %%% GetBridge
         %
         % Create a brownian bridge starting at startPt and ending in endPt with
         % numPts time points in between
         function GetBridge(obj)
             
             obj.handles.classes.brownian.GetPath;
-            for bIdx = 1:obj.params.numBridges    
-                for dIdx = 1:numel(obj.params.startPt)
-                  dimName = sprintf('%s%s','dim',num2str(dIdx));
-                   w(:,dIdx) = obj.handles.classes.brownian.position(bIdx).(dimName)';
-                end
-           
-            
-%             wb  = [w(1,:);zeros(2*obj.numPts-1,dim)];
-            for pIdx=1:obj.params.numPts
-                obj.paths{bIdx}(pIdx,:)  = obj.params.startPt+w(pIdx,:)-((pIdx-1)/(obj.params.numPts-1))*(w(obj.params.numPts,:)-obj.params.endPt+obj.params.startPt);                
+            for bIdx = 1:obj.params.realizations                    
+               w = obj.handles.classes.brownian.position{bIdx}';
+            for pIdx = 1:obj.params.numPoints
+                obj.paths{bIdx}(pIdx,:)  = obj.params.startPoint+w(pIdx,:)-...
+                    ((pIdx-1)/(obj.params.numPoints-1))*...
+                    (w(obj.params.numPoints,:)-obj.params.endPoint+obj.params.startPoint);                
             end
             
             end
         end
         
-        %% Plot
+        %%% Plot
         function Plot(obj)%unfinished
             % plot
-            f= figure;
-            a= axes('Units','norm','Parent',f,'NextPLot','Add');
-           for bIdx = 1:obj.params.numBridges
-               c= rand(1,3);
+            f = figure('Units','norm');
+            a = axes('Units','norm',...
+                     'Parent',f,...
+                     'NextPLot','Add',...
+                     'FontSize',40);
+                 
+           for bIdx = 1:obj.params.realizations
+               c = rand(1,3);
                line('XData',obj.paths{bIdx}(:,1),...
                     'YData',obj.paths{bIdx}(:,2),...
                     'ZData',obj.paths{bIdx}(:,3),...
@@ -73,15 +84,16 @@ classdef BrownianBridge<handle
     %
     methods (Access=private)
         
-        %% Set Default parameters
+        %%% Set Default parameters
         function SetDefualtParams(obj)
-            obj.params.startPt    = [0 0 0];
-            obj.params.endPt      = [0 0 0];
-            obj.params.numPts     = 100;
-            obj.params.numBridges = 20;
+            obj.params.startPoint    = [0 0 0];
+            obj.params.endPoint      = [0 0 0];
+            obj.params.numPoints     = 100;
+            obj.params.realizations  = 20;
+            obj.params.dimension     = numel(obj.params.startPoint);
         end
         
-        %% Set Input parameters
+        %%% Set Input parameters
         function SetInputParams(obj,argin)% needs more work
             for fIdx = 1:2:numel(argin)
                 if isfield(obj.params,argin{fIdx})
@@ -90,10 +102,7 @@ classdef BrownianBridge<handle
                     error('%s%s', argin{fIdx},' is not a valid parm name');
                 end
             end
-            dim = numel(obj.params.startPt);
-            obj.handles.classes.brownian.params.dimension    = dim;
-            obj.handles.classes.brownian.params.realizations = obj.params.numBridges;
-            obj.handles.classes.brownian.params.scale        = nextpow2(2*obj.params.numPts-1)+1;
+             obj.params.dimension     = numel(obj.params.startPoint);
         end
         
     end

@@ -14,7 +14,7 @@ classdef Smoother<handle
         function sigOut = Smooth(obj,sigIn,method,span,degree)
             obj.signalIn = sigIn;
             if ~exist('degree','var')
-                degree = 1.5;
+                degree = 1.2;
             end
             if ~exist('span','var')
                 span = 15;

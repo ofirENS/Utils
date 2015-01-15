@@ -11,7 +11,7 @@ classdef Smoother<handle
             obj.method = 'mean';
         end        
         
-        function sigOut = Smooth(obj,sigIn,method,span,degree)
+        function sigOut = Smooth(obj,sigIn,method,span,degree,kernel)
             obj.signalIn = sigIn;
             if ~exist('degree','var')
                 degree = 1.2;
@@ -33,7 +33,21 @@ classdef Smoother<handle
             elseif strcmpi(method,'rloess')
                 obj.signalOut = smooth(sigIn,span,method);
             elseif strcmpi(method,'gaussian')
-                obj.signalOut = conv(sigIn,fspecial('gaussian',[1,span],degree),'same');                
+                s = size(obj.signalIn);
+                if any(s(1:2)==1)                
+                    % 1d signal
+                   obj.signalOut = conv(sigIn,fspecial('gaussian',[1,span],degree),'same');                
+                else
+                    obj.signalOut = conv2(sigIn,fspecial('gaussian',[span span],degree),'same');
+                end  
+            elseif strcmpi(method,'kernel')
+                % user supplied kernel for convolution 
+                if ~exist('kernel','var')
+                    error('you must supply a kernel for the convolution')                    
+                end
+                % in 2d 
+                obj.signalOut = conv2(sigIn,kernel,'same');
+                
             end
             sigOut = obj.signalOut;
         end

@@ -58,10 +58,10 @@ classdef Smoother<handle
                 % Iteratively smoooth the signal with Gaussian kernel,
                 % take the signal for which the number of local max is
                 % minimal (minimum noise)
-                obj.signalOut = obj.IterativeGaussianMinMax(sigIn,span,degree);
+                obj.signalOut = obj.IterativeGaussianMinMax(obj.signalIn,span,degree);
             elseif strcmpi(method,'muLambda')
                 % apply mu lambda smoothing
-                obj.signalOut = obj.MuLambda(sigIn,span,degree);
+                obj.signalOut = obj.MuLambda(obj.signalIn,span,degree);
                 
             elseif strcmpi(method,'kernel')
                 % user supplied kernel for convolution
@@ -118,88 +118,106 @@ classdef Smoother<handle
         
         function [sigOut] = MuLambda(obj,sigIn,nHoodRad,sig)%TODO: optimize
             % Apply Taubin's mu|lambda smoothing for 1D signal
-            
-            lambda = 0.1:.1:0.9;
+            obj.signalIn = sigIn;
+            lambda = 0.1:.01:0.9;
             nTag   = sigIn;
             s      = size(sigIn);
             
             if any(s==1)
                 % for 1D
+                f = fspecial('gaussian',[1,2*nHoodRad+1],sig);
+                f = f./sum(f(:));
                 for nIdx = 1:numel(lambda);
-                    % apply positive factor
-                    nTemp = nTag;
-                    for sIdx = 1:numel(sigIn)
-                        % define the neighborhood of each point
-                        neighb = sIdx-nHoodRad:sIdx+nHoodRad;
-                        f      = fspecial('gaussian',[1,numel(neighb)],sig);
-                        f      = f(neighb>0 & neighb<numel(sigIn));
-                        neighb = neighb(neighb>0 & neighb<numel(sigIn));
-                        % apply positive moving filter
-                        nTemp(sIdx) = nTag(sIdx)+lambda(nIdx)*sum((nTag(neighb)-nTag(sIdx)).*f);
-                    end
-                    
-                    nTag = nTemp;
-                    
-                    for sIdx = 1:numel(sigIn)
-                        % define the neighborhood of each point
-                        neighb = sIdx-nHoodRad:sIdx+nHoodRad;
-                        f      = fspecial('gaussian',[1,numel(neighb)],sig);
-                        f      = f(neighb>0 & neighb<numel(sigIn));
-                        neighb = neighb(neighb>0 & neighb<numel(sigIn));
-                        % apply positive moving filter
-                        nTemp(sIdx) = nTag(sIdx)-(lambda(nIdx)+0.1)*sum((nTag(neighb)-nTag(sIdx)).*f);
-                    end
-                    
-                    nTag = nTemp;
+%                     % apply positive factor
+%                     nTemp = nTag;
+%                     for sIdx = 1:numel(sigIn)
+%                         % define the neighborhood of each point
+%                         neighb = sIdx-nHoodRad:sIdx+nHoodRad;
+%                         f      = fspecial('gaussian',[1,numel(neighb)],sig);
+%                         f      = f(neighb>0 & neighb<numel(sigIn));
+%                         neighb = neighb(neighb>0 & neighb<numel(sigIn));
+%                         % apply positive moving filter
+%                         nTemp(sIdx) = nTag(sIdx)+lambda(nIdx)*sum((nTag(neighb)-nTag(sIdx)).*f);
+%                     end
+%                     
+%                     nTag = nTemp;
+%                     
+%                     for sIdx = 1:numel(sigIn)
+%                         % define the neighborhood of each point
+%                         neighb = sIdx-nHoodRad:sIdx+nHoodRad;
+%                         f      = fspecial('gaussian',[1,numel(neighb)],sig);
+%                         f      = f(neighb>0 & neighb<numel(sigIn));
+%                         neighb = neighb(neighb>0 & neighb<numel(sigIn));
+%                         % apply positive moving filter
+%                         nTemp(sIdx) = nTag(sIdx)-(lambda(nIdx)+0.1)*sum((nTag(neighb)-nTag(sIdx)).*f);
+%                     end
+%                     
+%                     nTag = nTemp;
+
+                    c = conv(nTag,f,'same');
+%                     c = c-f(nHoodRad,nHoodRad)*nTag;
+                    nTag = nTag*(lambda(nIdx)+1)-c*lambda(nIdx);
+                    c    = conv(nTag,f,'same');
+%                     c    = c-f(nHoodRad,nHoodRad)*nTag;
+                    nTag = nTag*(1-(lambda(nIdx)+0.1))+(lambda(nIdx)+0.1)*c;
                 end
-                
+
                 
             else
-                %for 2D                
+                %for 2D  
+                 f = fspecial('gaussian',[2*nHoodRad+1,2*nHoodRad+1],sig);
+                 f = f./sum(f(:));
                 for nIdx = 1:numel(lambda);
                     % apply positive factor
-                    nTemp = nTag;
-                    for s1Idx = 1:s(1)
-                        for s2Idx = 1:s(2)
-                        % define the neighborhood of each point
-                        neighb1 = s1Idx-nHoodRad:s1Idx+nHoodRad;
-                        neighb2 = s2Idx-nHoodRad:s2Idx+nHoodRad;                        
-                        f      = fspecial('gaussian',[numel(neighb1),numel(neighb2)],sig);
-                        % truncate indices exceeding the signal size
-                        f      = f(neighb1>0 & neighb1<s(1),neighb2>0 & neighb2<s(2));
-                        
-                        neighb1 = neighb1(neighb1>0 & neighb1<s(1));
-                        neighb2 = neighb2(neighb2>0 & neighb2<s(2));
-                        % apply positive moving filter
-                        sTemp = (nTag(neighb1,neighb2)-nTag(s1Idx,s2Idx)).*f;
-                        nTemp(s1Idx,s2Idx) = nTag(s1Idx,s2Idx)+lambda(nIdx)*sum(sTemp(:));
-                        end
-                    end
+%                     nTemp = nTag;
+%                     for s1Idx = 1:s(1)
+%                         for s2Idx = 1:s(2)
+%                         % define the neighborhood of each point
+%                         neighb1 = s1Idx-nHoodRad:s1Idx+nHoodRad;
+%                         neighb2 = s2Idx-nHoodRad:s2Idx+nHoodRad;                        
+%                         f      = fspecial('gaussian',[numel(neighb1),numel(neighb2)],sig);
+%                         % truncate indices exceeding the signal size
+%                         f      = f(neighb1>0 & neighb1<s(1),neighb2>0 & neighb2<s(2));
+%                         
+%                         neighb1 = neighb1(neighb1>0 & neighb1<s(1));
+%                         neighb2 = neighb2(neighb2>0 & neighb2<s(2));
+%                         % apply positive moving filter
+%                         sTemp = (nTag(neighb1,neighb2)-nTag(s1Idx,s2Idx)).*f;
+%                         nTemp(s1Idx,s2Idx) = nTag(s1Idx,s2Idx)+lambda(nIdx)*sum(sTemp(:));
+%                         end
+%                     end
+%                     nTag = nTemp;
+
+                    c = conv2(nTag,f,'same');
+                    c = c-f(nHoodRad,nHoodRad)*nTag;
+                    nTag = nTag*(1-lambda(nIdx))+c*lambda(nIdx);
                     
-                    nTag = nTemp;
-                    
-                    for s1Idx = 1:s(1)
-                        for s2Idx = 1:s(2)
-                        % define the neighborhood of each point
-                        neighb1 = s1Idx-nHoodRad:s1Idx+nHoodRad;
-                        neighb2 = s2Idx-nHoodRad:s2Idx+nHoodRad;                        
-                        f      = fspecial('gaussian',[numel(neighb1),numel(neighb2)],sig);
-                        % truncate indices exceeding the signal size
-                        f      = f(neighb1>0 & neighb1<s(1),neighb2>0 & neighb2<s(2));
-                        
-                        neighb1 = neighb1(neighb1>0 & neighb1<s(1));
-                        neighb2 = neighb2(neighb2>0 & neighb2<s(2));
-                        % apply positive moving filter
-                        sTemp = (nTag(neighb1,neighb2)-nTag(s1Idx,s2Idx)).*f;
-                        nTemp(s1Idx,s2Idx) = nTag(s1Idx,s2Idx)-(lambda(nIdx)+0.1)*sum(sTemp(:));
-                        end
-                    end
-                    
-                    nTag = nTemp;
+                    c = conv2(nTag,f,'same');
+                    c = c-f(nHoodRad,nHoodRad)*nTag;
+                    nTag = nTag*(1+(lambda(nIdx)+0.1))-c*(lambda(nIdx)+0.1);
+%                     for s1Idx = 1:s(1)
+%                         for s2Idx = 1:s(2)
+%                         % define the neighborhood of each point
+%                         neighb1 = s1Idx-nHoodRad:s1Idx+nHoodRad;
+%                         neighb2 = s2Idx-nHoodRad:s2Idx+nHoodRad;                        
+%                         f      = fspecial('gaussian',[numel(neighb1),numel(neighb2)],sig);
+%                         % truncate indices exceeding the signal size
+%                         f      = f(neighb1>0 & neighb1<s(1),neighb2>0 & neighb2<s(2));
+%                         
+%                         neighb1 = neighb1(neighb1>0 & neighb1<s(1));
+%                         neighb2 = neighb2(neighb2>0 & neighb2<s(2));
+%                         % apply positive moving filter
+%                         sTemp = (nTag(neighb1,neighb2)-nTag(s1Idx,s2Idx)).*f;
+%                         nTemp(s1Idx,s2Idx) = nTag(s1Idx,s2Idx)-(lambda(nIdx)+0.1)*sum(sTemp(:));
+%                         end
+%                     end
+%                     
+%                     nTag = nTemp;
                 end
                 
             end
             sigOut = nTag;
+            obj.signalOut = sigOut;
         end
     end
 end

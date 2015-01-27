@@ -84,9 +84,17 @@ classdef Smoother<handle
             if strcmpi(obj.nanTreatment,'treatNaNAsZeros')
                 obj.signalIn(isnan(obj.signalIn))= 0;
             end
-        end
+        end               
+                
+    end
+    
+    methods (Access=private)
         
-        function [sigOut] = IterativeGaussianMinMax(obj,sigIn,span,degree)
+    end
+        
+    methods (Static, Access=private)
+        
+        function [sigOut] = IterativeGaussianMinMax(sigIn,span,degree)
             % Iteratively apply Gaussian filtering until numerical
             % instability ocurs. the stability is given by the number of
             % local max. where the optimal smoothing is determined by the
@@ -118,17 +126,7 @@ classdef Smoother<handle
                 [~,ind] = min(n);
                 sigOut = sigOut(:,:,ind);
             end
-        end        
-                
-    end
-    
-    methods (Access=private)
-        
-    end
-    
-    
-    methods (Static, Access=private)
-        
+        end         
 
     end
 end

@@ -60,9 +60,10 @@ classdef Smoother<handle
                 % minimal (minimum noise)
                 obj.signalOut = obj.IterativeGaussianMinMax(obj.signalIn,span,degree);
             elseif strcmpi(method,'muLambda')
-                % apply mu lambda smoothing
-                obj.signalOut = obj.MuLambda(obj.signalIn,span,degree);
-                
+                % Apply Taubin's mu/lambda smoothing
+                ml = MuLambdaSmoothing(obj.signalIn,span,degree);% activate the class
+                obj.signalOut  = ml.signalOut;
+                                
             elseif strcmpi(method,'kernel')
                 % user supplied kernel for convolution
                 if ~exist('kernel','var')
@@ -117,122 +118,17 @@ classdef Smoother<handle
                 [~,ind] = min(n);
                 sigOut = sigOut(:,:,ind);
             end
-        end
-        
-        function [sigOut] = MuLambda(obj,sigIn,nHoodRad,sig)
-            % Apply Taubin's mu|lambda smoothing 
-            %===== Solve the inequalities to find mu lambda and N =====
-            % Filter's params
-            % Must satisfy:
-            % 0<kPb<kSb<2
-            % 0<deltaPb
-            % 0<deltaSb<1
-            kPb     = 0.1;% pass band freq.
-            deltaPb = 0.3;% pass band ripple
-            kSb     = 0.9;% stop band freq.
-            deltaSb = 0.5;% stop band ripple
-            
-            % Check parameter limits
-            assert(kSb<2);
-            assert(kPb<kSb)
-            assert(deltaSb<1)
-            assert(deltaPb>0);
-            
-            % find the optimal parameters
-            [lambda,mu,numSteps] = obj.MuLambdaFindOptimalParamsForSmoothing(kPb,deltaPb,kSb,deltaSb);
-            
-            %             % plot the frequency polynomial
-            %             PlotFrequencyPolynomial(lambda,mu,numSteps,kSb,kPb)
-            
-            nTag         = sigIn; % temp signal
-            
-            s      = size(sigIn);
-            if any(s==1)
-                % For 1D signal
+        end        
                 
-                f = fspecial('gaussian',[1,2*nHoodRad+1],sig);
-                f(nHoodRad) = 0;
-                f           = f./sum(f(:)); % normalize weights
-                for nIdx = 1:numSteps
-                    % Apply positive scale factor
-                    c    = conv(nTag,f,'same');
-                    nTag = nTag+lambda*(c-nTag);
-                    
-                    % Apply negative scale factor
-                    c    = conv(nTag,f,'same');
-                    nTag = nTag+mu*(c-nTag);
-                    
-                end
-            else
-                % For 2D signal
-                f = fspecial('gaussian',[2*nHoodRad+1,2*nHoodRad+1],sig);
-                f(nHoodRad,nHoodRad) = 0;
-                f = f./sum(f(:)); % normalize weights
-                for nIdx = 1:numSteps
-                    % Apply positive scale factor
-                    c    = conv2(nTag,f,'same');
-                    nTag = nTag+lambda*(c-nTag);
-                    
-                    % Apply negative scale factor
-                    c    = conv2(nTag,f,'same');
-                    nTag = nTag+mu*(c-nTag);
-                end
-            end
-            sigOut = nTag;
-        end
-        
-        
     end
     
     methods (Access=private)
         
-        function [lambda,mu,numSteps]= MuLambdaFindOptimalParamsForSmoothing(obj,kPb,deltaPb,kSb,deltaSb)
-            % find the minimum of a function given the nonlinear constraints
-            % The variables by order of appearance are: lambda, mu, N
-            % for A*x<b
-            A       = [1 1 0; 1 0 0; 0 0 -1];
-            b       = [0; 1/kSb;0];
-            
-            % for Aeq*x = beq
-            Aeq = [];
-            beq = [];
-            
-            % lower bound
-            lb = [0, -1, 1];
-            % upper bound
-            ub = [1, 0, 100];
-            
-            % initial point
-            x0 = [0.5,-1.6,20];
-            
-            opts      = optimoptions(@fmincon,'MaxIter',1000,'TolX',1e-8,'TolFun',1e-12);
-            [optParams] = fmincon(@(x)obj.MuLambdaMinimizeFun(x,kPb),x0,A,b,Aeq,beq,lb,ub,@(x)obj.MuLambdaNonLinConstraint(x,kSb,kPb,deltaSb,deltaPb),opts);
-            lambda    = optParams(1);
-            mu        = optParams(2);
-            numSteps  = ceil(optParams(3));
-        end
     end
     
     
     methods (Static, Access=private)
         
-        % mu lambda method private function
-        
-        
-        function f = MuLambdaMinimizeFun(x,kPb)
-            % The function to be minimized
-            
-            % The vector x is [lambda,mu,N]
-            f = ((1./x(1)) +(1./x(2)) -(kPb)).^2;%x(3);% minimize the number of iterations for the filter
-        end
-        
-        function [c, ceq]= MuLambdaNonLinConstraint(x,kSb,kPb,deltaSb,deltaPb)
-            % The vector x is [lambda,mu,N]
-            c(1) = ((((x(1)-x(2))^2)./(-4*x(1)*x(2))).^x(3))-1-deltaPb;
-            c(2) = (((1-x(1)*kSb).*(1-x(2)*kSb)).^x(3)) -deltaSb;
-            
-            ceq  = [];%(1./x(1)) +(1./x(2)) -(1/kPb);
-            
-        end
+
     end
 end

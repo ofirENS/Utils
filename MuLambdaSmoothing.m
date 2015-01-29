@@ -19,17 +19,18 @@ classdef MuLambdaSmoothing<handle
     
     properties
         % filter's parameters
-        params= struct('kPb',0.3,'deltaPb',0.2,'kSb',0.9,'deltaSb',0.4,'kernelAngle',pi/4);
+        params= struct('kPb',0.3,'deltaPb',0.2,'kSb',0.9,'deltaSb',0.4,'kernelAngle',0);
         signalIn
         signalOut
     end
     
     methods
         
-        function obj = MuLambdaSmoothing(signalIn,nHoodRad,sig)
-        
-            % set default parameters
-            obj.SetDefaultParams;
+        function obj = MuLambdaSmoothing(signalIn,nHoodRad,sig,varargin)
+         % input signalIn,nHoodRad,sig are obligatory, all others are name
+         % value pairs
+            % set default parameters            
+            obj.SetParams;
             
             % pre-process signal in
             obj.signalIn = obj.PreProcessSignalIn(signalIn);
@@ -49,6 +50,12 @@ classdef MuLambdaSmoothing<handle
     
     methods (Access=private)
         
+        function SetParams(obj,varargin)
+            obj.SetDefaultParams;
+            obj.SetInputParams(varargin{:});
+            obj.CheckParamValidity;
+        end
+        
         function SetDefaultParams(obj)
             %           Filter's parameters
             % Must satisfy:
@@ -58,8 +65,22 @@ classdef MuLambdaSmoothing<handle
             obj.params.kPb     = 0.3;% pass band freq.
             obj.params.deltaPb = 0.2;% pass band ripple
             obj.params.kSb     = 0.9;% stop band freq.
-            obj.params.deltaSb = 0.4;% stop band ripple
+            obj.params.deltaSb = 0.4;% stop band ripple                        
+        end
+        
+        function SetInputParams(obj,varargin)
             
+            assert(mod(numel(varargin),2)==0,'wrong number of input arguments')
+            v= varargin;
+            names = v(1:2:end);
+            vals = v(2:2:end);
+            for vIdx = 1:numel(names)
+                obj.params.(names{vIdx})= vals(vIdx);
+            end
+            
+        end
+        
+        function CheckParamValidity(obj)
             % Check parameter limits
             assert(obj.params.kSb<2,'kSb must be <2');
             assert(obj.params.kPb<obj.params.kSb,'kPb must be <kSb')
@@ -105,22 +126,24 @@ classdef MuLambdaSmoothing<handle
                 for nIdx = 1:numSteps
                     % Apply positive scale factor
                     c    = conv(nTag,convKernel,'same');
-                    nTag = nTag+lambda*(c-nTag);
+                    nTag = (1-lambda)*nTag+lambda*c;
                     
                     % Apply negative scale factor
                     c    = conv(nTag,convKernel,'same');
-                    nTag = nTag+mu*(c-nTag);
+                    nTag = (1-mu)*nTag+mu*c;
+                  
                     
                 end
             else % for 2D
                 for nIdx = 1:numSteps
                     % Apply positive scale factor
                     c    = conv2(nTag,convKernel,'same');
-                    nTag = nTag+lambda*(c-nTag);
+                    nTag = (1-lambda)*nTag+lambda*c;
                     
                     % Apply negative scale factor
                     c    = conv2(nTag,convKernel,'same');
-                    nTag = nTag+mu*(c-nTag);
+                    nTag = (1-mu)*nTag+mu*c;
+                    
                 end
             end
             
@@ -193,22 +216,19 @@ classdef MuLambdaSmoothing<handle
             if any(s==1)
                 % For 1D signal
                 convKernel = fspecial('gaussian',[1,2*nHoodRad+1],sig);
-                convKernel(nHoodRad) = 0;
+                convKernel(nHoodRad+1) = 0;
                 convKernel           = convKernel./sum(convKernel(:)); % normalize weights
             else
                 % For 2D signal
                 if ~exist('theta','var')
-                    theta = -pi/4;
+                    theta = -pi/2;
                 end
                 a     = (cos(theta)^2)/(2*sig^2) +(sin(theta)^2)/(2*sig^2);
                 b     = -(sin(theta)^2)/(4*sig^2) +(sin(2*theta))/(4*sig^2);
                 c     = (sin(theta)^2)/(2*sig^2) +(cos(theta)^2)/(2*sig^2);
                 [x,y] = meshgrid(-nHoodRad:nHoodRad,-nHoodRad:nHoodRad);
-                % f = @(x,y,A,sig) (1/sqrt(2*pi*(2*sig^2))).*exp(-x'*A*x).*exp(-y'*A*y);
-                convKernel = (1/sqrt(2*pi*(2*sig^2))).*exp(-(a*x.^2+2*b*x.*y+c*y.^2));
-                
-                %     convKernel = fspecial('gaussian',[2*nHoodRad+1,2*nHoodRad+1],sig);
-                convKernel(nHoodRad,nHoodRad) = 0;
+                convKernel = (1/sqrt(2*pi*(2*sig^2))).*exp(-(a*x.^2+2*b*x.*y+c*y.^2));                               
+                convKernel(nHoodRad+1,nHoodRad+1) = 0;
                 convKernel = convKernel./sum(convKernel(:)); % normalize weights
             end
         end                

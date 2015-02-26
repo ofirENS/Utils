@@ -107,7 +107,7 @@ classdef PeakCalling<handle
             obj.CalculateRejectionDistribution
             obj.MarkPeaks
             obj.ExcludePeaksByLocalMaximality
-%             obj.ApplyFDROnPeaks
+            obj.ApplyFDROnPeaks
         end
         
         function EstimateBackgroundSignal(obj)

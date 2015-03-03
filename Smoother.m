@@ -71,6 +71,9 @@ classdef Smoother<handle
                 end
                 % in 2d
                 obj.signalOut = conv2(obj.signalIn,kernel,'same');
+            elseif strcmpi(method,'bilateral')
+                % apply biletaral smoothing 
+                obj.signalOut = obj.Bilateral(obj.signalIn);
             else
                 % do nothing
                 obj.signalOut = obj.signalIn;
@@ -126,7 +129,22 @@ classdef Smoother<handle
                 [~,ind] = min(n);
                 sigOut = sigOut(:,:,ind);
             end
-        end         
+        end      
+        
+        function [signalOut]=Bilateral(signalIn)
+            % Calculate a bilateral filter with Gaussian functions 
+            % currently supports 1D signals only 
+            signalOut = signalIn;
+            sigmaf    = 5;  %intensity relationship
+            sigmag    = 5; % spatial relationship
+            for pIdx = 1:numel(signalIn)
+                % calculate the weight for point pIdx
+                wp =  sum((1./sqrt(2*pi*sigmaf^2)).*exp(-(signalIn-signalIn(pIdx)).^2 ./(2*sigmaf^2)).*...
+                         (1./sqrt(2*pi*sigmag^2)).*exp(-((1:numel(signalIn))-pIdx).^2 ./(2*sigmag^2)));
+                signalOut(pIdx) = (1/wp) *sum(signalIn.*(1./sqrt(2*pi*sigmaf^2)).*exp(-(signalIn-signalIn(pIdx)).^2 ./(2*sigmaf^2)).*...
+                         (1./sqrt(2*pi*sigmag^2)).*exp(-((1:numel(signalIn))-pIdx).^2 ./(2*sigmag^2)));
+            end
+        end
 
     end
 end

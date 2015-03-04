@@ -73,7 +73,10 @@ classdef Smoother<handle
                 obj.signalOut = conv2(obj.signalIn,kernel,'same');
             elseif strcmpi(method,'bilateral')
                 % apply biletaral smoothing 
-                obj.signalOut = obj.Bilateral(obj.signalIn);
+                sigmaf = degree(1);
+                sigmag = degree(2);
+                envRad = span;
+                obj.signalOut = BilateralFilter_mex(obj.signalIn,sigmaf,sigmag,envRad);% obj.Bilateral(obj.signalIn);
             else
                 % do nothing
                 obj.signalOut = obj.signalIn;
@@ -131,7 +134,7 @@ classdef Smoother<handle
             end
         end      
         
-        function [signalOut]=Bilateral(signalIn)
+        function [signalOut]=Bilateral(signalIn)% [obsolete] moved to mex file
             % Calculate a bilateral filter with Gaussian functions 
             % currently supports 1D signals only 
             signalOut = signalIn;

@@ -129,6 +129,9 @@ classdef PeakCalling<handle
                 obj.expectedSignal = obj.MeanIgnoreNaN(obj.signals);% leave it as the mean at each distance
             elseif strcmpi(obj.params.fitType,'median')
                 obj.expectedSignal = obj.MedianIgnoreNaN(obj.signals);% leave it as the median at each distance
+            elseif strcmpi(obj.params.fitType,'none')
+                % do not perform any smoothing
+                
             end
         end
         

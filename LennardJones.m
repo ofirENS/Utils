@@ -1,34 +1,41 @@
 function force = LennardJones(particlePosition,particleDist,LJPotentialWidth,LJPotentialDepth)
+   % Calculate the lennard jones potential between beads and its derivative
+   % 
     numParticles = size(particlePosition,1);
     dimension    = size(particlePosition,2);
     force        = zeros(numParticles,dimension);
     beadsDistMat = particleDist;
-    sig          = LJPotentialWidth;
+    rm           = LJPotentialWidth; % the distance in which the potential is minimal
     epsilon      = LJPotentialDepth;
     bdmInv       = (beadsDistMat).^(-1);   % one over the bead distance matrix
-
-    %                 d            = MatIntPower(bdmInv, 6); % matrix integer power (mex form Utils)
-
+    % remove the diagonal 
+    bdmInv = bdmInv-diag(diag(bdmInv));
+    
+    % d            = MatIntPower(bdmInv, 6); % matrix integer power (mex form Utils)
+    % Raise bdInv to the sixt power
     nb = dec2bin(6)-'0';
     ak = bdmInv;
     if nb(numel(nb))
-        d = bdmInv;
+        t = bdmInv;
     else
-        d = ones(size(ak));
+        t = ones(size(ak));
     end
     
     inds = nb(end-1:-1:1);
     for nbk = 1:numel(inds)
         ak = ak.*ak;
         if inds(nbk)
-            d = d.*ak;
+            t = t.*ak;
         end
     end
-
-    t            = (sig^6).*d;
-    forceValue   = 24*(epsilon*bdmInv).*(-2*t.*t +t); % derivative of LJ function
-
+     
+    A            = (rm^6).*t;
+%     forceValue   = 24*(epsilon*bdmInv).*(-2*t.*t +t); % derivative of LJ function
+    
+    forceValue   = (2*epsilon*rm^6).*(A-1);
     forceValue(isnan(forceValue))= 0;
+    
+    % sum the contribution from all particles
     for dIdx = 1:dimension
         % replicate the position vector
         A    = particlePosition(:,dIdx);

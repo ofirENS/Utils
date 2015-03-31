@@ -1,0 +1,11 @@
+libemlrt.lib
+libcovrt.lib
+libut.lib
+libmwblas.lib
+libmwmathutil.lib
+/export:mexFunction
+/export:emlrtMexFcnProperties
+/export:LennardJones
+/export:LennardJones_initialize
+/export:LennardJones_terminate
+/export:LennardJones_atexit

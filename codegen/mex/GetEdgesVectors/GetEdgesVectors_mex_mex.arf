@@ -1,0 +1,11 @@
+libemlrt.lib
+libcovrt.lib
+libut.lib
+libmwblas.lib
+libmwmathutil.lib
+/export:mexFunction
+/export:emlrtMexFcnProperties
+/export:GetEdgesVectors
+/export:GetEdgesVectors_initialize
+/export:GetEdgesVectors_terminate
+/export:GetEdgesVectors_atexit

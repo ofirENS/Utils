@@ -21,7 +21,7 @@ void *emlrtRootTLSGlobal = NULL;
 /* Function Definitions */
 static void LennardJones_mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-  const mxArray *outputs[1];
+  const mxArray *outputs[2];
   const mxArray *inputs[4];
   int n = 0;
   int nOutputs = (nlhs < 1 ? 1 : nlhs);
@@ -33,7 +33,7 @@ static void LennardJones_mexFunction(int nlhs, mxArray *plhs[], int nrhs, const 
   /* Check for proper number of arguments. */
   if (nrhs != 4) {
     emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:WrongNumberOfInputs", 5, mxINT32_CLASS, 4, mxCHAR_CLASS, 12, "LennardJones");
-  } else if (nlhs > 1) {
+  } else if (nlhs > 2) {
     emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:TooManyOutputArguments", 3, mxCHAR_CLASS, 12, "LennardJones");
   }
   /* Temporary copy for mex inputs. */

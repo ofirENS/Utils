@@ -12,7 +12,7 @@
 
 /* Variable Definitions */
 const volatile char_T *emlrtBreakCheckR2012bFlagVar;
-emlrtRSInfo f_emlrtRSI = { 93, "dec2bin",
+emlrtRSInfo j_emlrtRSI = { 93, "dec2bin",
   "D:\\Program Files\\MATLAB\\R2014a\\toolbox\\eml\\lib\\matlab\\strfun\\dec2bin.m"
 };
 

@@ -12,6 +12,7 @@ SRC_FILES =  \
 	LennardJones_initialize.c \
 	LennardJones_terminate.c \
 	LennardJones.c \
+	power.c \
 	eml_int_forloop_overflow_check.c \
 	_coder_LennardJones_api.c \
 	LennardJones_emxutil.c \

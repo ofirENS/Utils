@@ -22,7 +22,7 @@
 
 /* Function Declarations */
 extern void LennardJones_api(const mxArray * const prhs[4], const mxArray *plhs
-  [1]);
+  [2]);
 
 #endif
 

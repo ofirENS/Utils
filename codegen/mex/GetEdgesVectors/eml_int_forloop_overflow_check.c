@@ -20,11 +20,11 @@ static emlrtMCInfo f_emlrtMCI = { 74, 15, "eml_int_forloop_overflow_check",
   "D:\\Program Files\\MATLAB\\R2014a\\toolbox\\eml\\lib\\matlab\\eml\\eml_int_forloop_overflow_check.m"
 };
 
-static emlrtRSInfo h_emlrtRSI = { 74, "eml_int_forloop_overflow_check",
+static emlrtRSInfo g_emlrtRSI = { 74, "eml_int_forloop_overflow_check",
   "D:\\Program Files\\MATLAB\\R2014a\\toolbox\\eml\\lib\\matlab\\eml\\eml_int_forloop_overflow_check.m"
 };
 
-static emlrtRSInfo k_emlrtRSI = { 75, "eml_int_forloop_overflow_check",
+static emlrtRSInfo j_emlrtRSI = { 75, "eml_int_forloop_overflow_check",
   "D:\\Program Files\\MATLAB\\R2014a\\toolbox\\eml\\lib\\matlab\\eml\\eml_int_forloop_overflow_check.m"
 };
 
@@ -46,7 +46,7 @@ static const mxArray *b_message(const emlrtStack *sp, const mxArray *b, const
 void check_forloop_overflow_error(const emlrtStack *sp)
 {
   const mxArray *y;
-  static const int32_T iv7[2] = { 1, 34 };
+  static const int32_T iv4[2] = { 1, 34 };
 
   const mxArray *m1;
   char_T cv4[34];
@@ -56,7 +56,7 @@ void check_forloop_overflow_error(const emlrtStack *sp)
     'p', '_', 'o', 'v', 'e', 'r', 'f', 'l', 'o', 'w' };
 
   const mxArray *b_y;
-  static const int32_T iv8[2] = { 1, 23 };
+  static const int32_T iv5[2] = { 1, 23 };
 
   char_T cv6[23];
   static const char_T cv7[23] = { 'c', 'o', 'd', 'e', 'r', '.', 'i', 'n', 't',
@@ -69,7 +69,7 @@ void check_forloop_overflow_error(const emlrtStack *sp)
   b_st.prev = sp;
   b_st.tls = sp->tls;
   y = NULL;
-  m1 = emlrtCreateCharArray(2, iv7);
+  m1 = emlrtCreateCharArray(2, iv4);
   for (i = 0; i < 34; i++) {
     cv4[i] = cv5[i];
   }
@@ -77,15 +77,15 @@ void check_forloop_overflow_error(const emlrtStack *sp)
   emlrtInitCharArrayR2013a(sp, 34, m1, cv4);
   emlrtAssign(&y, m1);
   b_y = NULL;
-  m1 = emlrtCreateCharArray(2, iv8);
+  m1 = emlrtCreateCharArray(2, iv5);
   for (i = 0; i < 23; i++) {
     cv6[i] = cv7[i];
   }
 
   emlrtInitCharArrayR2013a(sp, 23, m1, cv6);
   emlrtAssign(&b_y, m1);
-  st.site = &h_emlrtRSI;
-  b_st.site = &k_emlrtRSI;
+  st.site = &g_emlrtRSI;
+  b_st.site = &j_emlrtRSI;
   error(&st, b_message(&b_st, y, b_y, &e_emlrtMCI), &f_emlrtMCI);
 }
 

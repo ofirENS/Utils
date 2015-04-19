@@ -12,7 +12,7 @@
 #include "GetEdgesVectors_emxutil.h"
 
 /* Variable Definitions */
-static emlrtRTEInfo f_emlrtRTEI = { 1, 1, "_coder_GetEdgesVectors_api", "" };
+static emlrtRTEInfo g_emlrtRTEI = { 1, 1, "_coder_GetEdgesVectors_api", "" };
 
 /* Function Declarations */
 static void b_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
@@ -57,18 +57,18 @@ static void d_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
 static void e_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
   emlrtMsgIdentifier *msgId, emxArray_real_T *ret)
 {
-  int32_T iv10[2];
+  int32_T iv7[2];
   boolean_T bv0[2];
   int32_T i;
-  int32_T iv11[2];
+  int32_T iv8[2];
   for (i = 0; i < 2; i++) {
-    iv10[i] = -1;
+    iv7[i] = -1;
     bv0[i] = true;
   }
 
-  emlrtCheckVsBuiltInR2012b(sp, msgId, src, "double", false, 2U, iv10, bv0, iv11);
-  ret->size[0] = iv11[0];
-  ret->size[1] = iv11[1];
+  emlrtCheckVsBuiltInR2012b(sp, msgId, src, "double", false, 2U, iv7, bv0, iv8);
+  ret->size[0] = iv8[0];
+  ret->size[1] = iv8[1];
   ret->allocatedSize = ret->size[0] * ret->size[1];
   ret->data = (real_T *)mxGetData(src);
   ret->canFreeData = false;
@@ -88,11 +88,11 @@ static void emlrt_marshallIn(const emlrtStack *sp, const mxArray
 static const mxArray *emlrt_marshallOut(const emxArray_real_T *u)
 {
   const mxArray *y;
-  static const int32_T iv9[3] = { 0, 0, 0 };
+  static const int32_T iv6[3] = { 0, 0, 0 };
 
   const mxArray *m2;
   y = NULL;
-  m2 = emlrtCreateNumericArray(3, iv9, mxDOUBLE_CLASS, mxREAL);
+  m2 = emlrtCreateNumericArray(3, iv6, mxDOUBLE_CLASS, mxREAL);
   mxSetData((mxArray *)m2, (void *)u->data);
   emlrtSetDimensions((mxArray *)m2, u->size, 3);
   emlrtAssign(&y, m2);
@@ -102,19 +102,18 @@ static const mxArray *emlrt_marshallOut(const emxArray_real_T *u)
 static void f_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
   emlrtMsgIdentifier *msgId, emxArray_boolean_T *ret)
 {
-  int32_T iv12[2];
+  int32_T iv9[2];
   boolean_T bv1[2];
   int32_T i;
-  int32_T iv13[2];
+  int32_T iv10[2];
   for (i = 0; i < 2; i++) {
-    iv12[i] = -1;
+    iv9[i] = -1;
     bv1[i] = true;
   }
 
-  emlrtCheckVsBuiltInR2012b(sp, msgId, src, "logical", false, 2U, iv12, bv1,
-    iv13);
-  ret->size[0] = iv13[0];
-  ret->size[1] = iv13[1];
+  emlrtCheckVsBuiltInR2012b(sp, msgId, src, "logical", false, 2U, iv9, bv1, iv10);
+  ret->size[0] = iv10[0];
+  ret->size[1] = iv10[1];
   ret->allocatedSize = ret->size[0] * ret->size[1];
   ret->data = (boolean_T *)mxGetData(src);
   ret->canFreeData = false;
@@ -130,9 +129,9 @@ void GetEdgesVectors_api(const mxArray * const prhs[2], const mxArray *plhs[1])
 
   st.tls = emlrtRootTLSGlobal;
   emlrtHeapReferenceStackEnterFcnR2012b(&st);
-  emxInit_real_T(&st, &particlePosition, 2, &f_emlrtRTEI, true);
-  b_emxInit_boolean_T(&st, &connectivityMap, 2, &f_emlrtRTEI, true);
-  c_emxInit_real_T(&st, &edgesVec, 3, &f_emlrtRTEI, true);
+  emxInit_real_T(&st, &particlePosition, 2, &g_emlrtRTEI, true);
+  b_emxInit_boolean_T(&st, &connectivityMap, 2, &g_emlrtRTEI, true);
+  c_emxInit_real_T(&st, &edgesVec, 3, &g_emlrtRTEI, true);
 
   /* Marshall function inputs */
   emlrt_marshallIn(&st, emlrtAlias(prhs[0]), "particlePosition",

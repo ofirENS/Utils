@@ -16,7 +16,6 @@ class Brownian:
     def __init__(self,numTraj=1,numPoints=100):  
         # class constructor 
         self.trajectory=[Trajectory(numPoints) for ii in range(numTraj)]                                                 
-      
 class Trajectory:
     def __init__(self,numPoints=100):           
                   

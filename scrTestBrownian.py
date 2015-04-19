@@ -9,12 +9,13 @@ from Brownian import Brownian# import the Brownian class from the working folder
 import time
 #from matplotlib.pyplot import show
 
-
+#%%  class parameters 
 # class parameters 
 numTraj   = 1 # number of trajectorie to generate
 numPoints = 200000 # number of points
 alpha     = 0.3 # plot alpha
 mSize     = 1;  # plot marker size
+#%%
 
 #b=Brownian()
 #print(b)

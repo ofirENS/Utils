@@ -55,7 +55,11 @@ static emlrtRSInfo k_emlrtRSI = { 14, "acos",
   "D:\\Program Files\\MATLAB\\R2014a\\toolbox\\eml\\lib\\matlab\\elfun\\acos.m"
 };
 
-static emlrtRSInfo l_emlrtRSI = { 76, "sum",
+static emlrtRSInfo l_emlrtRSI = { 47, "mean",
+  "D:\\Program Files\\MATLAB\\R2014a\\toolbox\\eml\\lib\\matlab\\datafun\\mean.m"
+};
+
+static emlrtRSInfo m_emlrtRSI = { 76, "sum",
   "D:\\Program Files\\MATLAB\\R2014a\\toolbox\\eml\\lib\\matlab\\datafun\\sum.m"
 };
 
@@ -155,7 +159,7 @@ static emlrtDCInfo c_emlrtDCI = { 17, 37, "eml_li_find",
   "D:\\Program Files\\MATLAB\\R2014a\\toolbox\\eml\\lib\\matlab\\eml\\eml_li_find.m",
   4 };
 
-static emlrtRSInfo n_emlrtRSI = { 14, "eml_li_find",
+static emlrtRSInfo o_emlrtRSI = { 14, "eml_li_find",
   "D:\\Program Files\\MATLAB\\R2014a\\toolbox\\eml\\lib\\matlab\\eml\\eml_li_find.m"
 };
 
@@ -207,7 +211,7 @@ static void eml_li_find(const emlrtStack *sp, const emxArray_boolean_T *x,
     b_y = NULL;
     m0 = emlrtCreateString("Assertion failed.");
     emlrtAssign(&b_y, m0);
-    st.site = &n_emlrtRSI;
+    st.site = &o_emlrtRSI;
     error(&st, b_y, &emlrtMCI);
   }
 
@@ -312,12 +316,15 @@ void BendingElasticityForce(const emlrtStack *sp, const emxArray_real_T
   emlrtStack st;
   emlrtStack b_st;
   emlrtStack c_st;
+  emlrtStack d_st;
   st.prev = sp;
   st.tls = sp->tls;
   b_st.prev = &st;
   b_st.tls = st.tls;
   c_st.prev = &b_st;
   c_st.tls = b_st.tls;
+  d_st.prev = &c_st;
+  d_st.tls = c_st.tls;
   emlrtHeapReferenceStackEnterFcnR2012b(sp);
 
   /* =========== */
@@ -571,6 +578,7 @@ void BendingElasticityForce(const emlrtStack *sp, const emxArray_real_T
       /*  calculate the resulting force vector for the specific */
       /*  particle */
       st.site = &e_emlrtRSI;
+      b_st.site = &l_emlrtRSI;
       if (forceVec->size[0] == 0) {
         for (i0 = 0; i0 < 3; i0++) {
           y[i0] = 0.0;
@@ -582,7 +590,7 @@ void BendingElasticityForce(const emlrtStack *sp, const emxArray_real_T
           ixstart = ix + 1;
           ix++;
           numPairs = forceVec->data[ixstart];
-          b_st.site = &l_emlrtRSI;
+          c_st.site = &m_emlrtRSI;
           if (2 > forceVec->size[0]) {
             overflow = false;
           } else {
@@ -590,8 +598,8 @@ void BendingElasticityForce(const emlrtStack *sp, const emxArray_real_T
           }
 
           if (overflow) {
-            c_st.site = &i_emlrtRSI;
-            check_forloop_overflow_error(&c_st);
+            d_st.site = &i_emlrtRSI;
+            check_forloop_overflow_error(&d_st);
           }
 
           for (ixstart = 2; ixstart <= forceVec->size[0]; ixstart++) {
@@ -606,8 +614,9 @@ void BendingElasticityForce(const emlrtStack *sp, const emxArray_real_T
 
       ixstart = force->size[0];
       emlrtDynamicBoundsCheckFastR2012b(pIdx, 1, ixstart, &k_emlrtBCI, sp);
+      ixstart = forceVec->size[0];
       for (i0 = 0; i0 < 3; i0++) {
-        force->data[(pIdx + force->size[0] * i0) - 1] = y[i0];
+        force->data[(pIdx + force->size[0] * i0) - 1] = y[i0] / (real_T)ixstart;
       }
     }
 

@@ -28,7 +28,7 @@ for pIdx = 1:numParticles
         end
         % calculate the resulting force vector for the specific
         % particle
-        force(pIdx,:) = sum(forceVec,1);
+        force(pIdx,:) = mean(forceVec,1);
     end
 end
 end

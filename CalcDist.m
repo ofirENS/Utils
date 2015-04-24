@@ -6,7 +6,7 @@ function distMat = CalcDist(vec1,vec2,T)
  dim2 = size(vec2,2);
  if dim1~=dim2
      error('vector must have the same dimension')
- end
+ end 
 d = zeros(size(vec1,1), size(vec2,1),dim1);
 for dIdx = 1:dim1
     A = repmat(vec1(:,dIdx),1,size(vec2,1));

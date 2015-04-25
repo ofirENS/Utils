@@ -1,6 +1,6 @@
 function u = chebpolval(c,x)
 % get the values of a chebyshev polynomail at points x
-n = length(c);
+n = length(c); 
 u = c(n)*ones(size(x));
 if n > 1
  ujp1 = u;

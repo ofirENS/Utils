@@ -1,6 +1,6 @@
 classdef BrownianBridge<handle
     %%% Description
-    %
+    % 
     % This class cxreate a Brownian bridge between two points in any dimension
     
     %%% Public properties

@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.matlabcoder" plugin-version="R2014a_nu">
-  <configuration build-checksum="3950638385" file="D:\Ofir\Work\ENS\Utils\Forces\BendingElasticityForce.prj" location="D:\Ofir\Work\ENS\Utils\Forces" name="BendingElasticityForce" target="target.matlab.coder" target-name="MEX, C, and C++ Code Generation">
+  <configuration build-checksum="429941267" file="/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.prj" location="/home/ofir/Work/ENS/Utils/Forces" name="BendingElasticityForce" target="target.matlab.coder" target-name="MEX, C, and C++ Code Generation">
     <profile key="profile.mex">
       <param.MergeInstrumentationResults>false</param.MergeInstrumentationResults>
       <param.BuiltInstrumentedMex>false</param.BuiltInstrumentedMex>
@@ -326,10 +326,10 @@
         <param.UseECoderFeatures />
       </unset>
     </profile>
-    <param.outputfile>${PROJECT_ROOT}\BendingElasticityForce_mex.mexw64</param.outputfile>
+    <param.outputfile>${PROJECT_ROOT}/BendingElasticityForce_mex.mexa64</param.outputfile>
     <param.version>R2012a</param.version>
     <param.HasECoderFeatures>true</param.HasECoderFeatures>
-    <param.mex.mainhtml>D:\Ofir\Work\ENS\Utils\Forces\codegen\mex\BendingElasticityForce\html\index.html</param.mex.mainhtml>
+    <param.mex.mainhtml>/home/ofir/Work/ENS/Utils/Forces/codegen/mex/BendingElasticityForce/html/index.html</param.mex.mainhtml>
     <param.grt.mainhtml />
     <param.CallGeneratedCodeFromTest>true</param.CallGeneratedCodeFromTest>
     <param.VerificationMode>option.VerificationMode.None</param.VerificationMode>
@@ -438,7 +438,7 @@
       <param.DefaultFixedPointSignedness />
     </unset>
     <fileset.entrypoints>
-      <file custom-data-expanded="false" value="${PROJECT_ROOT}\BendingElasticityForce.m">
+      <file custom-data-expanded="false" value="${PROJECT_ROOT}/BendingElasticityForce.m">
         <Inputs fileName="BendingElasticityForce.m" functionName="BendingElasticityForce">
           <Input Name="edgeMatX">
             <Class>double</Class>
@@ -485,11 +485,11 @@
     <fileset.testbench />
     <fileset.package />
     <build-deliverables>
-      <file location="D:\Ofir\Work\ENS\Utils\Forces" name="BendingElasticityForce_mex.mexw64" optional="false">D:\Ofir\Work\ENS\Utils\Forces\BendingElasticityForce_mex.mexw64</file>
+      <file location="/home/ofir/Work/ENS/Utils/Forces" name="BendingElasticityForce_mex.mexa64" optional="false">/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce_mex.mexa64</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>D:\Program Files\MATLAB\R2014a</root>
+      <root>/home/ofir/Work/ProgramFiles/Matlab2014a</root>
       <toolboxes>
         <toolbox name="matlabhdlcoder" />
         <toolbox name="fixedpoint" />
@@ -518,18 +518,18 @@
       </toolbox>
     </matlab>
     <platform>
-      <unix>false</unix>
+      <unix>true</unix>
       <mac>false</mac>
-      <windows>true</windows>
+      <windows>false</windows>
       <win2k>false</win2k>
       <winxp>false</winxp>
       <vista>false</vista>
-      <linux>false</linux>
+      <linux>true</linux>
       <solaris>false</solaris>
-      <osver>6.1</osver>
+      <osver>3.19.0-15-generic</osver>
       <os32>false</os32>
       <os64>true</os64>
-      <arch>win64</arch>
+      <arch>glnxa64</arch>
       <matlab>true</matlab>
     </platform>
   </configuration>

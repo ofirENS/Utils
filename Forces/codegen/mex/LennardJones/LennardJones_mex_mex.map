@@ -1,0 +1,11 @@
+MEX {
+	global:
+		mexFunction;
+		emlrtMexFcnProperties;
+		LennardJones;
+		LennardJones_initialize;
+		LennardJones_terminate;
+		LennardJones_atexit;
+	local:
+		*;
+};

@@ -1,0 +1,11 @@
+MEX {
+	global:
+		mexFunction;
+		emlrtMexFcnProperties;
+		GetEdgesVectors;
+		GetEdgesVectors_initialize;
+		GetEdgesVectors_terminate;
+		GetEdgesVectors_atexit;
+	local:
+		*;
+};

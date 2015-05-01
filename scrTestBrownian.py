@@ -20,28 +20,29 @@ mSize     = 1;  # plot marker size
 
 #b=Brownian()
 #print(b)
-start_time = time.time()
-b=Brownian(numTraj,numPoints)
-print("--- %s seconds ---" % (time.time() - start_time)) 
-
-<<<<<<< HEAD
-for tIdx in range(numTraj):
-    b.trajectory[tIdx].Plot(mSize,alpha)
-show()
+#start_time = time.time()
+#b=Brownian(numTraj,numPoints)
+#print("--- %s seconds ---" % (time.time() - start_time)) 
+#
+#
+#for tIdx in range(numTraj):
+#    b.trajectory[tIdx].Plot(mSize,alpha)
+#show()
  
-numBeads = 132;
-diffusionConst = 1.7;
+numBeads       = 32;
+diffusionConst = 1;
 dimension      = 2
-dt       = 0.001;
-b        = 0.1
-numSteps = 1000;
+dt             = 0.001;
+b              = 0.1
+numSteps       = 1000;
  
 start_time = time.time()
 r=Rouse(numBeads,diffusionConst,b,dimension,dt,numSteps);
-show()
 print("--- %s seconds ---" % (time.time() - start_time)) 
-=======
+show()
+
+
 #for tIdx in range(numTraj):
  #   b.trajectory[tIdx].Plot(mSize,alpha)
 #show() 
->>>>>>> 3a952d3f85198d719d304dec125b516824fdc844
+

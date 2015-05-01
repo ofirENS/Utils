@@ -5,7 +5,7 @@ Created on Sat Apr 18 18:40:18 2015
 @author: Ofir
 """
 import numpy
-from matplotlib.pyplot import plot, show
+from matplotlib.pyplot import plot
 
 class Rouse:
 # this class simulates a Rouse olymer 
@@ -18,7 +18,7 @@ class Rouse:
         self.dt             = dt;
         self.numSteps = numSteps;
         self.CreateRouseMatrix()
-        self.SimulateChain()
+        self.SimulateChain('cart')
     def CreateRouseMatrix(self):
                # buid the Rouse matrix
               self.matrix = (numpy.zeros((self.numBeads,self.numBeads)))
@@ -28,9 +28,9 @@ class Rouse:
               self.matrix[i[0]==i[1]+1]=-1;
               self.matrix[i[0]==i[1]]=-numpy.sum(self.matrix,axis=1);
               self.matix = numpy.matrix(self.matrix)
-    def SimulateChain(self):
+    def SimulateChain(self,state='cart'):
                   # initialize position 
-    
+     if state=='cart': # for Euclidean coordinates simulation
        self.position = [numpy.array(numpy.random.normal(0,1,(self.numBeads,2)).cumsum(axis=0))];
        #self.position = numpy.matrix(self.position)
        
@@ -43,6 +43,8 @@ class Rouse:
            self.position.append(newPos) 
            self.Plot(newPos)
            #show()
+     elif state=='pol':
+           print('s')
            
     def Plot(self,pos):
         #print pos[0]

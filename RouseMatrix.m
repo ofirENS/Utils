@@ -3,7 +3,7 @@ function R = RouseMatrix(numBeads, connectedBeads, fixedBeads)
 % numBeads- a positive integer
 % connectedBeads- an n by two array with pair wise bead numbers to connect
 % fixedBeads - positive integer <= numBeads of beads that do not move
- 
+  
 if ~exist('connectedBeads','var')
     connectedBeads = []; % non linear connections
 end

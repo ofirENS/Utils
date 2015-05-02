@@ -14,7 +14,7 @@ numTerms = 50; % number of terms to calculate in the infinite series
 % g     = @(theta,mu,sigma,N) (1/(2*pi)).*(1+2.*sum(((exp(-sigma^2)).^((1:N).^2)).*cos((1:N).*(theta-mu))));
 t     = -pi:.1:pi;
 numT  = numel(t);
-wnPDF = zeros(numT,1);
+wnPDF = zeros(numT,1); 
 % N=numTerms;
 for tIdx = 1:numT    
     % wraped normal pdf

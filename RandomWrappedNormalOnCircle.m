@@ -8,7 +8,7 @@ end
 % each angle is drawn from the unit circle 
 
 % approximate the pdf of the wrapped normal 
-numTerms = 550; % number of terms to calculate in the infinite series
+numTerms = 50; % number of terms to calculate in the infinite series
 
 % the truncated pdf
 % g     = @(theta,mu,sigma,N) (1/(2*pi)).*(1+2.*sum(((exp(-sigma^2)).^((1:N).^2)).*cos((1:N).*(theta-mu))));

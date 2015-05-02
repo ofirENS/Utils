@@ -8,7 +8,7 @@ end
 % each angle is drawn from the unit circle 
 
 % approximate the pdf of the wrapped normal 
-numTerms = 20; % number of terms to calculate in the infinite series
+numTerms = 550; % number of terms to calculate in the infinite series
 
 % the truncated pdf
 % g     = @(theta,mu,sigma,N) (1/(2*pi)).*(1+2.*sum(((exp(-sigma^2)).^((1:N).^2)).*cos((1:N).*(theta-mu))));
@@ -25,15 +25,17 @@ wnPDF = wnPDF./sum(wnPDF);
 % wrapped normal CDF
 wnCDF = cumsum(wnPDF);
 % sample from the CDF 
-rp    = rand(numPoints,1);
+rp    = rand(numPoints,1);% should be contained within the range of wnCDF
+m     = minmax(wnCDF');
+rp    = (m(2)-m(1)).*rp +m(1);
 % interpolate to get the number from the CDF
-p      = [0,(1/(numT)):(1/(numT-1)):1-1/(numT),1];
-intVal = interp1(p,wnCDF,rp,'linear');
-number = interp1(wnCDF,t,intVal,'linear');
+% p      = [0,(1/(numT)):(1/(numT-1)):1-1/(numT),1];
+number = interp1(wnCDF,t,rp,'linear');
+% number = interp1(wnCDF,t,intVal,'linear');
 % number = interp1(t,t,intVal,'linear');
-if any(isnan(number))
-    error('interpolation error')
-end
+% if any(isnan(number))
+%     error('interpolation error')
+% end
 
 % figure, plot(t,wnPDF,'.g');% ,t,wnCDF,'r')
 % 

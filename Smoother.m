@@ -4,7 +4,7 @@ classdef Smoother<handle
         method
         nanTreatment
         signalIn
-        signalOut
+        signalOut 
     end
     
     methods

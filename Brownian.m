@@ -8,7 +8,7 @@ classdef Brownian<handle
         position
         tcf % time correlation function of direction correlation
         time
-        params
+        params 
         debug
         handles
     end

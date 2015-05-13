@@ -6,11 +6,13 @@ classdef BrownianBridge<handle
     %%% Public properties
     %
     properties
-        params = struct('startPt',[],...
-                        'endPt',[],...
-                        'numPts',[],...
+        params = struct('startPoint',[],...
+                        'endPoint',[],...
+                        'numPoints',[],...
                         'realizations',[],...
-                        'dimension',[]);
+                        'dimension',[],...
+                        'constructionType','normal',...
+                        'noiseSTD',[]);
         paths
         cdf 
     end
@@ -35,32 +37,35 @@ classdef BrownianBridge<handle
             % set input params
             obj.SetInputParams(varargin);
             
-            % initialize Brownian class
-            obj.handles.classes.brownian = Brownian('realizations',obj.params.realizations,...
-                                                    'numPoints',obj.params.numPoints,...
-                                                    'dimension', obj.params.dimension);
         end
         
         %%% GetBridge
-        %
-        % Create a brownian bridge starting at startPt and ending in endPt with
-        % numPts time points in between
+        % Create a brownian bridge starting at startPoint and ending in endPoint with
+        % numPoints time points in between
         function GetBridge(obj)
             
-            obj.handles.classes.brownian.GetPath;
-            for bIdx = 1:obj.params.realizations                    
-               w = obj.handles.classes.brownian.position{bIdx}';
-            for pIdx = 1:obj.params.numPoints
-                obj.paths{bIdx}(pIdx,:)  = obj.params.startPoint+w(pIdx,:)-...
-                    ((pIdx-1)/(obj.params.numPoints-1))*...
-                    (w(obj.params.numPoints,:)-obj.params.endPoint+obj.params.startPoint);                
-            end
+            % initialize Brownian class
+            obj.handles.classes.brownian = Brownian('realizations',obj.params.realizations,...
+                                                    'numPoints',obj.params.numPoints,...
+                                                    'dimension', obj.params.dimension,...
+                                                    'constructionType',obj.params.constructionType,...
+                                                    'noiseSTD',obj.params.noiseSTD);
             
+            % get a Brownian path
+            obj.handles.classes.brownian.GetPath;
+            
+            % transform the path into a bridge
+            for bIdx = 1:obj.params.realizations
+                w = obj.handles.classes.brownian.position{bIdx}';
+                for pIdx = 1:obj.params.numPoints
+                    obj.paths{bIdx}(pIdx,:)  = obj.params.startPoint+w(pIdx,:)-...
+                        ((pIdx-1)/(obj.params.numPoints-1))*...
+                        (w(obj.params.numPoints,:)-obj.params.endPoint+obj.params.startPoint);
+                end
             end
         end
         
         %%% Plot
-        %
         function Plot(obj)%unfinished
             % plot
             f = figure('Units','norm');
@@ -82,7 +87,7 @@ classdef BrownianBridge<handle
            cameratoolbar;
         end
         
-        function CDF(obj)            
+        function CDF(obj)
             for rIdx = 1:obj.params.realizations
                 for dIdx = 1:obj.params.dimension
                  [p,b] = ecdf(obj.paths{rIdx}(:,dIdx));   
@@ -90,6 +95,11 @@ classdef BrownianBridge<handle
                  obj.cdf(rIdx).prob{dIdx} = p;
                 end                
             end
+        end
+        
+        function Reset(obj)
+            % erase all saved paths 
+            obj.paths = cell(1);
         end
     end
     

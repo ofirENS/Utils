@@ -82,7 +82,7 @@ classdef Brownian<handle
                 
             elseif strcmpi(obj.params.constructionType,'normal')
 %                 obj.time = obj.GetBinaryPartition(obj.params.scale);
-                obj.params.noiseSTD = obj.time(2)-obj.time(1);
+%                 obj.params.noiseSTD = obj.time(2)-obj.time(1);
                 for rIdx = 1:obj.params.realizations
                     y = obj.GetNoise(obj.params.numPoints-1);
                     c = cumsum(y);

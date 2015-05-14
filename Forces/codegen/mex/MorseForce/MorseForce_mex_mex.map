@@ -1,0 +1,11 @@
+MEX {
+	global:
+		mexFunction;
+		emlrtMexFcnProperties;
+		MorseForce;
+		MorseForce_initialize;
+		MorseForce_terminate;
+		MorseForce_atexit;
+	local:
+		*;
+};

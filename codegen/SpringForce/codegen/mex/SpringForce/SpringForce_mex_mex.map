@@ -1,0 +1,11 @@
+MEX {
+	global:
+		mexFunction;
+		emlrtMexFcnProperties;
+		SpringForce;
+		SpringForce_initialize;
+		SpringForce_terminate;
+		SpringForce_atexit;
+	local:
+		*;
+};

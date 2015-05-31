@@ -1,5 +1,5 @@
 classdef Smoother<handle
-    % Signal smoother. A class to collect all smoothing methods
+    % Signal smoother. A class to collect smoothing methods
     properties
         method
         nanTreatment

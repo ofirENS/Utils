@@ -21,8 +21,8 @@ for pIdx = 1:numParticles
                 vec1             = edgeVec(:,a1Idx);                
                 vec2             = edgeVec(:,a2Idx);                
                 angle(next)      = acos(sum(vec1.*vec2)./(norm(vec1)*norm(vec2)));
-                dirVec           =  (vec2+vec1)/2;
-                forceVec(next,:) = bendingConst*(angle(next)/pi - 1) * dirVec;
+                dirVec           = (vec2+vec1)/2;
+                forceVec(next,:) = -bendingConst* dirVec;%*(angle(next)/pi - 1) 
                 next             = next+1;
             end
         end

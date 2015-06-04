@@ -1,4 +1,4 @@
-MATLAB="/home/ofir/Work/ProgramFiles/Matlab2014a"
+MATLAB="/usr/local/MATLAB/R2014a"
 Arch=glnxa64
 ENTRYPOINT=mexFunction
 MAPFILE=$ENTRYPOINT'.map'
@@ -27,4 +27,4 @@ echo OMPFLAGS= >> BendingElasticityForce_mex.mki
 echo OMPLINKFLAGS= >> BendingElasticityForce_mex.mki
 echo "EMC_COMPILER=gcc" >> BendingElasticityForce_mex.mki
 echo "EMC_CONFIG=optim" >> BendingElasticityForce_mex.mki
-"/home/ofir/Work/ProgramFiles/Matlab2014a/bin/glnxa64/gmake" -B -f BendingElasticityForce_mex.mk
+"/usr/local/MATLAB/R2014a/bin/glnxa64/gmake" -B -f BendingElasticityForce_mex.mk

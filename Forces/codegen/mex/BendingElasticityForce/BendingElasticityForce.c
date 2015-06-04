@@ -32,40 +32,32 @@ static emlrtRSInfo e_emlrtRSI = { 31, "BendingElasticityForce",
   "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m" };
 
 static emlrtRSInfo f_emlrtRSI = { 11, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
-};
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m" };
 
 static emlrtRSInfo g_emlrtRSI = { 26, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
-};
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m" };
 
 static emlrtRSInfo h_emlrtRSI = { 39, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
-};
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m" };
 
 static emlrtRSInfo i_emlrtRSI = { 22, "eml_int_forloop_overflow_check",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_int_forloop_overflow_check.m"
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/eml/eml_int_forloop_overflow_check.m"
 };
 
 static emlrtRSInfo j_emlrtRSI = { 12, "factorial",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/specfun/factorial.m"
-};
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/specfun/factorial.m" };
 
 static emlrtRSInfo k_emlrtRSI = { 14, "acos",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/elfun/acos.m"
-};
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/elfun/acos.m" };
 
 static emlrtRSInfo l_emlrtRSI = { 47, "mean",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/datafun/mean.m"
-};
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/datafun/mean.m" };
 
 static emlrtRSInfo m_emlrtRSI = { 76, "sum",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/datafun/sum.m"
-};
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/datafun/sum.m" };
 
 static emlrtMCInfo emlrtMCI = { 14, 5, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
-};
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m" };
 
 static emlrtRTEInfo emlrtRTEI = { 1, 19, "BendingElasticityForce",
   "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m" };
@@ -80,8 +72,7 @@ static emlrtRTEInfo d_emlrtRTEI = { 18, 9, "BendingElasticityForce",
   "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m" };
 
 static emlrtRTEInfo e_emlrtRTEI = { 17, 9, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
-};
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m" };
 
 static emlrtBCInfo emlrtBCI = { -1, -1, 9, 26, "edgeMatX",
   "BendingElasticityForce",
@@ -121,15 +112,11 @@ static emlrtBCInfo h_emlrtBCI = { -1, -1, 22, 46, "edgeVec",
   "BendingElasticityForce",
   "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m", 0 };
 
-static emlrtBCInfo i_emlrtBCI = { -1, -1, 25, 50, "angle",
+static emlrtBCInfo i_emlrtBCI = { -1, -1, 25, 26, "forceVec",
   "BendingElasticityForce",
   "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m", 0 };
 
-static emlrtBCInfo j_emlrtBCI = { -1, -1, 25, 26, "forceVec",
-  "BendingElasticityForce",
-  "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m", 0 };
-
-static emlrtBCInfo k_emlrtBCI = { -1, -1, 31, 15, "force",
+static emlrtBCInfo j_emlrtBCI = { -1, -1, 31, 15, "force",
   "BendingElasticityForce",
   "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m", 0 };
 
@@ -139,29 +126,27 @@ static emlrtDCInfo emlrtDCI = { 17, 26, "BendingElasticityForce",
 static emlrtDCInfo b_emlrtDCI = { 17, 26, "BendingElasticityForce",
   "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m", 4 };
 
-static emlrtBCInfo l_emlrtBCI = { -1, -1, 9, 31, "edgeMatX",
+static emlrtBCInfo k_emlrtBCI = { -1, -1, 9, 31, "edgeMatX",
   "BendingElasticityForce",
   "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m", 0 };
 
-static emlrtBCInfo m_emlrtBCI = { -1, -1, 9, 71, "edgeMatY",
+static emlrtBCInfo l_emlrtBCI = { -1, -1, 9, 71, "edgeMatY",
   "BendingElasticityForce",
   "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m", 0 };
 
-static emlrtBCInfo n_emlrtBCI = { -1, -1, 10, 35, "edgeMatZ",
+static emlrtBCInfo m_emlrtBCI = { -1, -1, 10, 35, "edgeMatZ",
   "BendingElasticityForce",
   "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m", 0 };
 
-static emlrtBCInfo o_emlrtBCI = { -1, -1, 23, 17, "angle",
+static emlrtBCInfo n_emlrtBCI = { -1, -1, 23, 17, "angle",
   "BendingElasticityForce",
   "/home/ofir/Work/ENS/Utils/Forces/BendingElasticityForce.m", 0 };
 
 static emlrtDCInfo c_emlrtDCI = { 17, 37, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m",
-  4 };
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m", 4 };
 
 static emlrtRSInfo o_emlrtRSI = { 14, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
-};
+  "/usr/local/MATLAB/R2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m" };
 
 /* Function Declarations */
 static void eml_li_find(const emlrtStack *sp, const emxArray_boolean_T *x,
@@ -378,7 +363,7 @@ void BendingElasticityForce(const emlrtStack *sp, const emxArray_real_T
       i1 = edgeMatX->size[1];
       iy = r2->data[r2->size[0] * i0];
       angle->data[angle->size[0] * i0] = edgeMatX->data[(ix + edgeMatX->size[0] *
-        (emlrtDynamicBoundsCheckFastR2012b(iy, 1, i1, &l_emlrtBCI, sp) - 1)) - 1];
+        (emlrtDynamicBoundsCheckFastR2012b(iy, 1, i1, &k_emlrtBCI, sp) - 1)) - 1];
     }
 
     ixstart = connectivityMat->size[1];
@@ -408,7 +393,7 @@ void BendingElasticityForce(const emlrtStack *sp, const emxArray_real_T
       i1 = edgeMatY->size[1];
       iy = r2->data[r2->size[0] * i0];
       r0->data[r0->size[0] * i0] = edgeMatY->data[(ix + edgeMatY->size[0] *
-        (emlrtDynamicBoundsCheckFastR2012b(iy, 1, i1, &m_emlrtBCI, sp) - 1)) - 1];
+        (emlrtDynamicBoundsCheckFastR2012b(iy, 1, i1, &l_emlrtBCI, sp) - 1)) - 1];
     }
 
     i0 = angle->size[1];
@@ -441,7 +426,7 @@ void BendingElasticityForce(const emlrtStack *sp, const emxArray_real_T
       i1 = edgeMatZ->size[1];
       iy = r2->data[r2->size[0] * i0];
       r1->data[r1->size[0] * i0] = edgeMatZ->data[(ix + edgeMatZ->size[0] *
-        (emlrtDynamicBoundsCheckFastR2012b(iy, 1, i1, &n_emlrtBCI, sp) - 1)) - 1];
+        (emlrtDynamicBoundsCheckFastR2012b(iy, 1, i1, &m_emlrtBCI, sp) - 1)) - 1];
     }
 
     i0 = angle->size[1];
@@ -549,23 +534,19 @@ void BendingElasticityForce(const emlrtStack *sp, const emxArray_real_T
 
           i1 = angle->size[1];
           iy = (int32_T)next;
-          angle->data[emlrtDynamicBoundsCheckFastR2012b(iy, 1, i1, &o_emlrtBCI,
+          angle->data[emlrtDynamicBoundsCheckFastR2012b(iy, 1, i1, &n_emlrtBCI,
             sp) - 1] = muDoubleScalarAcos(numPairs);
-          i1 = angle->size[1];
-          iy = (int32_T)next;
-          emlrtDynamicBoundsCheckFastR2012b(iy, 1, i1, &i_emlrtBCI, sp);
-          numPairs = bendingConst * (angle->data[(int32_T)next - 1] /
-            3.1415926535897931 - 1.0);
           ixstart = forceVec->size[0];
           i1 = (int32_T)next;
-          emlrtDynamicBoundsCheckFastR2012b(i1, 1, ixstart, &j_emlrtBCI, sp);
+          emlrtDynamicBoundsCheckFastR2012b(i1, 1, ixstart, &i_emlrtBCI, sp);
           ixstart = (int32_T)a2Idx;
           for (i1 = 0; i1 < 3; i1++) {
             forceVec->data[((int32_T)next + forceVec->size[0] * i1) - 1] =
-              numPairs * ((edgeVec->data[i1 + edgeVec->size[0] * (ixstart - 1)]
-                           + edgeVec->data[i1 + edgeVec->size[0] * ix]) / 2.0);
+              -bendingConst * ((edgeVec->data[i1 + edgeVec->size[0] * (ixstart -
+              1)] + edgeVec->data[i1 + edgeVec->size[0] * ix]) / 2.0);
           }
 
+          /* *(angle(next)/pi - 1)  */
           next++;
           i++;
           emlrtBreakCheckFastR2012b(emlrtBreakCheckR2012bFlagVar, sp);
@@ -613,7 +594,7 @@ void BendingElasticityForce(const emlrtStack *sp, const emxArray_real_T
       }
 
       ixstart = force->size[0];
-      emlrtDynamicBoundsCheckFastR2012b(pIdx, 1, ixstart, &k_emlrtBCI, sp);
+      emlrtDynamicBoundsCheckFastR2012b(pIdx, 1, ixstart, &j_emlrtBCI, sp);
       ixstart = forceVec->size[0];
       for (i0 = 0; i0 < 3; i0++) {
         force->data[(pIdx + force->size[0] * i0) - 1] = y[i0] / (real_T)ixstart;

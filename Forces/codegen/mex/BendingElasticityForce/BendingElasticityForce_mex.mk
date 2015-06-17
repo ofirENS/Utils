@@ -20,7 +20,7 @@ SRC_FILES =  \
 	_coder_BendingElasticityForce_mex.c \
 	_coder_BendingElasticityForce_info.c
 
-MEX_FILE_NAME_WO_EXT = BendingElasticityForce
+MEX_FILE_NAME_WO_EXT = BendingElasticityForce_mex
 MEX_FILE_NAME = $(MEX_FILE_NAME_WO_EXT).mexa64
 TARGET = $(MEX_FILE_NAME)
 

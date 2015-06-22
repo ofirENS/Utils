@@ -1,0 +1,11 @@
+MEX {
+	global:
+		mexFunction;
+		emlrtMexFcnProperties;
+		BendingElasticity;
+		BendingElasticity_initialize;
+		BendingElasticity_terminate;
+		BendingElasticity_atexit;
+	local:
+		*;
+};

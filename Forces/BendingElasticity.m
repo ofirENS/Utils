@@ -1,35 +1,60 @@
-function force = BendingElasticity(particles,alpha,fixedParticles)
-% scr test bending elasticity with force at all joints
+function force = BendingElasticity(pos, dist,bendingConst,angle0, affectedParticles,numParticles,dimension)
+%===========
+% Calculate the force on each particle given its connectivity
+% numParticles = size(pos,1);
+% dimension    = size(pos,2);
+force        = zeros(numParticles,dimension);
+% if ~exist('affectedParticles','var')
+%     affectedParticles = 1:size(pos,1);
+% end
+% 
+% F1 = @(pos,dist,i,cosTheta0)((pos(i-2,:)-pos(i-1,:))*(pos(i,:)-pos(i-1,:))'./(dist(i-2,i-1)*dist(i-1,i)) -cosTheta0)*(pos(i-2,:)-pos(i-1,:))./(dist(i-2,i-1)*dist(i,i-1));
+% F2 = @(pos,dist,i,cosTheta0)((pos(i-1,:)-pos(i,:))*(pos(i+1,:)-pos(i,:))'./(dist(i-1,i)*dist(i+1,i)) -cosTheta0)* (2*pos(i,:)-pos(i-1,:)-pos(i+1,:))./(dist(i-1,i)*dist(i+1,i));
+% F3 = @(pos,dist,i,cosTheta0)((pos(i+2,:)-pos(i+1,:))*(pos(i,:)-pos(i+1,:))'./(dist(i+2,i+1)*dist(i+1,i)) -cosTheta0)* (pos(i+2,:)-pos(i+1,:))./(dist(i+2,i+1)*dist(i,i+1)); 
+% 
+% 
+% pos = pos;
+% dist = dist;
 
-numPoints = size(particles,1);
-dimension = size(particles,2);    
-force     = zeros(numPoints,dimension); % the force vector on each particle
-    for pIdx = 2:numPoints-1
-        midPoint = 0.5.*(particles(pIdx-1,:)+ particles(pIdx+1,:));
+cosTheta0    = cos(angle0);
+if numParticles>2
+for pIdx = 1:numel(affectedParticles)
+      i = affectedParticles(pIdx)        
+    if (i==1)
+         force(1,1:3) = ((((pos(i+2,:)-pos(i+1,:))*(pos(i,:)-pos(i+1,:))')/(dist(i+2,i+1)*dist(i+1,i)) -cosTheta0).* ((pos(i+2,:)-pos(i+1,:))./(dist(i+2,i+1)*dist(i,i+1))));
+         
+    elseif all([i== 2, i~=(numParticles-1)]);
         
-        % Calculate the force vectors on each particle
-        
-        % mid particle:
-        force(pIdx,:) = alpha.*(midPoint-particles(pIdx,:))+force(pIdx,:);
-        
-        % neighboring particles
-        
-        % vector connecting neighbors
-        vR = (particles(pIdx+1,:) - particles(pIdx,:)); % from left to right
-        vL =  particles(pIdx-1,:) - particles(pIdx,:);
-                
-        % the normalized force vector of the neighbors
-        dirR = (particles(pIdx+1,:) - midPoint);
-        dirR = dirR./norm(dirR);        
-        
-        a  = sqrt(sum((midPoint -particles(pIdx+1,:)).^2));
-        
-        b = norm(vR);                
-        force(pIdx+1,:) = force(pIdx+1,:) + dirR*(b-a)*alpha ;
-        
-        b    = norm(vL);                
-        force(pIdx-1,:) = force(pIdx-1,:) + dirR*(b-a)*alpha;
+         force(2,1:3) = ((((pos(i-1,:)-pos(i,:))*(pos(i+1,:)-pos(i,:))')/(dist(i-1,i)*dist(i+1,i)) -cosTheta0).* ((2*pos(i,:)-pos(i-1,:)-pos(i+1,:))./(dist(i-1,i)*dist(i+1,i)))+...
+                                                           (((pos(i+2,:)-pos(i+1,:))*(pos(i,:)-pos(i+1,:))')/(dist(i+2,i+1)*dist(i+1,i)) -cosTheta0).* ((pos(i+2,:)-pos(i+1,:))./(dist(i+2,i+1)*dist(i,i+1)))); 
+         
+     elseif all([i == 2 ,(i==(numParticles-1))])
+           force(2,1:3) = bendingConst.*((((pos(i-1,:)-pos(i,:))*(pos(i+1,:)-pos(i,:))')/(dist(i-1,i)*dist(i+1,i)) -cosTheta0).* ((2*pos(i,:)-pos(i-1,:)-pos(i+1,:))./(dist(i-1,i)*dist(i+1,i))));
+           
+    elseif all([i == (numParticles-1) , (i~=2)])
+          force(i,1:3) = ((((pos(i-1,:)-pos(i,:))  *(pos(i+1,:)-pos(i,:))')/(dist(i-1,i)  *dist(i+1,i)) -cosTheta0).*((2*pos(i,:)-pos(i-1,:)-pos(i+1,:))./(dist(i-1,i)*dist(i+1,i)))+...
+                                                            (((pos(i-2,:)-pos(i-1,:))*(pos(i,:)-pos(i-1,:))')/(dist(i-2,i-1)*dist(i-1,i)) -cosTheta0).*((pos(i-2,:)-pos(i-1,:))./(dist(i-2,i-1)*dist(i,i-1))));
+    elseif i== numParticles        
+
+         force(i,1:3) = (((((pos(i-2,:)-pos(i-1,:))*(pos(i,:)-pos(i-1,:))')/(dist(i-2,i-1)*dist(i-1,i))) -cosTheta0).*((pos(i-2,:)-pos(i-1,:))./(dist(i-2,i-1)*dist(i,i-1))));
+    else
+         r1 = (pos(i-2,:)-pos(i-1,:));
+         r2 = (pos(i,:)-pos(i-1,:));
+         F1 = (((r1*r2')/(dist(i-2,i-1)*dist(i-1,i)))-cosTheta0).*(r1./(dist(i-2,i-1)*dist(i,i-1)));
+         F2 = ((((pos(i-1,:)-pos(i,:)) *(pos(i+1,:)-pos(i,:))')/(dist(i-1,i)*dist(i+1,i)))  -cosTheta0).*((2*pos(i,:)-pos(i-1,:)-pos(i+1,:))./(dist(i-1,i)*dist(i+1,i)));
+         F3 = ((((pos(i+2,:)-pos(i+1,:))*(pos(i,:)-pos(i+1,:))')/(dist(i+2,i+1)*dist(i+1,i)))-cosTheta0).*((pos(i+2,:)-pos(i+1,:))./(dist(i+2,i+1)*dist(i,i+1)));
+         
+         
+                  
+        force(i,1:3)= (((((pos(i-2,:)-pos(i-1,:))*(pos(i,:)-pos(i-1,:))')/(dist(i-2,i-1)*dist(i-1,i)))-cosTheta0).*((pos(i-2,:)-pos(i-1,:))./(dist(i-2,i-1)*dist(i,i-1))) +...
+                      ((((pos(i-1,:)-pos(i,:))  *(pos(i+1,:)-pos(i,:))')/(dist(i-1,i)*dist(i+1,i)))  -cosTheta0).*((2*pos(i,:)-pos(i-1,:)-pos(i+1,:))./(dist(i-1,i)*dist(i+1,i)))+...
+                      ((((pos(i+2,:)-pos(i+1,:))*(pos(i,:)-pos(i+1,:))')/(dist(i+2,i+1)*dist(i+1,i)))-cosTheta0).*((pos(i+2,:)-pos(i+1,:))./(dist(i+2,i+1)*dist(i,i+1))));
     end
-    force(fixedParticles,:) = 0;% keep first particle fixed    
+    
+end
+
+force= -bendingConst.*force;
+
+end
 
 end

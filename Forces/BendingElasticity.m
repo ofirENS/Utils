@@ -19,7 +19,7 @@ force        = zeros(numParticles,dimension);
 cosTheta0    = cos(angle0);
 if numParticles>2
 for pIdx = 1:numel(affectedParticles)
-      i = affectedParticles(pIdx)        
+      i = affectedParticles(pIdx);        
     if (i==1)
          force(1,1:3) = ((((pos(i+2,:)-pos(i+1,:))*(pos(i,:)-pos(i+1,:))')/(dist(i+2,i+1)*dist(i+1,i)) -cosTheta0).* ((pos(i+2,:)-pos(i+1,:))./(dist(i+2,i+1)*dist(i,i+1))));
          

@@ -24,8 +24,8 @@ dim = 3;
 numParticles        = size(particleDistance,1);
 
 % Calculate the force magnitude
-repulse      = exp(-alpha*(particleDistance-re)); % repulsive term
-attract      = 1-repulse; % attractive term 
+attract      = exp(-alpha*(particleDistance-re)); % repulsive term
+repulse      = 1-attract; % attractive term 
 if strcmpi(forceType,'attractive')
     forceMag = 2*alpha*De*attract;
 elseif strcmpi(forceType,'repulsive')

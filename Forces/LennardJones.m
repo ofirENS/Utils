@@ -1,6 +1,9 @@
-function [force, forceDirection] = LennardJones(particlePosition,particleDist,LJPotentialWidth,LJPotentialDepth)
+function [force, forceDirection] = LennardJones(particlePosition,particleDist,LJPotentialWidth,LJPotentialDepth,potentialType)
    % Calculate the lennard jones potential between beads and its derivative
    % 
+   if ~exist('PotentialType','var')
+       potentialType = 'full';
+   end
     numParticles = size(particlePosition,1);
     dimension    = size(particlePosition,2);
     force        = zeros(numParticles,dimension);
@@ -33,6 +36,7 @@ function [force, forceDirection] = LennardJones(particlePosition,particleDist,LJ
 %     forceValue   = 24*(epsilon*bdmInv).*(-2*t.*t +t); % derivative of LJ function
     
     forceValue   = (2*epsilon*rm^6).*(A-1);
+    forceValue(particleDist<2.5*rm)=0;% truncate
     forceValue(isnan(forceValue))= 0;
     forceDirection = zeros(numParticles,numParticles,dimension);
     % sum the contribution from all particles
@@ -45,7 +49,7 @@ function [force, forceDirection] = LennardJones(particlePosition,particleDist,LJ
         A    = A';
         B2   = A(ones(siz(1),1),:);
         % Subtract positions to get the direction vectors
-        forceDirection(:,:,dIdx)  = B2-B1;
+        forceDirection(:,:,dIdx)  = B1-B2;
         force(:,dIdx) = (sum(forceDirection(:,:,dIdx).*forceValue,1)');
     end
 end

@@ -1,17 +1,17 @@
 # Make settings for LennardJones
-CC=gcc
-CFLAGS=-ansi -D_GNU_SOURCE  -fexceptions -fPIC -fno-omit-frame-pointer -pthread
-CLIBS=-Wl,-rpath-link,/home/ofir/Work/ProgramFiles/Matlab2014a/bin/glnxa64 -L/home/ofir/Work/ProgramFiles/Matlab2014a/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++
+CC=/usr/bin/gcc
+CFLAGS=-ansi -fexceptions -fPIC -fno-omit-frame-pointer -pthread -D_GNU_SOURCE -DMATLAB_MEX_FILE 
+CLIBS=
 COPTIMFLAGS=-O -DNDEBUG
 CDEBUGFLAGS=-g
 CXX=g++
-CXXFLAGS=-ansi -D_GNU_SOURCE -fPIC -fno-omit-frame-pointer -pthread
-CXXLIBS=-Wl,-rpath-link,/home/ofir/Work/ProgramFiles/Matlab2014a/bin/glnxa64 -L/home/ofir/Work/ProgramFiles/Matlab2014a/bin/glnxa64 -lmx -lmex -lmat -lm
+CXXFLAGS=-ansi -fexceptions -fPIC -fno-omit-frame-pointer -pthread -D_GNU_SOURCE -DMATLAB_MEX_FILE 
+CXXLIBS=
 CXXOPTIMFLAGS=-O -DNDEBUG
 CXXDEBUGFLAGS=-g
-LD=gcc
-LDFLAGS=-pthread -shared -Wl,--version-script,/home/ofir/Work/ProgramFiles/Matlab2014a/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined
-LDOPTIMFLAGS=-O
+LD=/usr/bin/gcc
+LDFLAGS=-pthread -Wl,--no-undefined -Wl,-rpath-link,/home/ofir/ProgramFiles/MATLAB2015/bin/glnxa64 -shared  -L/home/ofir/ProgramFiles/MATLAB2015/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++ -Wl,--version-script,/home/ofir/ProgramFiles/MATLAB2015/extern/lib/glnxa64/mexFunction.map
+LDOPTIMFLAGS=
 LDDEBUGFLAGS=-g
 Arch=glnxa64
 OMPFLAGS=

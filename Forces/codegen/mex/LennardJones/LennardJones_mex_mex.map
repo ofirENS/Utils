@@ -3,6 +3,18 @@ MEX {
 		mexFunction;
 		emlrtMexFcnProperties;
 		LennardJones;
+		b_emxInit_char_T;
+		b_emxInit_real_T;
+		c_emxInit_real_T;
+		emxEnsureCapacity;
+		emxFree_boolean_T;
+		emxFree_char_T;
+		emxFree_int32_T;
+		emxFree_real_T;
+		emxInit_boolean_T;
+		emxInit_char_T;
+		emxInit_int32_T;
+		emxInit_real_T;
 		LennardJones_initialize;
 		LennardJones_terminate;
 		LennardJones_atexit;

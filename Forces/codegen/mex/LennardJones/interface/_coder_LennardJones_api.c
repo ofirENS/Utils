@@ -10,9 +10,10 @@
 #include "LennardJones.h"
 #include "_coder_LennardJones_api.h"
 #include "LennardJones_emxutil.h"
+#include "LennardJones_data.h"
 
 /* Variable Definitions */
-static emlrtRTEInfo j_emlrtRTEI = { 1, 1, "_coder_LennardJones_api", "" };
+static emlrtRTEInfo h_emlrtRTEI = { 1, 1, "_coder_LennardJones_api", "" };
 
 /* Function Declarations */
 static void b_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
@@ -22,33 +23,39 @@ static real_T c_emlrt_marshallIn(const emlrtStack *sp, const mxArray
   *LJPotentialWidth, const char_T *identifier);
 static real_T d_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
   emlrtMsgIdentifier *parentId);
-static void e_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
-  emlrtMsgIdentifier *msgId, emxArray_real_T *ret);
+static void e_emlrt_marshallIn(const emlrtStack *sp, const mxArray
+  *potentialType, const char_T *identifier, emxArray_char_T *y);
 static void emlrt_marshallIn(const emlrtStack *sp, const mxArray
   *particlePosition, const char_T *identifier, emxArray_real_T *y);
 static const mxArray *emlrt_marshallOut(const emxArray_real_T *u);
-static real_T f_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
+static void f_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
+  emlrtMsgIdentifier *parentId, emxArray_char_T *y);
+static void g_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
+  emlrtMsgIdentifier *msgId, emxArray_real_T *ret);
+static real_T h_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
   emlrtMsgIdentifier *msgId);
+static void i_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
+  emlrtMsgIdentifier *msgId, emxArray_char_T *ret);
 
 /* Function Definitions */
 static void b_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
   emlrtMsgIdentifier *parentId, emxArray_real_T *y)
 {
-  e_emlrt_marshallIn(sp, emlrtAlias(u), parentId, y);
+  g_emlrt_marshallIn(sp, emlrtAlias(u), parentId, y);
   emlrtDestroyArray(&u);
 }
 
 static const mxArray *b_emlrt_marshallOut(const emxArray_real_T *u)
 {
   const mxArray *y;
-  static const int32_T iv6[3] = { 0, 0, 0 };
+  static const int32_T iv3[3] = { 0, 0, 0 };
 
-  const mxArray *m3;
+  const mxArray *m1;
   y = NULL;
-  m3 = emlrtCreateNumericArray(3, iv6, mxDOUBLE_CLASS, mxREAL);
-  mxSetData((mxArray *)m3, (void *)u->data);
-  emlrtSetDimensions((mxArray *)m3, u->size, 3);
-  emlrtAssign(&y, m3);
+  m1 = emlrtCreateNumericArray(3, iv3, mxDOUBLE_CLASS, mxREAL);
+  mxSetData((mxArray *)m1, (void *)u->data);
+  emlrtSetDimensions((mxArray *)m1, u->size, 3);
+  emlrtAssign(&y, m1);
   return y;
 }
 
@@ -68,30 +75,19 @@ static real_T d_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
   emlrtMsgIdentifier *parentId)
 {
   real_T y;
-  y = f_emlrt_marshallIn(sp, emlrtAlias(u), parentId);
+  y = h_emlrt_marshallIn(sp, emlrtAlias(u), parentId);
   emlrtDestroyArray(&u);
   return y;
 }
 
-static void e_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
-  emlrtMsgIdentifier *msgId, emxArray_real_T *ret)
+static void e_emlrt_marshallIn(const emlrtStack *sp, const mxArray
+  *potentialType, const char_T *identifier, emxArray_char_T *y)
 {
-  int32_T iv7[2];
-  boolean_T bv0[2];
-  int32_T i;
-  int32_T iv8[2];
-  for (i = 0; i < 2; i++) {
-    iv7[i] = -1;
-    bv0[i] = true;
-  }
-
-  emlrtCheckVsBuiltInR2012b(sp, msgId, src, "double", false, 2U, iv7, bv0, iv8);
-  ret->size[0] = iv8[0];
-  ret->size[1] = iv8[1];
-  ret->allocatedSize = ret->size[0] * ret->size[1];
-  ret->data = (real_T *)mxGetData(src);
-  ret->canFreeData = false;
-  emlrtDestroyArray(&src);
+  emlrtMsgIdentifier thisId;
+  thisId.fIdentifier = identifier;
+  thisId.fParent = NULL;
+  f_emlrt_marshallIn(sp, emlrtAlias(potentialType), &thisId, y);
+  emlrtDestroyArray(&potentialType);
 }
 
 static void emlrt_marshallIn(const emlrtStack *sp, const mxArray
@@ -107,18 +103,47 @@ static void emlrt_marshallIn(const emlrtStack *sp, const mxArray
 static const mxArray *emlrt_marshallOut(const emxArray_real_T *u)
 {
   const mxArray *y;
-  static const int32_T iv5[2] = { 0, 0 };
+  static const int32_T iv2[2] = { 0, 0 };
 
-  const mxArray *m2;
+  const mxArray *m0;
   y = NULL;
-  m2 = emlrtCreateNumericArray(2, iv5, mxDOUBLE_CLASS, mxREAL);
-  mxSetData((mxArray *)m2, (void *)u->data);
-  emlrtSetDimensions((mxArray *)m2, u->size, 2);
-  emlrtAssign(&y, m2);
+  m0 = emlrtCreateNumericArray(2, iv2, mxDOUBLE_CLASS, mxREAL);
+  mxSetData((mxArray *)m0, (void *)u->data);
+  emlrtSetDimensions((mxArray *)m0, u->size, 2);
+  emlrtAssign(&y, m0);
   return y;
 }
 
-static real_T f_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
+static void f_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
+  emlrtMsgIdentifier *parentId, emxArray_char_T *y)
+{
+  i_emlrt_marshallIn(sp, emlrtAlias(u), parentId, y);
+  emlrtDestroyArray(&u);
+}
+
+static void g_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
+  emlrtMsgIdentifier *msgId, emxArray_real_T *ret)
+{
+  int32_T iv4[2];
+  int32_T i;
+  int32_T iv5[2];
+  boolean_T bv0[2] = { true, true };
+
+  for (i = 0; i < 2; i++) {
+    iv4[i] = -1;
+  }
+
+  emlrtCheckVsBuiltInR2012b(sp, msgId, src, "double", false, 2U, iv4, &bv0[0],
+    iv5);
+  ret->size[0] = iv5[0];
+  ret->size[1] = iv5[1];
+  ret->allocatedSize = ret->size[0] * ret->size[1];
+  ret->data = (real_T *)mxGetData(src);
+  ret->canFreeData = false;
+  emlrtDestroyArray(&src);
+}
+
+static real_T h_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
   emlrtMsgIdentifier *msgId)
 {
   real_T ret;
@@ -128,10 +153,33 @@ static real_T f_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
   return ret;
 }
 
-void LennardJones_api(const mxArray * const prhs[4], const mxArray *plhs[2])
+static void i_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src, const
+  emlrtMsgIdentifier *msgId, emxArray_char_T *ret)
+{
+  int32_T iv6[2];
+  int32_T i4;
+  int32_T iv7[2];
+  boolean_T bv1[2] = { false, true };
+
+  for (i4 = 0; i4 < 2; i4++) {
+    iv6[i4] = 1 + -2 * i4;
+  }
+
+  emlrtCheckVsBuiltInR2012b(sp, msgId, src, "char", false, 2U, iv6, &bv1[0], iv7);
+  i4 = ret->size[0] * ret->size[1];
+  ret->size[0] = iv7[0];
+  ret->size[1] = iv7[1];
+  emxEnsureCapacity(sp, (emxArray__common *)ret, i4, (int32_T)sizeof(char_T),
+                    (emlrtRTEInfo *)NULL);
+  emlrtImportArrayR2011b(src, ret->data, 1, false);
+  emlrtDestroyArray(&src);
+}
+
+void LennardJones_api(const mxArray * const prhs[5], const mxArray *plhs[2])
 {
   emxArray_real_T *particlePosition;
   emxArray_real_T *particleDist;
+  emxArray_char_T *potentialType;
   emxArray_real_T *force;
   emxArray_real_T *forceDirection;
   real_T LJPotentialWidth;
@@ -140,10 +188,11 @@ void LennardJones_api(const mxArray * const prhs[4], const mxArray *plhs[2])
 
   st.tls = emlrtRootTLSGlobal;
   emlrtHeapReferenceStackEnterFcnR2012b(&st);
-  emxInit_real_T(&st, &particlePosition, 2, &j_emlrtRTEI, true);
-  emxInit_real_T(&st, &particleDist, 2, &j_emlrtRTEI, true);
-  emxInit_real_T(&st, &force, 2, &j_emlrtRTEI, true);
-  c_emxInit_real_T(&st, &forceDirection, 3, &j_emlrtRTEI, true);
+  emxInit_real_T(&st, &particlePosition, 2, &h_emlrtRTEI, true);
+  emxInit_real_T(&st, &particleDist, 2, &h_emlrtRTEI, true);
+  b_emxInit_char_T(&st, &potentialType, 2, &h_emlrtRTEI, true);
+  emxInit_real_T(&st, &force, 2, &h_emlrtRTEI, true);
+  c_emxInit_real_T(&st, &forceDirection, 3, &h_emlrtRTEI, true);
 
   /* Marshall function inputs */
   emlrt_marshallIn(&st, emlrtAlias(prhs[0]), "particlePosition",
@@ -153,10 +202,11 @@ void LennardJones_api(const mxArray * const prhs[4], const mxArray *plhs[2])
     "LJPotentialWidth");
   LJPotentialDepth = c_emlrt_marshallIn(&st, emlrtAliasP(prhs[3]),
     "LJPotentialDepth");
+  e_emlrt_marshallIn(&st, emlrtAliasP(prhs[4]), "potentialType", potentialType);
 
   /* Invoke the target function */
   LennardJones(&st, particlePosition, particleDist, LJPotentialWidth,
-               LJPotentialDepth, force, forceDirection);
+               LJPotentialDepth, potentialType, force, forceDirection);
 
   /* Marshall function outputs */
   plhs[0] = emlrt_marshallOut(force);
@@ -165,6 +215,7 @@ void LennardJones_api(const mxArray * const prhs[4], const mxArray *plhs[2])
   emxFree_real_T(&forceDirection);
   force->canFreeData = false;
   emxFree_real_T(&force);
+  emxFree_char_T(&potentialType);
   particleDist->canFreeData = false;
   emxFree_real_T(&particleDist);
   particlePosition->canFreeData = false;

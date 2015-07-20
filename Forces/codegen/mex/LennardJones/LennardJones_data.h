@@ -21,8 +21,13 @@
 #include "LennardJones_types.h"
 
 /* Variable Declarations */
+extern emlrtCTX emlrtRootTLSGlobal;
 extern const volatile char_T *emlrtBreakCheckR2012bFlagVar;
-extern emlrtRSInfo j_emlrtRSI;
+extern emlrtContext emlrtContextGlobal;
+extern emlrtRSInfo k_emlrtRSI;
+extern emlrtRSInfo m_emlrtRSI;
+extern emlrtRSInfo n_emlrtRSI;
+extern emlrtRSInfo o_emlrtRSI;
 
 #endif
 

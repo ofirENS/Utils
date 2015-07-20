@@ -23,8 +23,8 @@
 /* Function Declarations */
 extern void LennardJones(const emlrtStack *sp, const emxArray_real_T
   *particlePosition, const emxArray_real_T *particleDist, real_T
-  LJPotentialWidth, real_T LJPotentialDepth, emxArray_real_T *force,
-  emxArray_real_T *forceDirection);
+  LJPotentialWidth, real_T LJPotentialDepth, const emxArray_char_T
+  *potentialType, emxArray_real_T *force, emxArray_real_T *forceDirection);
 
 #endif
 

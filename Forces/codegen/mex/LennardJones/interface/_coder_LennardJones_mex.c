@@ -1,65 +1,80 @@
 /*
  * _coder_LennardJones_mex.c
  *
- * Code generation for function 'LennardJones'
+ * Code generation for function '_coder_LennardJones_mex'
  *
  */
 
 /* Include files */
-#include "mex.h"
+#include "LennardJones.h"
+#include "_coder_LennardJones_mex.h"
+#include "LennardJones_terminate.h"
 #include "_coder_LennardJones_api.h"
 #include "LennardJones_initialize.h"
-#include "LennardJones_terminate.h"
+#include "LennardJones_data.h"
 
 /* Function Declarations */
-static void LennardJones_mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-
-/* Variable Definitions */
-emlrtContext emlrtContextGlobal = { true, false, EMLRT_VERSION_INFO, NULL, "LennardJones", NULL, false, {2045744189U,2170104910U,2743257031U,4284093946U}, NULL };
-void *emlrtRootTLSGlobal = NULL;
+static void LennardJones_mexFunction(int32_T nlhs, mxArray *plhs[2], int32_T
+  nrhs, const mxArray *prhs[5]);
 
 /* Function Definitions */
-static void LennardJones_mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+static void LennardJones_mexFunction(int32_T nlhs, mxArray *plhs[2], int32_T
+  nrhs, const mxArray *prhs[5])
 {
+  int32_T n;
+  const mxArray *inputs[5];
   const mxArray *outputs[2];
-  const mxArray *inputs[4];
-  int n = 0;
-  int nOutputs = (nlhs < 1 ? 1 : nlhs);
-  int nInputs = nrhs;
+  int32_T b_nlhs;
   emlrtStack st = { NULL, NULL, NULL };
-  /* Module initialization. */
-  LennardJones_initialize(&emlrtContextGlobal);
+
   st.tls = emlrtRootTLSGlobal;
+
   /* Check for proper number of arguments. */
-  if (nrhs != 4) {
-    emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:WrongNumberOfInputs", 5, mxINT32_CLASS, 4, mxCHAR_CLASS, 12, "LennardJones");
-  } else if (nlhs > 2) {
-    emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:TooManyOutputArguments", 3, mxCHAR_CLASS, 12, "LennardJones");
+  if (nrhs != 5) {
+    emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:WrongNumberOfInputs", 5, 12, 5, 4,
+                        12, "LennardJones");
   }
+
+  if (nlhs > 2) {
+    emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:TooManyOutputArguments", 3, 4, 12,
+                        "LennardJones");
+  }
+
   /* Temporary copy for mex inputs. */
-  for (n = 0; n < nInputs; ++n) {
+  for (n = 0; n < nrhs; n++) {
     inputs[n] = prhs[n];
+    if (*emlrtBreakCheckR2012bFlagVar != 0) {
+      emlrtBreakCheckR2012b(&st);
+    }
   }
+
   /* Call the function. */
   LennardJones_api(inputs, outputs);
+
   /* Copy over outputs to the caller. */
-  for (n = 0; n < nOutputs; ++n) {
-    plhs[n] = emlrtReturnArrayR2009a(outputs[n]);
+  if (nlhs < 1) {
+    b_nlhs = 1;
+  } else {
+    b_nlhs = nlhs;
   }
-  /* Module finalization. */
+
+  emlrtReturnArrays(b_nlhs, plhs, outputs);
+
+  /* Module termination. */
   LennardJones_terminate();
 }
 
-void LennardJones_atexit_wrapper(void)
-{
-   LennardJones_atexit();
-}
-
-void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+void mexFunction(int32_T nlhs, mxArray *plhs[], int32_T nrhs, const mxArray
+                 *prhs[])
 {
   /* Initialize the memory manager. */
-  mexAtExit(LennardJones_atexit_wrapper);
+  mexAtExit(LennardJones_atexit);
+
+  /* Module initialization. */
+  LennardJones_initialize();
+
   /* Dispatch the entry-point. */
   LennardJones_mexFunction(nlhs, plhs, nrhs, prhs);
 }
+
 /* End of code generation (_coder_LennardJones_mex.c) */

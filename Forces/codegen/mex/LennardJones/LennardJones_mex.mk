@@ -1,22 +1,24 @@
 START_DIR = /home/ofir/Work/ENS/Utils/Forces
 
-MATLAB_ROOT = /home/ofir/Work/ProgramFiles/Matlab2014a
+MATLAB_ROOT = /home/ofir/ProgramFiles/MATLAB2015
 MAKEFILE = LennardJones_mex.mk
 
 include LennardJones_mex.mki
 
 
 SRC_FILES =  \
-	LennardJones_mexutil.c \
 	LennardJones_data.c \
 	LennardJones_initialize.c \
 	LennardJones_terminate.c \
 	LennardJones.c \
 	power.c \
+	scalexpAlloc.c \
 	eml_int_forloop_overflow_check.c \
+	diag.c \
+	dec2bin.c \
 	_coder_LennardJones_api.c \
-	LennardJones_emxutil.c \
 	_coder_LennardJones_mex.c \
+	LennardJones_emxutil.c \
 	_coder_LennardJones_info.c
 
 MEX_FILE_NAME_WO_EXT = LennardJones_mex
@@ -29,7 +31,7 @@ SYS_LIBS =
 #
 #====================================================================
 # gmake makefile fragment for building MEX functions using Unix
-# Copyright 2007-2013 The MathWorks, Inc.
+# Copyright 2007-2014 The MathWorks, Inc.
 #====================================================================
 #
 OBJEXT = o
@@ -140,7 +142,7 @@ CPPFLAGS =   $(CXX_FLAGS) $(USER_INCLUDE) $(SYS_INCLUDE)
 
 
 $(TARGET): $(OBJLIST) $(MAKEFILE)
-	$(LD) $(EXPORTOPT) $(LINK_FLAGS) $(OBJLIST) $(SYS_LIBS)
+	$(LD) $(EXPORTOPT) $(OBJLIST) $(LINK_FLAGS) $(SYS_LIBS)
 
 #====================================================================
 

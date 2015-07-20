@@ -1,9 +1,9 @@
-MATLAB="/home/ofir/Work/ProgramFiles/Matlab2014a"
+MATLAB="/home/ofir/ProgramFiles/MATLAB2015"
 Arch=glnxa64
 ENTRYPOINT=mexFunction
 MAPFILE=$ENTRYPOINT'.map'
-PREFDIR="/home/ofir/.matlab/R2014a"
-OPTSFILE_NAME="./mexopts.sh"
+PREFDIR="/home/ofir/.matlab/R2015a"
+OPTSFILE_NAME="./setEnv.sh"
 . $OPTSFILE_NAME
 COMPILER=$CC
 . $OPTSFILE_NAME
@@ -27,4 +27,4 @@ echo OMPFLAGS= >> LennardJones_mex.mki
 echo OMPLINKFLAGS= >> LennardJones_mex.mki
 echo "EMC_COMPILER=gcc" >> LennardJones_mex.mki
 echo "EMC_CONFIG=optim" >> LennardJones_mex.mki
-"/home/ofir/Work/ProgramFiles/Matlab2014a/bin/glnxa64/gmake" -B -f LennardJones_mex.mk
+"/home/ofir/ProgramFiles/MATLAB2015/bin/glnxa64/gmake" -B -f LennardJones_mex.mk

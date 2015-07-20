@@ -12,12 +12,12 @@
 #include "LennardJones_data.h"
 
 /* Function Definitions */
-void LennardJones_initialize(emlrtContext *aContext)
+void LennardJones_initialize(void)
 {
   emlrtStack st = { NULL, NULL, NULL };
 
   emlrtBreakCheckR2012bFlagVar = emlrtGetBreakCheckFlagAddressR2012b();
-  emlrtCreateRootTLS(&emlrtRootTLSGlobal, aContext, NULL, 1);
+  emlrtCreateRootTLS(&emlrtRootTLSGlobal, &emlrtContextGlobal, NULL, 1);
   st.tls = emlrtRootTLSGlobal;
   emlrtClearAllocCountR2012b(&st, false, 0U, 0);
   emlrtEnterRtStackR2012b(&st);

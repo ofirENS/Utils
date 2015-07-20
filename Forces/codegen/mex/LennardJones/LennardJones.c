@@ -8,167 +8,130 @@
 /* Include files */
 #include "rt_nonfinite.h"
 #include "LennardJones.h"
-#include "power.h"
+#include "dec2bin.h"
 #include "LennardJones_emxutil.h"
 #include "eml_int_forloop_overflow_check.h"
-#include "LennardJones_mexutil.h"
+#include "diag.h"
+#include "power.h"
 #include "LennardJones_data.h"
 
 /* Variable Definitions */
-static emlrtRSInfo emlrtRSI = { 12, "LennardJones",
+static emlrtRSInfo emlrtRSI = { 19, "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
 
-static emlrtRSInfo b_emlrtRSI = { 16, "LennardJones",
+static emlrtRSInfo b_emlrtRSI = { 21, "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
 
-static emlrtRSInfo c_emlrtRSI = { 36, "LennardJones",
+static emlrtRSInfo c_emlrtRSI = { 25, "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
 
-static emlrtRSInfo d_emlrtRSI = { 49, "LennardJones",
+static emlrtRSInfo d_emlrtRSI = { 46, "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
 
-static emlrtRSInfo e_emlrtRSI = { 90, "diag",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/elmat/diag.m"
+static emlrtRSInfo e_emlrtRSI = { 48, "LennardJones",
+  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
+
+static emlrtRSInfo f_emlrtRSI = { 65, "LennardJones",
+  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
+
+static emlrtRSInfo p_emlrtRSI = { 15, "strcmpi",
+  "/home/ofir/ProgramFiles/MATLAB2015/toolbox/eml/lib/matlab/strfun/strcmpi.m" };
+
+static emlrtRSInfo q_emlrtRSI = { 22, "strcmpi",
+  "/home/ofir/ProgramFiles/MATLAB2015/toolbox/eml/lib/matlab/strfun/strcmpi.m" };
+
+static emlrtRSInfo r_emlrtRSI = { 16, "lower",
+  "/home/ofir/ProgramFiles/MATLAB2015/toolbox/eml/lib/matlab/strfun/lower.m" };
+
+static emlrtRSInfo s_emlrtRSI = { 10, "eml_string_transform",
+  "/home/ofir/ProgramFiles/MATLAB2015/toolbox/eml/lib/matlab/strfun/eml_string_transform.m"
 };
 
-static emlrtRSInfo f_emlrtRSI = { 22, "eml_int_forloop_overflow_check",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_int_forloop_overflow_check.m"
+static emlrtRSInfo t_emlrtRSI = { 13, "sum",
+  "/home/ofir/ProgramFiles/MATLAB2015/toolbox/eml/lib/matlab/datafun/sum.m" };
+
+static emlrtRSInfo u_emlrtRSI = { 46, "sumprod",
+  "/home/ofir/ProgramFiles/MATLAB2015/toolbox/eml/lib/matlab/datafun/private/sumprod.m"
 };
 
-static emlrtRSInfo g_emlrtRSI = { 74, "diag",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/elmat/diag.m"
+static emlrtRSInfo v_emlrtRSI = { 45, "combine_vector_elements",
+  "/home/ofir/ProgramFiles/MATLAB2015/toolbox/eml/lib/matlab/datafun/private/combine_vector_elements.m"
 };
 
-static emlrtRSInfo h_emlrtRSI = { 37, "dec2bin",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/strfun/dec2bin.m"
-};
-
-static emlrtRSInfo i_emlrtRSI = { 178, "dec2bin",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/strfun/dec2bin.m"
-};
-
-static emlrtRSInfo k_emlrtRSI = { 11, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
-};
-
-static emlrtRSInfo l_emlrtRSI = { 26, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
-};
-
-static emlrtRSInfo m_emlrtRSI = { 39, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
-};
-
-static emlrtRSInfo n_emlrtRSI = { 70, "sum",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/datafun/sum.m"
-};
-
-static emlrtRSInfo o_emlrtRSI = { 76, "sum",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/datafun/sum.m"
-};
-
-static emlrtMCInfo emlrtMCI = { 87, 9, "diag",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/elmat/diag.m"
-};
-
-static emlrtMCInfo b_emlrtMCI = { 86, 19, "diag",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/elmat/diag.m"
-};
-
-static emlrtMCInfo e_emlrtMCI = { 14, 5, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
+static emlrtRSInfo w_emlrtRSI = { 51, "combine_vector_elements",
+  "/home/ofir/ProgramFiles/MATLAB2015/toolbox/eml/lib/matlab/datafun/private/combine_vector_elements.m"
 };
 
 static emlrtRTEInfo emlrtRTEI = { 1, 36, "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
 
-static emlrtRTEInfo b_emlrtRTEI = { 89, 5, "diag",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/elmat/diag.m"
+static emlrtRTEInfo b_emlrtRTEI = { 19, 5, "LennardJones",
+  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
+
+static emlrtRTEInfo c_emlrtRTEI = { 28, 9, "LennardJones",
+  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
+
+static emlrtRTEInfo d_emlrtRTEI = { 59, 9, "LennardJones",
+  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
+
+static emlrtRTEInfo e_emlrtRTEI = { 41, 5, "LennardJones",
+  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
+
+static emlrtRTEInfo i_emlrtRTEI = { 16, 21, "eml_assert_supported_string",
+  "/home/ofir/ProgramFiles/MATLAB2015/toolbox/eml/lib/matlab/strfun/eml_assert_supported_string.m"
 };
 
-static emlrtRTEInfo c_emlrtRTEI = { 20, 9, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
-};
-
-static emlrtRTEInfo d_emlrtRTEI = { 55, 1, "sum",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/datafun/sum.m"
-};
-
-static emlrtRTEInfo e_emlrtRTEI = { 10, 5, "LennardJones",
+static emlrtECInfo emlrtECI = { -1, 65, 9, "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
 
-static emlrtRTEInfo f_emlrtRTEI = { 19, 9, "LennardJones",
-  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
-
-static emlrtRTEInfo g_emlrtRTEI = { 43, 9, "LennardJones",
-  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
-
-static emlrtRTEInfo h_emlrtRTEI = { 32, 5, "LennardJones",
-  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
-
-static emlrtDCInfo emlrtDCI = { 20, 34, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m",
-  4 };
-
-static emlrtECInfo emlrtECI = { -1, 49, 9, "LennardJones",
-  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
-
-static emlrtBCInfo emlrtBCI = { -1, -1, 49, 17, "force", "LennardJones",
+static emlrtBCInfo emlrtBCI = { -1, -1, 65, 17, "force", "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m", 0 };
 
-static emlrtECInfo b_emlrtECI = { 2, 49, 30, "LennardJones",
+static emlrtECInfo b_emlrtECI = { 2, 65, 30, "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
 
-static emlrtBCInfo b_emlrtBCI = { -1, -1, 49, 49, "forceDirection",
+static emlrtBCInfo b_emlrtBCI = { -1, -1, 65, 49, "forceDirection",
   "LennardJones", "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m", 0 };
 
-static emlrtECInfo c_emlrtECI = { -1, 48, 9, "LennardJones",
+static emlrtECInfo c_emlrtECI = { -1, 64, 9, "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
 
-static emlrtBCInfo c_emlrtBCI = { -1, -1, 48, 28, "forceDirection",
+static emlrtBCInfo c_emlrtBCI = { -1, -1, 64, 28, "forceDirection",
   "LennardJones", "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m", 0 };
 
-static emlrtECInfo d_emlrtECI = { 2, 48, 37, "LennardJones",
+static emlrtECInfo d_emlrtECI = { 2, 64, 37, "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
 
-static emlrtBCInfo d_emlrtBCI = { -1, -1, 41, 35, "particlePosition",
+static emlrtBCInfo d_emlrtBCI = { -1, -1, 57, 35, "particlePosition",
   "LennardJones", "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m", 0 };
 
-static emlrtECInfo e_emlrtECI = { 2, 28, 17, "LennardJones",
+static emlrtECInfo e_emlrtECI = { 2, 37, 17, "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
 
-static emlrtBCInfo e_emlrtBCI = { -1, -1, 27, 12, "inds", "LennardJones",
+static emlrtBCInfo e_emlrtBCI = { -1, -1, 36, 12, "inds", "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m", 0 };
 
-static emlrtBCInfo f_emlrtBCI = { -1, -1, 24, 12, "nb", "LennardJones",
+static emlrtBCInfo f_emlrtBCI = { -1, -1, 33, 12, "nb", "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m", 0 };
 
-static emlrtECInfo f_emlrtECI = { 2, 12, 14, "LennardJones",
+static emlrtECInfo f_emlrtECI = { 2, 21, 14, "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m" };
 
-static emlrtBCInfo g_emlrtBCI = { -1, -1, 18, 8, "nb", "LennardJones",
+static emlrtBCInfo g_emlrtBCI = { -1, -1, 27, 8, "nb", "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m", 0 };
 
-static emlrtBCInfo h_emlrtBCI = { -1, -1, 36, 5, "forceValue", "LennardJones",
+static emlrtBCInfo h_emlrtBCI = { -1, -1, 49, 9, "forceValue", "LennardJones",
   "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m", 0 };
 
-static emlrtRSInfo q_emlrtRSI = { 14, "eml_li_find",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/eml/eml_li_find.m"
-};
+static emlrtBCInfo i_emlrtBCI = { -1, -1, 47, 9, "forceValue", "LennardJones",
+  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m", 0 };
 
-static emlrtRSInfo r_emlrtRSI = { 86, "diag",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/elmat/diag.m"
-};
-
-static emlrtRSInfo t_emlrtRSI = { 87, "diag",
-  "/home/ofir/Work/ProgramFiles/Matlab2014a/toolbox/eml/lib/matlab/elmat/diag.m"
-};
+static emlrtBCInfo j_emlrtBCI = { -1, -1, 52, 5, "forceValue", "LennardJones",
+  "/home/ofir/Work/ENS/Utils/Forces/LennardJones.m", 0 };
 
 /* Function Declarations */
 static int32_T div_s32_floor(const emlrtStack *sp, int32_T numerator, int32_T
   denominator);
-static const mxArray *message(const emlrtStack *sp, const mxArray *b,
-  emlrtMCInfo *location);
 
 /* Function Definitions */
 static int32_T div_s32_floor(const emlrtStack *sp, int32_T numerator, int32_T
@@ -186,7 +149,7 @@ static int32_T div_s32_floor(const emlrtStack *sp, int32_T numerator, int32_T
       quotient = MIN_int32_T;
     }
 
-    emlrtDivisionByZeroErrorR2012b(0, sp);
+    emlrtDivisionByZeroErrorR2012b(NULL, sp);
   } else {
     if (numerator >= 0) {
       absNumerator = (uint32_T)numerator;
@@ -219,65 +182,66 @@ static int32_T div_s32_floor(const emlrtStack *sp, int32_T numerator, int32_T
   return quotient;
 }
 
-static const mxArray *message(const emlrtStack *sp, const mxArray *b,
-  emlrtMCInfo *location)
-{
-  const mxArray *pArray;
-  const mxArray *m4;
-  pArray = b;
-  return emlrtCallMATLABR2012b(sp, 1, &m4, 1, &pArray, "message", true, location);
-}
-
 void LennardJones(const emlrtStack *sp, const emxArray_real_T *particlePosition,
                   const emxArray_real_T *particleDist, real_T LJPotentialWidth,
-                  real_T LJPotentialDepth, emxArray_real_T *force,
-                  emxArray_real_T *forceDirection)
+                  real_T LJPotentialDepth, const emxArray_char_T *potentialType,
+                  emxArray_real_T *force, emxArray_real_T *forceDirection)
 {
-  int32_T di;
+  int32_T numParticles;
+  int32_T n;
   int32_T i0;
-  int32_T loop_ub;
+  int32_T vlen;
   emxArray_real_T *bdmInv;
-  emxArray_real_T *A;
-  const mxArray *y;
-  static const int32_T iv0[2] = { 1, 39 };
-
-  const mxArray *m0;
-  char_T cv0[39];
-  int32_T i;
-  static const char_T cv1[39] = { 'C', 'o', 'd', 'e', 'r', ':', 't', 'o', 'o',
-    'l', 'b', 'o', 'x', ':', 'd', 'i', 'a', 'g', '_', 'v', 'a', 'r', 's', 'i',
-    'z', 'e', 'd', 'M', 'a', 't', 'r', 'i', 'x', 'V', 'e', 'c', 't', 'o', 'r' };
-
-  int32_T olddi;
-  boolean_T b0;
-  int32_T k;
   emxArray_real_T *B1;
-  boolean_T overflow;
+  emxArray_real_T *A;
   int32_T b_bdmInv[2];
   int32_T b_B1[2];
-  int32_T iy;
-  char_T s_data[52];
-  boolean_T exitg2;
-  boolean_T exitg1;
-  char_T b_s_data[52];
-  int8_T nb_data[52];
+  int32_T c_bdmInv;
+  char_T tmp_data[52];
+  int16_T nb_data[52];
   emxArray_real_T *t;
   uint32_T siz[2];
   int32_T i1;
+  int32_T ix;
+  int32_T iy;
+  int32_T nbk;
   real_T s;
   real_T d0;
-  emxArray_boolean_T *x;
-  boolean_T b1;
-  const mxArray *b_y;
+  boolean_T overflow;
+  boolean_T p;
+  int32_T exitg2;
+  static const char_T cv0[9] = { 'r', 'e', 'p', 'u', 'l', 's', 'i', 'v', 'e' };
+
+  static const char_T cv1[128] = { '\x00', '\x01', '\x02', '\x03', '\x04',
+    '\x05', '\x06', '\x07', '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d',
+    '\x0e', '\x0f', '\x10', '\x11', '\x12', '\x13', '\x14', '\x15', '\x16',
+    '\x17', '\x18', '\x19', '\x1a', '\x1b', '\x1c', '\x1d', '\x1e', '\x1f', ' ',
+    '!', '\"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>',
+    '?', '@', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '[', '\\',
+    ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+    'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+    '{', '|', '}', '~', '\x7f' };
+
   emxArray_int32_T *r0;
+  int32_T b_ix;
+  emxArray_char_T *s1;
+  int32_T exitg1;
+  static const char_T cv2[10] = { 'a', 't', 't', 'r', 'a', 'c', 't', 'i', 'v',
+    'e' };
+
+  int32_T c_ix;
+  emxArray_boolean_T *r1;
+  emxArray_int32_T *r2;
+  int32_T d_ix;
   int32_T dIdx;
   emxArray_real_T *b_A;
-  emxArray_int32_T *r1;
   emxArray_real_T *c_A;
-  emxArray_real_T *d_A;
   emxArray_real_T *b_forceDirection;
-  int32_T iv1[2];
-  int32_T iv2[1];
+  int32_T iv0[2];
+  boolean_T b0;
+  int32_T iv1[1];
   emlrtStack st;
   emlrtStack b_st;
   emlrtStack c_st;
@@ -287,124 +251,54 @@ void LennardJones(const emlrtStack *sp, const emxArray_real_T *particlePosition,
   st.tls = sp->tls;
   b_st.prev = &st;
   b_st.tls = st.tls;
-  c_st.prev = &st;
-  c_st.tls = st.tls;
-  d_st.prev = &b_st;
-  d_st.tls = b_st.tls;
+  c_st.prev = &b_st;
+  c_st.tls = b_st.tls;
+  d_st.prev = &c_st;
+  d_st.tls = c_st.tls;
   e_st.prev = &d_st;
   e_st.tls = d_st.tls;
   emlrtHeapReferenceStackEnterFcnR2012b(sp);
 
   /*  Calculate the lennard jones potential between beads and its derivative */
-  /*   */
-  di = particlePosition->size[0];
+  /*  particlePosition is a 3 by n matrix of particle position in space  */
+  /*  particle dist is an n by n pairwise distance matrix  */
+  /*  LJpotentialwidth is a scalar width of the LJ */
+  /*  LJPotentialepth is a scalar depth of the LJ */
+  /*  potentialType is a string stating the type of potential 'attractive' | */
+  /*  'repulsive', or 'full' */
+  /*     if ~exist('PotentialType','var') */
+  /*         potentialType = 'full'; */
+  /*     end */
+  numParticles = particlePosition->size[0];
+  n = particlePosition->size[0];
   i0 = force->size[0] * force->size[1];
-  force->size[0] = di;
+  force->size[0] = n;
   emxEnsureCapacity(sp, (emxArray__common *)force, i0, (int32_T)sizeof(real_T),
                     &emlrtRTEI);
-  di = particlePosition->size[1];
+  n = particlePosition->size[1];
   i0 = force->size[0] * force->size[1];
-  force->size[1] = di;
+  force->size[1] = n;
   emxEnsureCapacity(sp, (emxArray__common *)force, i0, (int32_T)sizeof(real_T),
                     &emlrtRTEI);
-  loop_ub = particlePosition->size[0] * particlePosition->size[1];
-  for (i0 = 0; i0 < loop_ub; i0++) {
+  vlen = particlePosition->size[0] * particlePosition->size[1];
+  for (i0 = 0; i0 < vlen; i0++) {
     force->data[i0] = 0.0;
   }
 
-  emxInit_real_T(sp, &bdmInv, 2, &e_emlrtRTEI, true);
+  emxInit_real_T(sp, &bdmInv, 2, &b_emlrtRTEI, true);
+  emxInit_real_T(sp, &B1, 2, &d_emlrtRTEI, true);
+  b_emxInit_real_T(sp, &A, 1, &e_emlrtRTEI, true);
 
   /*  the distance in which the potential is minimal */
-  power(sp, particleDist, bdmInv);
+  st.site = &emlrtRSI;
+  power(&st, particleDist, bdmInv);
 
   /*  one over the bead distance matrix */
   /*  remove the diagonal  */
-  st.site = &emlrtRSI;
-  b_emxInit_real_T(&st, &A, 1, &h_emlrtRTEI, true);
-  if ((bdmInv->size[0] == 1) && (bdmInv->size[1] == 1)) {
-    i0 = A->size[0];
-    A->size[0] = 1;
-    emxEnsureCapacity(&st, (emxArray__common *)A, i0, (int32_T)sizeof(real_T),
-                      &emlrtRTEI);
-    A->data[0] = bdmInv->data[0];
-  } else {
-    if (!((bdmInv->size[0] == 1) || (bdmInv->size[1] == 1))) {
-    } else {
-      y = NULL;
-      m0 = emlrtCreateCharArray(2, iv0);
-      for (i = 0; i < 39; i++) {
-        cv0[i] = cv1[i];
-      }
-
-      emlrtInitCharArrayR2013a(&st, 39, m0, cv0);
-      emlrtAssign(&y, m0);
-      b_st.site = &r_emlrtRSI;
-      c_st.site = &t_emlrtRSI;
-      error(&b_st, message(&c_st, y, &emlrtMCI), &b_emlrtMCI);
-    }
-
-    if (0 < bdmInv->size[1]) {
-      di = muIntScalarMin_sint32(bdmInv->size[0], bdmInv->size[1]);
-      olddi = bdmInv->size[0] + 1;
-    } else {
-      di = 0;
-      olddi = 0;
-    }
-
-    i0 = A->size[0];
-    A->size[0] = di;
-    emxEnsureCapacity(&st, (emxArray__common *)A, i0, (int32_T)sizeof(real_T),
-                      &b_emlrtRTEI);
-    b_st.site = &e_emlrtRSI;
-    if (1 > di) {
-      b0 = false;
-    } else {
-      b0 = (di > 2147483646);
-    }
-
-    if (b0) {
-      d_st.site = &f_emlrtRSI;
-      check_forloop_overflow_error(&d_st);
-    }
-
-    for (k = 0; k + 1 <= di; k++) {
-      A->data[k] = bdmInv->data[k * olddi];
-    }
-  }
-
-  emxInit_real_T(&st, &B1, 2, &g_emlrtRTEI, true);
-  st.site = &emlrtRSI;
-  di = A->size[0];
-  olddi = A->size[0];
-  i0 = B1->size[0] * B1->size[1];
-  B1->size[0] = di;
-  emxEnsureCapacity(&st, (emxArray__common *)B1, i0, (int32_T)sizeof(real_T),
-                    &emlrtRTEI);
-  i0 = B1->size[0] * B1->size[1];
-  B1->size[1] = olddi;
-  emxEnsureCapacity(&st, (emxArray__common *)B1, i0, (int32_T)sizeof(real_T),
-                    &emlrtRTEI);
-  loop_ub = di * olddi;
-  for (i0 = 0; i0 < loop_ub; i0++) {
-    B1->data[i0] = 0.0;
-  }
-
-  b_st.site = &g_emlrtRSI;
-  if (1 > A->size[0]) {
-    overflow = false;
-  } else {
-    overflow = (A->size[0] > 2147483646);
-  }
-
-  if (overflow) {
-    d_st.site = &f_emlrtRSI;
-    check_forloop_overflow_error(&d_st);
-  }
-
-  for (k = 0; k + 1 <= A->size[0]; k++) {
-    B1->data[k + B1->size[0] * k] = A->data[k];
-  }
-
+  st.site = &b_emlrtRSI;
+  diag(&st, bdmInv, A);
+  st.site = &b_emlrtRSI;
+  b_diag(&st, A, B1);
   for (i0 = 0; i0 < 2; i0++) {
     b_bdmInv[i0] = bdmInv->size[i0];
   }
@@ -413,93 +307,39 @@ void LennardJones(const emlrtStack *sp, const emxArray_real_T *particlePosition,
     b_B1[i0] = B1->size[i0];
   }
 
-  emlrtSizeEqCheck2DFastR2012b(b_bdmInv, b_B1, &f_emlrtECI, sp);
+  if ((b_bdmInv[0] != b_B1[0]) || (b_bdmInv[1] != b_B1[1])) {
+    emlrtSizeEqCheckNDR2012b(b_bdmInv, b_B1, &f_emlrtECI, sp);
+  }
+
   i0 = bdmInv->size[0] * bdmInv->size[1];
   emxEnsureCapacity(sp, (emxArray__common *)bdmInv, i0, (int32_T)sizeof(real_T),
                     &emlrtRTEI);
-  di = bdmInv->size[0];
-  olddi = bdmInv->size[1];
-  loop_ub = di * olddi;
-  for (i0 = 0; i0 < loop_ub; i0++) {
+  n = bdmInv->size[0];
+  c_bdmInv = bdmInv->size[1];
+  vlen = n * c_bdmInv;
+  for (i0 = 0; i0 < vlen; i0++) {
     bdmInv->data[i0] -= B1->data[i0];
   }
 
   /*  d            = MatIntPower(bdmInv, 6); % matrix integer power (mex form Utils) */
   /*  Raise bdInv to the sixt power */
-  st.site = &b_emlrtRSI;
-  b_st.site = &h_emlrtRSI;
-  iy = 52;
-  for (i0 = 0; i0 < 52; i0++) {
-    s_data[i0] = '0';
+  st.site = &c_emlrtRSI;
+  dec2bin(tmp_data, b_bdmInv);
+  vlen = b_bdmInv[0] * b_bdmInv[1];
+  for (i0 = 0; i0 < vlen; i0++) {
+    nb_data[i0] = (int16_T)((uint8_T)tmp_data[i0] - 48);
   }
 
-  di = 6;
-  k = 52;
-  exitg2 = false;
-  while ((!exitg2) && (k > 0)) {
-    olddi = di;
-    di = (int32_T)muDoubleScalarFloor((real_T)di / 2.0);
-    if ((di << 1) < olddi) {
-      s_data[k - 1] = '1';
-    }
-
-    if (di > 0) {
-      k--;
-    } else {
-      exitg2 = true;
-    }
-  }
-
-  d_st.site = &i_emlrtRSI;
-  di = 52;
-  k = 1;
-  exitg1 = false;
-  while ((!exitg1) && (k <= 51)) {
-    overflow = false;
-    if (s_data[k - 1] != '0') {
-      overflow = true;
-    }
-
-    if (overflow) {
-      di = k;
-      exitg1 = true;
-    } else {
-      k++;
-    }
-  }
-
-  if (di > 1) {
-    for (k = di; k < 53; k++) {
-      s_data[k - di] = s_data[k - 1];
-    }
-
-    loop_ub = 53 - di;
-    for (i0 = 0; i0 < loop_ub; i0++) {
-      b_s_data[i0] = s_data[i0];
-    }
-
-    iy = 53 - di;
-    loop_ub = 53 - di;
-    for (i0 = 0; i0 < loop_ub; i0++) {
-      s_data[i0] = b_s_data[i0];
-    }
-  }
-
-  loop_ub = iy;
-  for (i0 = 0; i0 < loop_ub; i0++) {
-    nb_data[i0] = (int8_T)(s_data[i0] - 48);
-  }
-
-  emxInit_real_T(sp, &t, 2, &f_emlrtRTEI, true);
-  if (nb_data[emlrtDynamicBoundsCheckFastR2012b(iy, 1, iy, &g_emlrtBCI, sp) - 1]
-      != 0) {
+  emxInit_real_T(sp, &t, 2, &c_emlrtRTEI, true);
+  if (nb_data[emlrtDynamicBoundsCheckR2012b(b_bdmInv[1], 1, b_bdmInv[1],
+       &g_emlrtBCI, sp) - 1] != 0) {
     i0 = t->size[0] * t->size[1];
     t->size[0] = bdmInv->size[0];
     t->size[1] = bdmInv->size[1];
     emxEnsureCapacity(sp, (emxArray__common *)t, i0, (int32_T)sizeof(real_T),
                       &emlrtRTEI);
-    loop_ub = bdmInv->size[0] * bdmInv->size[1];
-    for (i0 = 0; i0 < loop_ub; i0++) {
+    vlen = bdmInv->size[0] * bdmInv->size[1];
+    for (i0 = 0; i0 < vlen; i0++) {
       t->data[i0] = bdmInv->data[i0];
     }
   } else {
@@ -515,61 +355,70 @@ void LennardJones(const emlrtStack *sp, const emxArray_real_T *particlePosition,
     t->size[1] = (int32_T)siz[1];
     emxEnsureCapacity(sp, (emxArray__common *)t, i0, (int32_T)sizeof(real_T),
                       &emlrtRTEI);
-    loop_ub = (int32_T)siz[0] * (int32_T)siz[1];
-    for (i0 = 0; i0 < loop_ub; i0++) {
+    vlen = (int32_T)siz[0] * (int32_T)siz[1];
+    for (i0 = 0; i0 < vlen; i0++) {
       t->data[i0] = 1.0;
     }
   }
 
-  if (1 > iy - 1) {
+  if (1 > b_bdmInv[1] - 1) {
     i0 = 1;
     i1 = 1;
-    iy = 0;
+    ix = 0;
   } else {
-    i0 = iy - 1;
-    i0 = emlrtDynamicBoundsCheckFastR2012b(i0, 1, iy, &f_emlrtBCI, sp);
+    i0 = b_bdmInv[1] - 1;
+    if ((i0 >= 1) && (i0 < b_bdmInv[1])) {
+    } else {
+      i0 = emlrtDynamicBoundsCheckR2012b(i0, 1, b_bdmInv[1], &f_emlrtBCI, sp);
+    }
+
     i1 = -1;
-    iy = 1;
+    ix = 1;
   }
 
-  k = div_s32_floor(sp, iy - i0, i1);
-  i = 0;
-  while (i <= k) {
-    di = bdmInv->size[0] * bdmInv->size[1];
-    emxEnsureCapacity(sp, (emxArray__common *)bdmInv, di, (int32_T)sizeof(real_T),
+  iy = div_s32_floor(sp, ix - i0, i1);
+  nbk = 0;
+  while (nbk <= iy) {
+    n = bdmInv->size[0] * bdmInv->size[1];
+    emxEnsureCapacity(sp, (emxArray__common *)bdmInv, n, (int32_T)sizeof(real_T),
                       &emlrtRTEI);
-    di = bdmInv->size[0];
-    olddi = bdmInv->size[1];
-    loop_ub = di * olddi;
-    for (di = 0; di < loop_ub; di++) {
-      bdmInv->data[di] *= bdmInv->data[di];
+    n = bdmInv->size[0];
+    c_bdmInv = bdmInv->size[1];
+    vlen = n * c_bdmInv;
+    for (n = 0; n < vlen; n++) {
+      bdmInv->data[n] *= bdmInv->data[n];
     }
 
-    di = div_s32_floor(sp, iy - i0, i1) + 1;
-    emlrtDynamicBoundsCheckFastR2012b(i + 1, 1, di, &e_emlrtBCI, sp);
-    if (nb_data[(i0 + i1 * i) - 1] != 0) {
-      for (di = 0; di < 2; di++) {
-        b_B1[di] = t->size[di];
+    n = div_s32_floor(sp, ix - i0, i1) + 1;
+    emlrtDynamicBoundsCheckR2012b(nbk + 1, 1, n, &e_emlrtBCI, sp);
+    if (nb_data[(i0 + i1 * nbk) - 1] != 0) {
+      for (n = 0; n < 2; n++) {
+        b_B1[n] = t->size[n];
       }
 
-      for (di = 0; di < 2; di++) {
-        b_bdmInv[di] = bdmInv->size[di];
+      for (n = 0; n < 2; n++) {
+        b_bdmInv[n] = bdmInv->size[n];
       }
 
-      emlrtSizeEqCheck2DFastR2012b(b_B1, b_bdmInv, &e_emlrtECI, sp);
-      di = t->size[0] * t->size[1];
-      emxEnsureCapacity(sp, (emxArray__common *)t, di, (int32_T)sizeof(real_T),
+      if ((b_B1[0] != b_bdmInv[0]) || (b_B1[1] != b_bdmInv[1])) {
+        emlrtSizeEqCheckNDR2012b(b_B1, b_bdmInv, &e_emlrtECI, sp);
+      }
+
+      n = t->size[0] * t->size[1];
+      emxEnsureCapacity(sp, (emxArray__common *)t, n, (int32_T)sizeof(real_T),
                         &emlrtRTEI);
-      di = t->size[0];
-      olddi = t->size[1];
-      loop_ub = di * olddi;
-      for (di = 0; di < loop_ub; di++) {
-        t->data[di] *= bdmInv->data[di];
+      n = t->size[0];
+      c_bdmInv = t->size[1];
+      vlen = n * c_bdmInv;
+      for (n = 0; n < vlen; n++) {
+        t->data[n] *= bdmInv->data[n];
       }
     }
 
-    i++;
-    emlrtBreakCheckFastR2012b(emlrtBreakCheckR2012bFlagVar, sp);
+    nbk++;
+    if (*emlrtBreakCheckR2012bFlagVar != 0) {
+      emlrtBreakCheckR2012b(sp);
+    }
   }
 
   emxFree_real_T(&bdmInv);
@@ -580,162 +429,326 @@ void LennardJones(const emlrtStack *sp, const emxArray_real_T *particlePosition,
   emxEnsureCapacity(sp, (emxArray__common *)t, i0, (int32_T)sizeof(real_T),
                     &emlrtRTEI);
   d0 = 2.0 * LJPotentialDepth * muDoubleScalarPower(LJPotentialWidth, 6.0);
-  di = t->size[0];
-  olddi = t->size[1];
-  loop_ub = di * olddi;
-  for (i0 = 0; i0 < loop_ub; i0++) {
+  n = t->size[0];
+  c_bdmInv = t->size[1];
+  vlen = n * c_bdmInv;
+  for (i0 = 0; i0 < vlen; i0++) {
     t->data[i0] = d0 * (s * t->data[i0] - 1.0);
   }
 
-  emxInit_boolean_T(sp, &x, 2, &emlrtRTEI, true);
-  i0 = x->size[0] * x->size[1];
-  x->size[0] = t->size[0];
-  x->size[1] = t->size[1];
-  emxEnsureCapacity(sp, (emxArray__common *)x, i0, (int32_T)sizeof(boolean_T),
+  st.site = &d_emlrtRSI;
+  overflow = false;
+  b_st.site = &p_emlrtRSI;
+  p = true;
+  for (c_bdmInv = 0; c_bdmInv < potentialType->size[1]; c_bdmInv++) {
+    p = (p && ((uint8_T)potentialType->data[c_bdmInv] <= 127));
+  }
+
+  if (p) {
+  } else {
+    emlrtErrorWithMessageIdR2012b(&b_st, &i_emlrtRTEI,
+      "Coder:toolbox:unsupportedString", 2, 12, 127);
+  }
+
+  n = (int32_T)muDoubleScalarMin(potentialType->size[1], 9.0);
+  if (potentialType->size[1] == 9) {
+    c_bdmInv = 0;
+    do {
+      exitg2 = 0;
+      if (c_bdmInv <= n - 1) {
+        b_st.site = &q_emlrtRSI;
+        c_st.site = &r_emlrtRSI;
+        d_st.site = &s_emlrtRSI;
+        if ((uint8_T)potentialType->data[c_bdmInv] <= 127) {
+        } else {
+          emlrtErrorWithMessageIdR2012b(&d_st, &i_emlrtRTEI,
+            "Coder:toolbox:unsupportedString", 2, 12, 127);
+        }
+
+        b_st.site = &q_emlrtRSI;
+        c_st.site = &r_emlrtRSI;
+        d_st.site = &s_emlrtRSI;
+        if (cv1[(uint8_T)potentialType->data[c_bdmInv] & 127] != cv1[(int32_T)
+            cv0[c_bdmInv]]) {
+          exitg2 = 1;
+        } else {
+          c_bdmInv++;
+        }
+      } else {
+        overflow = true;
+        exitg2 = 1;
+      }
+    } while (exitg2 == 0);
+  }
+
+  emxInit_int32_T(sp, &r0, 1, &emlrtRTEI, true);
+  if (overflow) {
+    c_bdmInv = particleDist->size[0] * particleDist->size[1] - 1;
+    n = 0;
+    for (nbk = 0; nbk <= c_bdmInv; nbk++) {
+      if (particleDist->data[nbk] < 2.5 * LJPotentialWidth) {
+        n++;
+      }
+    }
+
+    i0 = r0->size[0];
+    r0->size[0] = n;
+    emxEnsureCapacity(sp, (emxArray__common *)r0, i0, (int32_T)sizeof(int32_T),
+                      &emlrtRTEI);
+    n = 0;
+    for (nbk = 0; nbk <= c_bdmInv; nbk++) {
+      if (particleDist->data[nbk] < 2.5 * LJPotentialWidth) {
+        r0->data[n] = nbk + 1;
+        n++;
+      }
+    }
+
+    n = t->size[0];
+    c_bdmInv = t->size[1];
+    vlen = r0->size[0];
+    for (i0 = 0; i0 < vlen; i0++) {
+      i1 = n * c_bdmInv;
+      ix = r0->data[i0];
+      if ((ix >= 1) && (ix < i1)) {
+        b_ix = ix;
+      } else {
+        b_ix = emlrtDynamicBoundsCheckR2012b(ix, 1, i1, &i_emlrtBCI, sp);
+      }
+
+      t->data[b_ix - 1] = 0.0;
+    }
+
+    /*  truncate */
+  } else {
+    emxInit_char_T(sp, &s1, 1, &emlrtRTEI, true);
+    st.site = &e_emlrtRSI;
+    i0 = s1->size[0];
+    s1->size[0] = potentialType->size[1];
+    emxEnsureCapacity(&st, (emxArray__common *)s1, i0, (int32_T)sizeof(char_T),
+                      &emlrtRTEI);
+    vlen = potentialType->size[1];
+    for (i0 = 0; i0 < vlen; i0++) {
+      s1->data[i0] = potentialType->data[potentialType->size[0] * i0];
+    }
+
+    overflow = false;
+    b_st.site = &p_emlrtRSI;
+    p = true;
+    for (c_bdmInv = 0; c_bdmInv < s1->size[0]; c_bdmInv++) {
+      p = (p && ((uint8_T)s1->data[c_bdmInv] <= 127));
+    }
+
+    if (p) {
+    } else {
+      emlrtErrorWithMessageIdR2012b(&b_st, &i_emlrtRTEI,
+        "Coder:toolbox:unsupportedString", 2, 12, 127);
+    }
+
+    n = (int32_T)muDoubleScalarMin(s1->size[0], 10.0);
+    if (s1->size[0] == 10) {
+      c_bdmInv = 0;
+      do {
+        exitg1 = 0;
+        if (c_bdmInv <= n - 1) {
+          b_st.site = &q_emlrtRSI;
+          c_st.site = &r_emlrtRSI;
+          d_st.site = &s_emlrtRSI;
+          if ((uint8_T)s1->data[c_bdmInv] <= 127) {
+          } else {
+            emlrtErrorWithMessageIdR2012b(&d_st, &i_emlrtRTEI,
+              "Coder:toolbox:unsupportedString", 2, 12, 127);
+          }
+
+          b_st.site = &q_emlrtRSI;
+          c_st.site = &r_emlrtRSI;
+          d_st.site = &s_emlrtRSI;
+          if (cv1[(uint8_T)s1->data[c_bdmInv] & 127] != cv1[(int32_T)
+              cv2[c_bdmInv]]) {
+            exitg1 = 1;
+          } else {
+            c_bdmInv++;
+          }
+        } else {
+          overflow = true;
+          exitg1 = 1;
+        }
+      } while (exitg1 == 0);
+    }
+
+    emxFree_char_T(&s1);
+    if (overflow) {
+      c_bdmInv = particleDist->size[0] * particleDist->size[1] - 1;
+      n = 0;
+      for (nbk = 0; nbk <= c_bdmInv; nbk++) {
+        if (particleDist->data[nbk] > 2.5 * LJPotentialWidth) {
+          n++;
+        }
+      }
+
+      i0 = r0->size[0];
+      r0->size[0] = n;
+      emxEnsureCapacity(sp, (emxArray__common *)r0, i0, (int32_T)sizeof(int32_T),
+                        &emlrtRTEI);
+      n = 0;
+      for (nbk = 0; nbk <= c_bdmInv; nbk++) {
+        if (particleDist->data[nbk] > 2.5 * LJPotentialWidth) {
+          r0->data[n] = nbk + 1;
+          n++;
+        }
+      }
+
+      n = t->size[0];
+      c_bdmInv = t->size[1];
+      vlen = r0->size[0];
+      for (i0 = 0; i0 < vlen; i0++) {
+        i1 = n * c_bdmInv;
+        ix = r0->data[i0];
+        if ((ix >= 1) && (ix < i1)) {
+          c_ix = ix;
+        } else {
+          c_ix = emlrtDynamicBoundsCheckR2012b(ix, 1, i1, &h_emlrtBCI, sp);
+        }
+
+        t->data[c_ix - 1] = 0.0;
+      }
+
+      /*  truncate */
+    }
+  }
+
+  emxInit_boolean_T(sp, &r1, 2, &emlrtRTEI, true);
+  i0 = r1->size[0] * r1->size[1];
+  r1->size[0] = t->size[0];
+  r1->size[1] = t->size[1];
+  emxEnsureCapacity(sp, (emxArray__common *)r1, i0, (int32_T)sizeof(boolean_T),
                     &emlrtRTEI);
-  loop_ub = t->size[0] * t->size[1];
-  for (i0 = 0; i0 < loop_ub; i0++) {
-    x->data[i0] = muDoubleScalarIsNaN(t->data[i0]);
+  vlen = t->size[0] * t->size[1];
+  for (i0 = 0; i0 < vlen; i0++) {
+    r1->data[i0] = muDoubleScalarIsNaN(t->data[i0]);
   }
 
-  st.site = &c_emlrtRSI;
-  di = x->size[0] * x->size[1];
-  b_st.site = &k_emlrtRSI;
-  k = 0;
-  d_st.site = &m_emlrtRSI;
-  if (1 > di) {
-    b1 = false;
-  } else {
-    b1 = (di > 2147483646);
-  }
-
-  if (b1) {
-    e_st.site = &f_emlrtRSI;
-    check_forloop_overflow_error(&e_st);
-  }
-
-  for (i = 1; i <= di; i++) {
-    if (x->data[i - 1]) {
-      k++;
+  c_bdmInv = r1->size[0] * r1->size[1] - 1;
+  n = 0;
+  for (nbk = 0; nbk <= c_bdmInv; nbk++) {
+    if (r1->data[nbk]) {
+      n++;
     }
   }
 
-  if (k <= di) {
-  } else {
-    b_y = NULL;
-    m0 = emlrtCreateString("Assertion failed.");
-    emlrtAssign(&b_y, m0);
-    b_st.site = &q_emlrtRSI;
-    error(&b_st, b_y, &e_emlrtMCI);
-  }
-
-  emxInit_int32_T(&st, &r0, 1, &emlrtRTEI, true);
-  emlrtNonNegativeCheckFastR2012b(k, &emlrtDCI, &st);
-  i0 = r0->size[0];
-  r0->size[0] = k;
-  emxEnsureCapacity(&st, (emxArray__common *)r0, i0, (int32_T)sizeof(int32_T),
-                    &c_emlrtRTEI);
-  k = 0;
-  b_st.site = &l_emlrtRSI;
-  for (i = 1; i <= di; i++) {
-    if (x->data[i - 1]) {
-      r0->data[k] = i;
-      k++;
+  emxInit_int32_T(sp, &r2, 1, &emlrtRTEI, true);
+  i0 = r2->size[0];
+  r2->size[0] = n;
+  emxEnsureCapacity(sp, (emxArray__common *)r2, i0, (int32_T)sizeof(int32_T),
+                    &emlrtRTEI);
+  n = 0;
+  for (nbk = 0; nbk <= c_bdmInv; nbk++) {
+    if (r1->data[nbk]) {
+      r2->data[n] = nbk + 1;
+      n++;
     }
   }
 
-  emxFree_boolean_T(&x);
-  di = t->size[0];
-  olddi = t->size[1];
-  loop_ub = r0->size[0];
-  for (i0 = 0; i0 < loop_ub; i0++) {
-    i1 = di * olddi;
-    iy = r0->data[i0];
-    t->data[emlrtDynamicBoundsCheckFastR2012b(iy, 1, i1, &h_emlrtBCI, sp) - 1] =
-      0.0;
+  emxFree_boolean_T(&r1);
+  n = t->size[0];
+  c_bdmInv = t->size[1];
+  vlen = r2->size[0];
+  for (i0 = 0; i0 < vlen; i0++) {
+    i1 = n * c_bdmInv;
+    ix = r2->data[i0];
+    if ((ix >= 1) && (ix < i1)) {
+      d_ix = ix;
+    } else {
+      d_ix = emlrtDynamicBoundsCheckR2012b(ix, 1, i1, &j_emlrtBCI, sp);
+    }
+
+    t->data[d_ix - 1] = 0.0;
   }
 
-  di = particlePosition->size[0];
+  n = particlePosition->size[0];
   i0 = forceDirection->size[0] * forceDirection->size[1] * forceDirection->size
     [2];
-  forceDirection->size[0] = di;
+  forceDirection->size[0] = n;
   emxEnsureCapacity(sp, (emxArray__common *)forceDirection, i0, (int32_T)sizeof
                     (real_T), &emlrtRTEI);
-  di = particlePosition->size[0];
+  n = particlePosition->size[0];
   i0 = forceDirection->size[0] * forceDirection->size[1] * forceDirection->size
     [2];
-  forceDirection->size[1] = di;
+  forceDirection->size[1] = n;
   emxEnsureCapacity(sp, (emxArray__common *)forceDirection, i0, (int32_T)sizeof
                     (real_T), &emlrtRTEI);
-  di = particlePosition->size[1];
+  n = particlePosition->size[1];
   i0 = forceDirection->size[0] * forceDirection->size[1] * forceDirection->size
     [2];
-  forceDirection->size[2] = di;
+  forceDirection->size[2] = n;
   emxEnsureCapacity(sp, (emxArray__common *)forceDirection, i0, (int32_T)sizeof
                     (real_T), &emlrtRTEI);
-  loop_ub = particlePosition->size[0] * particlePosition->size[0] *
+  vlen = particlePosition->size[0] * particlePosition->size[0] *
     particlePosition->size[1];
-  for (i0 = 0; i0 < loop_ub; i0++) {
+  for (i0 = 0; i0 < vlen; i0++) {
     forceDirection->data[i0] = 0.0;
   }
 
   /*  sum the contribution from all particles */
   dIdx = 0;
-  emxInit_real_T(sp, &b_A, 2, &h_emlrtRTEI, true);
-  emxInit_int32_T(sp, &r1, 1, &emlrtRTEI, true);
+  emxInit_real_T(sp, &b_A, 2, &e_emlrtRTEI, true);
   emxInit_real_T(sp, &c_A, 2, &emlrtRTEI, true);
-  emxInit_real_T(sp, &d_A, 2, &emlrtRTEI, true);
   emxInit_real_T(sp, &b_forceDirection, 2, &emlrtRTEI, true);
   while (dIdx <= particlePosition->size[1] - 1) {
     /*  replicate the position vector */
-    loop_ub = particlePosition->size[0];
+    vlen = particlePosition->size[0];
     i0 = particlePosition->size[1];
     i1 = 1 + dIdx;
-    i0 = emlrtDynamicBoundsCheckFastR2012b(i1, 1, i0, &d_emlrtBCI, sp);
+    if ((i1 >= 1) && (i1 < i0)) {
+      i0 = i1;
+    } else {
+      i0 = emlrtDynamicBoundsCheckR2012b(i1, 1, i0, &d_emlrtBCI, sp);
+    }
+
     i1 = A->size[0];
-    A->size[0] = loop_ub;
+    A->size[0] = vlen;
     emxEnsureCapacity(sp, (emxArray__common *)A, i1, (int32_T)sizeof(real_T),
                       &emlrtRTEI);
-    for (i1 = 0; i1 < loop_ub; i1++) {
+    for (i1 = 0; i1 < vlen; i1++) {
       A->data[i1] = particlePosition->data[i1 + particlePosition->size[0] * (i0
         - 1)];
     }
 
-    siz[1] = (uint32_T)particlePosition->size[0];
-    loop_ub = particlePosition->size[0];
-    di = (int32_T)siz[1];
+    vlen = particlePosition->size[0];
     i0 = B1->size[0] * B1->size[1];
-    B1->size[0] = loop_ub;
-    B1->size[1] = di;
+    B1->size[0] = vlen;
+    B1->size[1] = numParticles;
     emxEnsureCapacity(sp, (emxArray__common *)B1, i0, (int32_T)sizeof(real_T),
                       &emlrtRTEI);
-    for (i0 = 0; i0 < di; i0++) {
-      for (i1 = 0; i1 < loop_ub; i1++) {
+    n = numParticles;
+    for (i0 = 0; i0 < n; i0++) {
+      for (i1 = 0; i1 < vlen; i1++) {
         B1->data[i1 + B1->size[0] * i0] = A->data[i1];
       }
     }
 
-    siz[0] = (uint32_T)particlePosition->size[0];
     i0 = b_A->size[0] * b_A->size[1];
     b_A->size[0] = 1;
     b_A->size[1] = A->size[0];
     emxEnsureCapacity(sp, (emxArray__common *)b_A, i0, (int32_T)sizeof(real_T),
                       &emlrtRTEI);
-    loop_ub = A->size[0];
-    for (i0 = 0; i0 < loop_ub; i0++) {
+    vlen = A->size[0];
+    for (i0 = 0; i0 < vlen; i0++) {
       b_A->data[b_A->size[0] * i0] = A->data[i0];
     }
 
     /*  Subtract positions to get the direction vectors */
-    di = (int32_T)siz[0];
-    loop_ub = b_A->size[1];
+    for (i0 = 0; i0 < 2; i0++) {
+      b_B1[i0] = B1->size[i0];
+    }
+
+    vlen = b_A->size[1];
     i0 = c_A->size[0] * c_A->size[1];
-    c_A->size[0] = di;
-    c_A->size[1] = loop_ub;
+    c_A->size[0] = numParticles;
+    c_A->size[1] = vlen;
     emxEnsureCapacity(sp, (emxArray__common *)c_A, i0, (int32_T)sizeof(real_T),
                       &emlrtRTEI);
-    for (i0 = 0; i0 < loop_ub; i0++) {
-      for (i1 = 0; i1 < di; i1++) {
+    for (i0 = 0; i0 < vlen; i0++) {
+      for (i1 = 0; i1 < n; i1++) {
         c_A->data[i1 + c_A->size[0] * i0] = b_A->data[b_A->size[0] * i0];
       }
     }
@@ -744,75 +757,58 @@ void LennardJones(const emlrtStack *sp, const emxArray_real_T *particlePosition,
       b_bdmInv[i0] = c_A->size[i0];
     }
 
-    for (i0 = 0; i0 < 2; i0++) {
-      b_B1[i0] = B1->size[i0];
+    if ((b_B1[0] != b_bdmInv[0]) || (b_B1[1] != b_bdmInv[1])) {
+      emlrtSizeEqCheckNDR2012b(b_B1, b_bdmInv, &d_emlrtECI, sp);
     }
 
-    emlrtSizeEqCheck2DFastR2012b(b_bdmInv, b_B1, &d_emlrtECI, sp);
-    loop_ub = forceDirection->size[0];
+    vlen = forceDirection->size[0];
     i0 = r0->size[0];
-    r0->size[0] = loop_ub;
+    r0->size[0] = vlen;
     emxEnsureCapacity(sp, (emxArray__common *)r0, i0, (int32_T)sizeof(int32_T),
                       &emlrtRTEI);
-    for (i0 = 0; i0 < loop_ub; i0++) {
+    for (i0 = 0; i0 < vlen; i0++) {
       r0->data[i0] = i0;
     }
 
-    loop_ub = forceDirection->size[1];
-    i0 = r1->size[0];
-    r1->size[0] = loop_ub;
-    emxEnsureCapacity(sp, (emxArray__common *)r1, i0, (int32_T)sizeof(int32_T),
+    vlen = forceDirection->size[1];
+    i0 = r2->size[0];
+    r2->size[0] = vlen;
+    emxEnsureCapacity(sp, (emxArray__common *)r2, i0, (int32_T)sizeof(int32_T),
                       &emlrtRTEI);
-    for (i0 = 0; i0 < loop_ub; i0++) {
-      r1->data[i0] = i0;
+    for (i0 = 0; i0 < vlen; i0++) {
+      r2->data[i0] = i0;
     }
 
     i0 = forceDirection->size[2];
     i1 = dIdx + 1;
-    emlrtDynamicBoundsCheckFastR2012b(i1, 1, i0, &c_emlrtBCI, sp);
-    iv1[0] = r0->size[0];
-    iv1[1] = r1->size[0];
-    di = (int32_T)siz[0];
-    loop_ub = b_A->size[1];
-    i0 = d_A->size[0] * d_A->size[1];
-    d_A->size[0] = di;
-    d_A->size[1] = loop_ub;
-    emxEnsureCapacity(sp, (emxArray__common *)d_A, i0, (int32_T)sizeof(real_T),
-                      &emlrtRTEI);
-    for (i0 = 0; i0 < loop_ub; i0++) {
-      for (i1 = 0; i1 < di; i1++) {
-        d_A->data[i1 + d_A->size[0] * i0] = b_A->data[b_A->size[0] * i0];
-      }
-    }
-
-    for (i0 = 0; i0 < 2; i0++) {
-      b_bdmInv[i0] = d_A->size[i0];
-    }
-
-    emlrtSubAssignSizeCheckR2012b(iv1, 2, b_bdmInv, 2, &c_emlrtECI, sp);
-    di = (int32_T)siz[0];
-    loop_ub = b_A->size[1] - 1;
-    for (i0 = 0; i0 <= loop_ub; i0++) {
-      for (i1 = 0; i1 < di; i1++) {
-        forceDirection->data[(r0->data[i1] + forceDirection->size[0] * r1->
+    emlrtDynamicBoundsCheckR2012b(i1, 1, i0, &c_emlrtBCI, sp);
+    iv0[0] = r0->size[0];
+    iv0[1] = r2->size[0];
+    emlrtSubAssignSizeCheckR2012b(iv0, 2, *(int32_T (*)[2])B1->size, 2,
+      &c_emlrtECI, sp);
+    vlen = B1->size[1];
+    for (i0 = 0; i0 < vlen; i0++) {
+      n = B1->size[0];
+      for (i1 = 0; i1 < n; i1++) {
+        forceDirection->data[(r0->data[i1] + forceDirection->size[0] * r2->
                               data[i0]) + forceDirection->size[0] *
-          forceDirection->size[1] * dIdx] = b_A->data[b_A->size[0] * i0] -
-          B1->data[i1 + B1->size[0] * i0];
+          forceDirection->size[1] * dIdx] = B1->data[i1 + B1->size[0] * i0] -
+          b_A->data[b_A->size[0] * i0];
       }
     }
 
     i0 = forceDirection->size[2];
     i1 = dIdx + 1;
-    emlrtDynamicBoundsCheckFastR2012b(i1, 1, i0, &b_emlrtBCI, sp);
-    loop_ub = forceDirection->size[0];
-    di = forceDirection->size[1];
+    emlrtDynamicBoundsCheckR2012b(i1, 1, i0, &b_emlrtBCI, sp);
+    vlen = forceDirection->size[0];
+    n = forceDirection->size[1];
     i0 = b_forceDirection->size[0] * b_forceDirection->size[1];
-    b_forceDirection->size[0] = loop_ub;
-    b_forceDirection->size[1] = di;
+    b_forceDirection->size[0] = vlen;
+    b_forceDirection->size[1] = n;
     emxEnsureCapacity(sp, (emxArray__common *)b_forceDirection, i0, (int32_T)
                       sizeof(real_T), &emlrtRTEI);
-    for (i0 = 0; i0 < di; i0++) {
-      for (i1 = 0; i1 < loop_ub; i1++) {
+    for (i0 = 0; i0 < n; i0++) {
+      for (i1 = 0; i1 < vlen; i1++) {
         b_forceDirection->data[i1 + b_forceDirection->size[0] * i0] =
           forceDirection->data[(i1 + forceDirection->size[0] * i0) +
           forceDirection->size[0] * forceDirection->size[1] * dIdx];
@@ -827,35 +823,40 @@ void LennardJones(const emlrtStack *sp, const emxArray_real_T *particlePosition,
       b_B1[i0] = t->size[i0];
     }
 
-    emlrtSizeEqCheck2DFastR2012b(b_bdmInv, b_B1, &b_emlrtECI, sp);
-    loop_ub = force->size[0];
+    if ((b_bdmInv[0] != b_B1[0]) || (b_bdmInv[1] != b_B1[1])) {
+      emlrtSizeEqCheckNDR2012b(b_bdmInv, b_B1, &b_emlrtECI, sp);
+    }
+
+    vlen = force->size[0];
     i0 = r0->size[0];
-    r0->size[0] = loop_ub;
+    r0->size[0] = vlen;
     emxEnsureCapacity(sp, (emxArray__common *)r0, i0, (int32_T)sizeof(int32_T),
                       &emlrtRTEI);
-    for (i0 = 0; i0 < loop_ub; i0++) {
+    for (i0 = 0; i0 < vlen; i0++) {
       r0->data[i0] = i0;
     }
 
     i0 = force->size[1];
     i1 = dIdx + 1;
-    emlrtDynamicBoundsCheckFastR2012b(i1, 1, i0, &emlrtBCI, sp);
-    st.site = &d_emlrtRSI;
-    loop_ub = forceDirection->size[0];
-    di = forceDirection->size[1];
+    emlrtDynamicBoundsCheckR2012b(i1, 1, i0, &emlrtBCI, sp);
+    st.site = &f_emlrtRSI;
+    vlen = forceDirection->size[0];
+    n = forceDirection->size[1];
     i0 = B1->size[0] * B1->size[1];
-    B1->size[0] = loop_ub;
-    B1->size[1] = di;
+    B1->size[0] = vlen;
+    B1->size[1] = n;
     emxEnsureCapacity(&st, (emxArray__common *)B1, i0, (int32_T)sizeof(real_T),
                       &emlrtRTEI);
-    for (i0 = 0; i0 < di; i0++) {
-      for (i1 = 0; i1 < loop_ub; i1++) {
+    for (i0 = 0; i0 < n; i0++) {
+      for (i1 = 0; i1 < vlen; i1++) {
         B1->data[i1 + B1->size[0] * i0] = forceDirection->data[(i1 +
           forceDirection->size[0] * i0) + forceDirection->size[0] *
           forceDirection->size[1] * dIdx] * t->data[i1 + t->size[0] * i0];
       }
     }
 
+    b_st.site = &t_emlrtRSI;
+    c_st.site = &u_emlrtRSI;
     for (i0 = 0; i0 < 2; i0++) {
       siz[i0] = (uint32_T)B1->size[i0];
     }
@@ -863,50 +864,51 @@ void LennardJones(const emlrtStack *sp, const emxArray_real_T *particlePosition,
     i0 = b_A->size[0] * b_A->size[1];
     b_A->size[0] = 1;
     b_A->size[1] = (int32_T)siz[1];
-    emxEnsureCapacity(&st, (emxArray__common *)b_A, i0, (int32_T)sizeof(real_T),
-                      &d_emlrtRTEI);
+    emxEnsureCapacity(&c_st, (emxArray__common *)b_A, i0, (int32_T)sizeof(real_T),
+                      &emlrtRTEI);
     if ((B1->size[0] == 0) || (B1->size[1] == 0)) {
       i0 = b_A->size[0] * b_A->size[1];
       b_A->size[0] = 1;
-      emxEnsureCapacity(&st, (emxArray__common *)b_A, i0, (int32_T)sizeof(real_T),
-                        &emlrtRTEI);
+      emxEnsureCapacity(&c_st, (emxArray__common *)b_A, i0, (int32_T)sizeof
+                        (real_T), &emlrtRTEI);
       i0 = b_A->size[0] * b_A->size[1];
       b_A->size[1] = (int32_T)siz[1];
-      emxEnsureCapacity(&st, (emxArray__common *)b_A, i0, (int32_T)sizeof(real_T),
-                        &emlrtRTEI);
-      loop_ub = (int32_T)siz[1];
-      for (i0 = 0; i0 < loop_ub; i0++) {
+      emxEnsureCapacity(&c_st, (emxArray__common *)b_A, i0, (int32_T)sizeof
+                        (real_T), &emlrtRTEI);
+      vlen = (int32_T)siz[1];
+      for (i0 = 0; i0 < vlen; i0++) {
         b_A->data[i0] = 0.0;
       }
     } else {
-      olddi = -1;
+      vlen = B1->size[0];
+      ix = -1;
       iy = -1;
-      b_st.site = &n_emlrtRSI;
+      d_st.site = &v_emlrtRSI;
       overflow = (B1->size[1] > 2147483646);
       if (overflow) {
-        d_st.site = &f_emlrtRSI;
-        check_forloop_overflow_error(&d_st);
+        e_st.site = &k_emlrtRSI;
+        check_forloop_overflow_error(&e_st);
       }
 
-      for (i = 1; i <= B1->size[1]; i++) {
-        di = olddi + 1;
-        olddi++;
-        s = B1->data[di];
-        b_st.site = &o_emlrtRSI;
-        if (2 > B1->size[0]) {
-          overflow = false;
+      for (nbk = 1; nbk <= B1->size[1]; nbk++) {
+        n = ix + 1;
+        ix++;
+        s = B1->data[n];
+        d_st.site = &w_emlrtRSI;
+        if (2 > vlen) {
+          b0 = false;
         } else {
-          overflow = (B1->size[0] > 2147483646);
+          b0 = (vlen > 2147483646);
         }
 
-        if (overflow) {
-          d_st.site = &f_emlrtRSI;
-          check_forloop_overflow_error(&d_st);
+        if (b0) {
+          e_st.site = &k_emlrtRSI;
+          check_forloop_overflow_error(&e_st);
         }
 
-        for (k = 2; k <= B1->size[0]; k++) {
-          olddi++;
-          s += B1->data[olddi];
+        for (c_bdmInv = 2; c_bdmInv <= vlen; c_bdmInv++) {
+          ix++;
+          s += B1->data[ix];
         }
 
         iy++;
@@ -918,28 +920,29 @@ void LennardJones(const emlrtStack *sp, const emxArray_real_T *particlePosition,
     A->size[0] = b_A->size[1];
     emxEnsureCapacity(sp, (emxArray__common *)A, i0, (int32_T)sizeof(real_T),
                       &emlrtRTEI);
-    loop_ub = b_A->size[1];
-    for (i0 = 0; i0 < loop_ub; i0++) {
+    vlen = b_A->size[1];
+    for (i0 = 0; i0 < vlen; i0++) {
       A->data[i0] = b_A->data[b_A->size[0] * i0];
     }
 
-    iv2[0] = r0->size[0];
-    emlrtSubAssignSizeCheckR2012b(iv2, 1, *(int32_T (*)[1])A->size, 1, &emlrtECI,
+    iv1[0] = r0->size[0];
+    emlrtSubAssignSizeCheckR2012b(iv1, 1, *(int32_T (*)[1])A->size, 1, &emlrtECI,
       sp);
-    loop_ub = A->size[0];
-    for (i0 = 0; i0 < loop_ub; i0++) {
+    vlen = A->size[0];
+    for (i0 = 0; i0 < vlen; i0++) {
       force->data[r0->data[i0] + force->size[0] * dIdx] = A->data[i0];
     }
 
     dIdx++;
-    emlrtBreakCheckFastR2012b(emlrtBreakCheckR2012bFlagVar, sp);
+    if (*emlrtBreakCheckR2012bFlagVar != 0) {
+      emlrtBreakCheckR2012b(sp);
+    }
   }
 
   emxFree_real_T(&b_forceDirection);
-  emxFree_real_T(&d_A);
   emxFree_real_T(&c_A);
-  emxFree_int32_T(&r1);
   emxFree_int32_T(&r0);
+  emxFree_int32_T(&r2);
   emxFree_real_T(&b_A);
   emxFree_real_T(&A);
   emxFree_real_T(&B1);

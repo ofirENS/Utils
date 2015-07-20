@@ -9,6 +9,7 @@
 #include "rt_nonfinite.h"
 #include "LennardJones.h"
 #include "LennardJones_terminate.h"
+#include "LennardJones_data.h"
 
 /* Function Definitions */
 void LennardJones_atexit(void)

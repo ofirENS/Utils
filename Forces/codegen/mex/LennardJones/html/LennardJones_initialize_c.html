@@ -23,16 +23,16 @@
 <a name="12"><font color="#888888 "><i>   12   </i></font></a><font color="#992211">#</font><font color="#992211"><b>include</b></font> <font color="#992211">&quot;LennardJones_data.h&quot;</font>
 <a name="13"><font color="#888888 "><i>   13   </i></font></a>
 <a name="14"><font color="#888888 "><i>   14   </i></font></a><font color="#117755"><i>/* Function Definitions */</i></font>
-<a name="15"><font color="#888888 "><i>   15   </i></font></a><font color="#112266"><b>void</b></font> <a name="fcn_LennardJones_initialize">LennardJones_initialize</a>(emlrtContext *aContext)
+<a name="15"><font color="#888888 "><i>   15   </i></font></a><font color="#112266"><b>void</b></font> <a name="fcn_LennardJones_initialize">LennardJones_initialize</a>(<font color="#112266"><b>void</b></font>)
 <a name="16"><font color="#888888 "><i>   16   </i></font></a><b>{</b>
 <a name="17"><font color="#888888 "><i>   17   </i></font></a>  emlrtStack st = <b>{</b> NULL, NULL, NULL <b>}</b>;
 <a name="18"><font color="#888888 "><i>   18   </i></font></a>
 <a name="19"><font color="#888888 "><i>   19   </i></font></a>  <a href="LennardJones_data_c.html#var_emlrtBreakCheckR2012bFlagVar" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'var_emlrtBreakCheckR2012bFlagVar');" target="_self"><font color="#1122aa">emlrtBreakCheckR2012bFlagVar</font></a> = emlrtGetBreakCheckFlagAddressR2012b();
-<a name="20"><font color="#888888 "><i>   20   </i></font></a>  emlrtCreateRootTLS(&amp;emlrtRootTLSGlobal, aContext, NULL, 1);
-<a name="21"><font color="#888888 "><i>   21   </i></font></a>  st.tls = emlrtRootTLSGlobal;
+<a name="20"><font color="#888888 "><i>   20   </i></font></a>  emlrtCreateRootTLS(&amp;<a href="LennardJones_data_c.html#var_emlrtRootTLSGlobal" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'var_emlrtRootTLSGlobal');" target="_self"><font color="#1122aa">emlrtRootTLSGlobal</font></a>, &amp;<a href="LennardJones_data_c.html#var_emlrtContextGlobal" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'var_emlrtContextGlobal');" target="_self"><font color="#1122aa">emlrtContextGlobal</font></a>, NULL, 1);
+<a name="21"><font color="#888888 "><i>   21   </i></font></a>  st.tls = <a href="LennardJones_data_c.html#var_emlrtRootTLSGlobal" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'var_emlrtRootTLSGlobal');" target="_self"><font color="#1122aa">emlrtRootTLSGlobal</font></a>;
 <a name="22"><font color="#888888 "><i>   22   </i></font></a>  emlrtClearAllocCountR2012b(&amp;st, false, 0U, 0);
 <a name="23"><font color="#888888 "><i>   23   </i></font></a>  emlrtEnterRtStackR2012b(&amp;st);
-<a name="24"><font color="#888888 "><i>   24   </i></font></a>  emlrtFirstTimeR2012b(emlrtRootTLSGlobal);
+<a name="24"><font color="#888888 "><i>   24   </i></font></a>  emlrtFirstTimeR2012b(<a href="LennardJones_data_c.html#var_emlrtRootTLSGlobal" onclick="if (top) if (top.docHiliteMe) top.docHiliteMe(window, 'var_emlrtRootTLSGlobal');" target="_self"><font color="#1122aa">emlrtRootTLSGlobal</font></a>);
 <a name="25"><font color="#888888 "><i>   25   </i></font></a><b>}</b>
 <a name="26"><font color="#888888 "><i>   26   </i></font></a>
 <a name="27"><font color="#888888 "><i>   27   </i></font></a><font color="#117755"><i>/* End of code generation (LennardJones_initialize.c) */</i></font>

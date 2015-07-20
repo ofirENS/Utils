@@ -21,7 +21,7 @@
 #include "LennardJones_types.h"
 
 /* Function Declarations */
-extern void LennardJones_initialize(emlrtContext *aContext);
+extern void LennardJones_initialize(void);
 
 #endif
 

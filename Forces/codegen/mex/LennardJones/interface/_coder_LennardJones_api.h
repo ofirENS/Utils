@@ -21,7 +21,7 @@
 #include "LennardJones_types.h"
 
 /* Function Declarations */
-extern void LennardJones_api(const mxArray * const prhs[4], const mxArray *plhs
+extern void LennardJones_api(const mxArray * const prhs[5], const mxArray *plhs
   [2]);
 
 #endif

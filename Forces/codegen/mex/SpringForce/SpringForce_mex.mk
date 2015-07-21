@@ -1,4 +1,4 @@
-START_DIR = /home/ofir/Work/ENS/Utils/Forces
+START_DIR = /home/ofir/Work/ENS/EpigenomeIntegrity/Code/../../Utils/Forces
 
 MATLAB_ROOT = /home/ofir/ProgramFiles/MATLAB2015
 MAKEFILE = SpringForce_mex.mk
@@ -46,8 +46,8 @@ SYS_INCLUDE = $(ML_INCLUDES)
 # Additional includes
 
 SYS_INCLUDE += -I "$(START_DIR)"
-SYS_INCLUDE += -I "$(START_DIR)/codegen/mex/SpringForce"
-SYS_INCLUDE += -I "$(START_DIR)/codegen/mex/SpringForce/interface"
+SYS_INCLUDE += -I "/home/ofir/Work/ENS/Utils/Forces/codegen/mex/SpringForce"
+SYS_INCLUDE += -I "/home/ofir/Work/ENS/Utils/Forces/codegen/mex/SpringForce/interface"
 SYS_INCLUDE += -I "$(MATLAB_ROOT)/extern/include"
 SYS_INCLUDE += -I "."
 
@@ -107,7 +107,7 @@ CPPFLAGS =   $(CXX_FLAGS) $(USER_INCLUDE) $(SYS_INCLUDE)
 %.$(OBJEXT) : $(START_DIR)/%.c
 	$(CC) $(CCFLAGS) "$<"
 
-%.$(OBJEXT) : $(START_DIR)/codegen/mex/SpringForce/%.c
+%.$(OBJEXT) : /home/ofir/Work/ENS/Utils/Forces/codegen/mex/SpringForce/%.c
 	$(CC) $(CCFLAGS) "$<"
 
 %.$(OBJEXT) : interface/%.c
@@ -118,7 +118,7 @@ CPPFLAGS =   $(CXX_FLAGS) $(USER_INCLUDE) $(SYS_INCLUDE)
 %.$(OBJEXT) : $(START_DIR)/%.cu
 	$(CC) $(CCFLAGS) "$<"
 
-%.$(OBJEXT) : $(START_DIR)/codegen/mex/SpringForce/%.cu
+%.$(OBJEXT) : /home/ofir/Work/ENS/Utils/Forces/codegen/mex/SpringForce/%.cu
 	$(CC) $(CCFLAGS) "$<"
 
 %.$(OBJEXT) : interface/%.cu
@@ -129,7 +129,7 @@ CPPFLAGS =   $(CXX_FLAGS) $(USER_INCLUDE) $(SYS_INCLUDE)
 %.$(OBJEXT) : $(START_DIR)/%.cpp
 	$(CXX) $(CPPFLAGS) "$<"
 
-%.$(OBJEXT) : $(START_DIR)/codegen/mex/SpringForce/%.cpp
+%.$(OBJEXT) : /home/ofir/Work/ENS/Utils/Forces/codegen/mex/SpringForce/%.cpp
 	$(CXX) $(CPPFLAGS) "$<"
 
 %.$(OBJEXT) : interface/%.cpp

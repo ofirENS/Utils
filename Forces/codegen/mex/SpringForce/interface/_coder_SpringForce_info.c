@@ -99,7 +99,8 @@ static void info_helper(const mxArray **info)
   const mxArray *rhs35 = NULL;
   const mxArray *lhs35 = NULL;
   emlrtAddField(*info, emlrt_marshallOut(
-    "[E]/home/ofir/Work/ENS/Utils/Forces/SpringForce.m"), "context", 0);
+    "[E]/home/ofir/Work/ENS/EpigenomeIntegrity/Code/../../Utils/Forces/SpringForce.m"),
+                "context", 0);
   emlrtAddField(*info, emlrt_marshallOut("eml_mtimes_helper"), "name", 0);
   emlrtAddField(*info, emlrt_marshallOut(""), "dominantType", 0);
   emlrtAddField(*info, emlrt_marshallOut(
@@ -131,7 +132,8 @@ static void info_helper(const mxArray **info)
   emlrtAddField(*info, emlrtAliasP(rhs1), "rhs", 1);
   emlrtAddField(*info, emlrtAliasP(lhs1), "lhs", 1);
   emlrtAddField(*info, emlrt_marshallOut(
-    "[E]/home/ofir/Work/ENS/Utils/Forces/SpringForce.m"), "context", 2);
+    "[E]/home/ofir/Work/ENS/EpigenomeIntegrity/Code/../../Utils/Forces/SpringForce.m"),
+                "context", 2);
   emlrtAddField(*info, emlrt_marshallOut("diag"), "name", 2);
   emlrtAddField(*info, emlrt_marshallOut("double"), "dominantType", 2);
   emlrtAddField(*info, emlrt_marshallOut(
@@ -312,7 +314,8 @@ static void info_helper(const mxArray **info)
   emlrtAddField(*info, emlrtAliasP(rhs13), "rhs", 13);
   emlrtAddField(*info, emlrtAliasP(lhs13), "lhs", 13);
   emlrtAddField(*info, emlrt_marshallOut(
-    "[E]/home/ofir/Work/ENS/Utils/Forces/SpringForce.m"), "context", 14);
+    "[E]/home/ofir/Work/ENS/EpigenomeIntegrity/Code/../../Utils/Forces/SpringForce.m"),
+                "context", 14);
   emlrtAddField(*info, emlrt_marshallOut("rdivide"), "name", 14);
   emlrtAddField(*info, emlrt_marshallOut("double"), "dominantType", 14);
   emlrtAddField(*info, emlrt_marshallOut(
@@ -386,7 +389,8 @@ static void info_helper(const mxArray **info)
   emlrtAddField(*info, emlrtAliasP(rhs18), "rhs", 18);
   emlrtAddField(*info, emlrtAliasP(lhs18), "lhs", 18);
   emlrtAddField(*info, emlrt_marshallOut(
-    "[E]/home/ofir/Work/ENS/Utils/Forces/SpringForce.m"), "context", 19);
+    "[E]/home/ofir/Work/ENS/EpigenomeIntegrity/Code/../../Utils/Forces/SpringForce.m"),
+                "context", 19);
   emlrtAddField(*info, emlrt_marshallOut("sum"), "name", 19);
   emlrtAddField(*info, emlrt_marshallOut("double"), "dominantType", 19);
   emlrtAddField(*info, emlrt_marshallOut(

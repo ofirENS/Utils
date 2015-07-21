@@ -13,7 +13,7 @@
 #include "SpringForce_data.h"
 
 /* Variable Definitions */
-static emlrtRTEInfo e_emlrtRTEI = { 1, 1, "_coder_SpringForce_api", "" };
+static emlrtRTEInfo d_emlrtRTEI = { 1, 1, "_coder_SpringForce_api", "" };
 
 /* Function Declarations */
 static void b_emlrt_marshallIn(const emlrtStack *sp, const mxArray *u, const
@@ -171,9 +171,9 @@ void SpringForce_api(const mxArray *prhs[4], const mxArray *plhs[1])
 
   st.tls = emlrtRootTLSGlobal;
   emlrtHeapReferenceStackEnterFcnR2012b(&st);
-  emxInit_real_T(&st, &particleDist, 2, &e_emlrtRTEI, true);
-  emxInit_boolean_T(&st, &connectivityMap, 2, &e_emlrtRTEI, true);
-  emxInit_real_T(&st, &force, 2, &e_emlrtRTEI, true);
+  emxInit_real_T(&st, &particleDist, 2, &d_emlrtRTEI, true);
+  emxInit_boolean_T(&st, &connectivityMap, 2, &d_emlrtRTEI, true);
+  emxInit_real_T(&st, &force, 2, &d_emlrtRTEI, true);
   prhs[0] = emlrtProtectR2012b(prhs[0], 0, false, -1);
 
   /* Marshall function inputs */

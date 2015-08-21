@@ -124,7 +124,7 @@ classdef BrownianBridge<handle
                 if isfield(obj.params,argin{fIdx})
                     obj.params.(argin{fIdx}) = argin{fIdx+1};
                 else
-                    error('%s%s', argin{fIdx},' is not a valid parm name');
+                    error('%s%s', argin{fIdx},' is not a valid parameter name');
                 end
             end
              obj.params.dimension     = numel(obj.params.startPoint);

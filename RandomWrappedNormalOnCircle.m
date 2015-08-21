@@ -7,11 +7,7 @@ end
 if exist('range','var')
     theta= thetaRange;
 else
-<<<<<<< HEAD
-    theta= 0:.01:2*pi;
-=======
     t= 0:.005:2*pi;
->>>>>>> 326bd51916dd6324e8e9e197fc2db8fc23fad304
 end
 % we assume the angles theta and phi are indipendent 
 % each angle is drawn from the unit circle 
@@ -34,7 +30,6 @@ numT  = numel(theta);
 % wnPDF = wnPDF./sum(wnPDF);
 % wrapped normal CDF
 % wnCDF = cumsum(wnPDF);
-<<<<<<< HEAD
 % wnCDF = zeros(numT,1);
 k     = 1/sigma;
 p     = 1:numT;
@@ -52,7 +47,6 @@ wnCDF = wnCDF./max(wnCDF);
 % wnCDF = sort(wnCDF);
 % subtract the lower limit 
 % wnCDF = wnCDF-wnCDF(1);
-=======
 % for pIdx = 1:numT
 % wnCDF(pIdx) = (1/(2*pi*besseli(0,sigma)))*(t(pIdx)*besseli(0,sigma) +2*sum(besseli(1:numT,sigma).*sin((1:numT)*(t(pIdx)-mu))));
 % end
@@ -68,7 +62,6 @@ for pIdx = 1:numT
   wnCDF(pIdx) = (1/(2*pi*I0k))*(t(pIdx)*I0k +2*sum(Ipk.*s));
 end
 % f = exp(sigma .*cos(t-mu))./(2*pi *I0k);
->>>>>>> 326bd51916dd6324e8e9e197fc2db8fc23fad304
 % wnCDF = wnCDF./sum(wnCDF);
 % sample from the CDF 
 % number = zeros(vecSize);
@@ -79,7 +72,6 @@ m(1)  = min(wnCDF); m(2) = max(wnCDF);
 rp    = (m(2)-m(1)).*rp +m(1);
 % interpolate to get the number from the CDF
 % p      = [0,(1/(numT)):(1/(numT-1)):1-1/(numT),1];
-<<<<<<< HEAD
 % collect monotonically increassing values in wnCDF 
 cNum(1) = wnCDF(1);
 next = 1;
@@ -96,7 +88,7 @@ end
 number = interp1(wnCDF(pos),theta(pos),rp,'linear');
 number = number -mu;
 % shift the angles to lay around the mean 
-=======
+
 % sort the wnCDF monotonically 
 
 
@@ -112,7 +104,6 @@ for wIdx = 2:numT
 end
 m(1)  = min(wnCDF(pos)); m(2) = max(wnCDF(pos));
 rp    = (m(2)-m(1)).*rp +m(1);
->>>>>>> 326bd51916dd6324e8e9e197fc2db8fc23fad304
 
 number = interp1(wnCDF(pos),t(pos),rp,'linear');
     

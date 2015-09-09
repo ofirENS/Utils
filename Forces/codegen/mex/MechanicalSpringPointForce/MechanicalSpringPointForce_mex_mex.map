@@ -1,0 +1,15 @@
+MEX {
+	global:
+		mexFunction;
+		emlrtMexFcnProperties;
+		MechanicalSpringPointForce;
+		b_emxInit_real_T;
+		emxEnsureCapacity;
+		emxFree_real_T;
+		emxInit_real_T;
+		MechanicalSpringPointForce_initialize;
+		MechanicalSpringPointForce_terminate;
+		MechanicalSpringPointForce_atexit;
+	local:
+		*;
+};

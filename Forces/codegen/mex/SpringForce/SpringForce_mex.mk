@@ -1,24 +1,24 @@
-START_DIR = /home/ofir/Work/ENS/EpigenomeIntegrity/Code/../../Utils/Forces
+START_DIR = D:\Ofir\ENS\Utils\Forces
 
-MATLAB_ROOT = /home/ofir/ProgramFiles/MATLAB2015
+MATLAB_ROOT = D:\PROGRA~2\MATLAB\R2014a
 MAKEFILE = SpringForce_mex.mk
 
 include SpringForce_mex.mki
 
 
 SRC_FILES =  \
-	SpringForce_data.cpp \
-	SpringForce_initialize.cpp \
-	SpringForce_terminate.cpp \
-	SpringForce.cpp \
-	eml_int_forloop_overflow_check.cpp \
-	_coder_SpringForce_api.cpp \
-	_coder_SpringForce_mex.cpp \
-	SpringForce_emxutil.cpp \
+	SpringForce_mexutil.c \
+	SpringForce_initialize.c \
+	SpringForce_terminate.c \
+	SpringForce.c \
+	eml_int_forloop_overflow_check.c \
+	_coder_SpringForce_api.c \
+	SpringForce_emxutil.c \
+	_coder_SpringForce_mex.c \
 	_coder_SpringForce_info.c
 
 MEX_FILE_NAME_WO_EXT = SpringForce_mex
-MEX_FILE_NAME = $(MEX_FILE_NAME_WO_EXT).mexa64
+MEX_FILE_NAME = $(MEX_FILE_NAME_WO_EXT).mexw64
 TARGET = $(MEX_FILE_NAME)
 
 SYS_LIBS = 
@@ -26,119 +26,96 @@ SYS_LIBS =
 
 #
 #====================================================================
-# gmake makefile fragment for building MEX functions using Unix
-# Copyright 2007-2014 The MathWorks, Inc.
+# gmake makefile fragment for building MEX functions using MSVC
+# Copyright 2007-2013 The MathWorks, Inc.
 #====================================================================
 #
-OBJEXT = o
+SHELL = cmd
+OBJEXT = obj
+CC = $(COMPILER)
+LD = $(LINKER)
 .SUFFIXES: .$(OBJEXT)
 
 OBJLISTC = $(SRC_FILES:.c=.$(OBJEXT))
-OBJLISTCPP  = $(OBJLISTC:.cpp=.$(OBJEXT))
-OBJLIST  = $(OBJLISTCPP:.cu=.$(OBJEXT))
+OBJLIST  = $(OBJLISTC:.cpp=.$(OBJEXT))
 
-target: $(TARGET)
+ifneq (,$(findstring $(EMC_COMPILER),msvc80 msvc90 msvc100 msvc100free msvc110 msvc120 msvcsdk))
+  TARGETMT = $(TARGET).manifest
+  MEX = $(TARGETMT)
+  STRICTFP = /fp:strict
+else
+  MEX = $(TARGET)
+  STRICTFP = /Op
+endif
 
-ML_INCLUDES = -I "$(MATLAB_ROOT)/simulink/include"
-ML_INCLUDES+= -I "$(MATLAB_ROOT)/toolbox/shared/simtargets"
-SYS_INCLUDE = $(ML_INCLUDES)
+target: $(MEX)
+
+MATLAB_INCLUDES = /I "$(MATLAB_ROOT)\simulink\include"
+MATLAB_INCLUDES+= /I "$(MATLAB_ROOT)\toolbox\shared\simtargets"
+SYS_INCLUDE = $(MATLAB_INCLUDES)
 
 # Additional includes
 
-SYS_INCLUDE += -I "$(START_DIR)"
-SYS_INCLUDE += -I "/home/ofir/Work/ENS/Utils/Forces/codegen/mex/SpringForce"
-SYS_INCLUDE += -I "/home/ofir/Work/ENS/Utils/Forces/codegen/mex/SpringForce/interface"
-SYS_INCLUDE += -I "$(MATLAB_ROOT)/extern/include"
-SYS_INCLUDE += -I "."
+SYS_INCLUDE += /I "$(START_DIR)"
+SYS_INCLUDE += /I "$(START_DIR)\codegen\mex\SpringForce"
+SYS_INCLUDE += /I "$(START_DIR)\codegen\mex\SpringForce\interface"
+SYS_INCLUDE += /I "$(MATLAB_ROOT)\extern\include"
+SYS_INCLUDE += /I "."
 
-EML_LIBS = -lemlrt -lcovrt -lut -lmwmathutil -lmwblas 
-SYS_LIBS += $(CLIBS) $(EML_LIBS)
-
-
-EXPORTFILE = $(MEX_FILE_NAME_WO_EXT)_mex.map
-ifeq ($(Arch),maci)
-  EXPORTOPT = -Wl,-exported_symbols_list,$(EXPORTFILE)
-  COMP_FLAGS = -c $(CFLAGS) -DMX_COMPAT_32
-  CXX_FLAGS = -c $(CXXFLAGS) -DMX_COMPAT_32
-  LINK_FLAGS = $(filter-out %mexFunction.map, $(LDFLAGS))
-else ifeq ($(Arch),maci64)
-  EXPORTOPT = -Wl,-exported_symbols_list,$(EXPORTFILE)
-  COMP_FLAGS = -c $(CFLAGS) -DMX_COMPAT_32
-  CXX_FLAGS = -c $(CXXFLAGS) -DMX_COMPAT_32
-  LINK_FLAGS = $(filter-out %mexFunction.map, $(LDFLAGS))
+DIRECTIVES = $(MEX_FILE_NAME_WO_EXT)_mex.arf
+COMP_FLAGS = $(COMPFLAGS) $(OMPFLAGS) -DMX_COMPAT_32
+LINK_FLAGS = $(filter-out /export:mexFunction, $(LINKFLAGS))
+LINK_FLAGS += /NODEFAULTLIB:LIBCMT
+ifeq ($(EMC_CONFIG),optim)
+  COMP_FLAGS += $(OPTIMFLAGS) $(STRICTFP)
+  LINK_FLAGS += $(LINKOPTIMFLAGS)
 else
-  EXPORTOPT = -Wl,--version-script,$(EXPORTFILE)
-  COMP_FLAGS = -c $(CFLAGS) -DMX_COMPAT_32 $(OMPFLAGS)
-  CXX_FLAGS = -c $(CXXFLAGS) -DMX_COMPAT_32 $(OMPFLAGS)
-  LINK_FLAGS = $(filter-out %mexFunction.map, $(LDFLAGS)) 
+  COMP_FLAGS += $(DEBUGFLAGS)
+  LINK_FLAGS += $(LINKDEBUGFLAGS)
 endif
 LINK_FLAGS += $(OMPLINKFLAGS)
-ifeq ($(Arch),maci)
-  LINK_FLAGS += -L$(MATLAB_ROOT)/sys/os/maci
-endif
-ifeq ($(EMC_CONFIG),optim)
-  ifeq ($(Arch),mac)
-    COMP_FLAGS += $(CDEBUGFLAGS)
-    CXX_FLAGS += $(CXXDEBUGFLAGS)
-  else
-    COMP_FLAGS += $(COPTIMFLAGS)
-    CXX_FLAGS += $(CXXOPTIMFLAGS)
-  endif
-  LINK_FLAGS += $(LDOPTIMFLAGS)
-else
-  COMP_FLAGS += $(CDEBUGFLAGS)
-  CXX_FLAGS += $(CXXDEBUGFLAGS)
-  LINK_FLAGS += $(LDDEBUGFLAGS)
-endif
-LINK_FLAGS += -o $(TARGET)
+LINK_FLAGS += /OUT:$(TARGET)
 LINK_FLAGS += 
 
-CCFLAGS =  $(COMP_FLAGS) $(USER_INCLUDE) $(SYS_INCLUDE)
-CPPFLAGS =   $(CXX_FLAGS) $(USER_INCLUDE) $(SYS_INCLUDE)
+CFLAGS =  $(COMP_FLAGS) $(USER_INCLUDE) $(SYS_INCLUDE)
+CPPFLAGS =  $(CFLAGS)
 
 %.$(OBJEXT) : %.c
-	$(CC) $(CCFLAGS) "$<"
+	$(CC) $(CFLAGS) "$<"
 
 %.$(OBJEXT) : %.cpp
-	$(CXX) $(CPPFLAGS) "$<"
+	$(CC) $(CPPFLAGS) "$<"
 
 # Additional sources
 
 %.$(OBJEXT) : $(START_DIR)/%.c
-	$(CC) $(CCFLAGS) "$<"
+	$(CC) $(CFLAGS) "$<"
 
-%.$(OBJEXT) : /home/ofir/Work/ENS/Utils/Forces/codegen/mex/SpringForce/%.c
-	$(CC) $(CCFLAGS) "$<"
+%.$(OBJEXT) : $(START_DIR)\codegen\mex\SpringForce/%.c
+	$(CC) $(CFLAGS) "$<"
 
 %.$(OBJEXT) : interface/%.c
-	$(CC) $(CCFLAGS) "$<"
-
-
-
-%.$(OBJEXT) : $(START_DIR)/%.cu
-	$(CC) $(CCFLAGS) "$<"
-
-%.$(OBJEXT) : /home/ofir/Work/ENS/Utils/Forces/codegen/mex/SpringForce/%.cu
-	$(CC) $(CCFLAGS) "$<"
-
-%.$(OBJEXT) : interface/%.cu
-	$(CC) $(CCFLAGS) "$<"
+	$(CC) $(CFLAGS) "$<"
 
 
 
 %.$(OBJEXT) : $(START_DIR)/%.cpp
-	$(CXX) $(CPPFLAGS) "$<"
+	$(CC) $(CPPFLAGS) "$<"
 
-%.$(OBJEXT) : /home/ofir/Work/ENS/Utils/Forces/codegen/mex/SpringForce/%.cpp
-	$(CXX) $(CPPFLAGS) "$<"
+%.$(OBJEXT) : $(START_DIR)\codegen\mex\SpringForce/%.cpp
+	$(CC) $(CPPFLAGS) "$<"
 
 %.$(OBJEXT) : interface/%.cpp
-	$(CXX) $(CPPFLAGS) "$<"
+	$(CC) $(CPPFLAGS) "$<"
 
 
 
-$(TARGET): $(OBJLIST) $(MAKEFILE)
-	$(LD) $(EXPORTOPT) $(OBJLIST) $(LINK_FLAGS) $(SYS_LIBS)
+$(TARGET): $(OBJLIST) $(MAKEFILE) $(DIRECTIVES)
+	$(LD) $(LINK_FLAGS) $(OBJLIST) $(USER_LIBS) $(SYS_LIBS) @$(DIRECTIVES)
+	@cmd /C "echo Build completed using compiler $(EMC_COMPILER)"
+
+$(TARGETMT): $(TARGET)
+	mt -outputresource:"$(TARGET);2" -manifest "$(TARGET).manifest"
 
 #====================================================================
 

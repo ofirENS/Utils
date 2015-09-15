@@ -20,7 +20,7 @@
 #include "SpringForce_types.h"
 
 /* Function Declarations */
-extern void SpringForce_initialize();
+extern void SpringForce_initialize(emlrtContext *aContext);
 
 #endif
 

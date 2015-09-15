@@ -1,5 +1,5 @@
 /*
- * SpringForce_emxutil.cpp
+ * SpringForce_emxutil.c
  *
  * Code generation for function 'SpringForce_emxutil'
  *
@@ -19,7 +19,7 @@ void b_emxInit_real_T(const emlrtStack *sp, emxArray_real_T **pEmxArray, int32_T
   int32_T i;
   *pEmxArray = (emxArray_real_T *)emlrtMallocMex(sizeof(emxArray_real_T));
   if ((void *)*pEmxArray == NULL) {
-    emlrtHeapAllocationErrorR2012b((emlrtRTEInfo *)srcLocation, sp);
+    emlrtHeapAllocationErrorR2012b(srcLocation, sp);
   }
 
   if (doPush) {
@@ -33,7 +33,7 @@ void b_emxInit_real_T(const emlrtStack *sp, emxArray_real_T **pEmxArray, int32_T
   emxArray->size = (int32_T *)emlrtMallocMex((uint32_T)(sizeof(int32_T)
     * numDimensions));
   if ((void *)emxArray->size == NULL) {
-    emlrtHeapAllocationErrorR2012b((emlrtRTEInfo *)srcLocation, sp);
+    emlrtHeapAllocationErrorR2012b(srcLocation, sp);
   }
 
   emxArray->allocatedSize = 0;
@@ -52,7 +52,7 @@ void emxEnsureCapacity(const emlrtStack *sp, emxArray__common *emxArray, int32_T
   newNumel = 1;
   for (i = 0; i < emxArray->numDimensions; i++) {
     newNumel = (int32_T)emlrtSizeMulR2012b((uint32_T)newNumel, (uint32_T)
-      emxArray->size[i], (emlrtRTEInfo *)srcLocation, sp);
+      emxArray->size[i], srcLocation, sp);
   }
 
   if (newNumel > emxArray->allocatedSize) {
@@ -62,13 +62,12 @@ void emxEnsureCapacity(const emlrtStack *sp, emxArray__common *emxArray, int32_T
     }
 
     while (i < newNumel) {
-      i = (int32_T)emlrtSizeMulR2012b((uint32_T)i, 2U, (emlrtRTEInfo *)
-        srcLocation, sp);
+      i = (int32_T)emlrtSizeMulR2012b((uint32_T)i, 2U, srcLocation, sp);
     }
 
     newData = emlrtCallocMex((uint32_T)i, (uint32_T)elementSize);
     if (newData == NULL) {
-      emlrtHeapAllocationErrorR2012b((emlrtRTEInfo *)srcLocation, sp);
+      emlrtHeapAllocationErrorR2012b(srcLocation, sp);
     }
 
     if (emxArray->data != NULL) {
@@ -98,19 +97,6 @@ void emxFree_boolean_T(emxArray_boolean_T **pEmxArray)
   }
 }
 
-void emxFree_int32_T(emxArray_int32_T **pEmxArray)
-{
-  if (*pEmxArray != (emxArray_int32_T *)NULL) {
-    if (((*pEmxArray)->data != (int32_T *)NULL) && (*pEmxArray)->canFreeData) {
-      emlrtFreeMex((void *)(*pEmxArray)->data);
-    }
-
-    emlrtFreeMex((void *)(*pEmxArray)->size);
-    emlrtFreeMex((void *)*pEmxArray);
-    *pEmxArray = (emxArray_int32_T *)NULL;
-  }
-}
-
 void emxFree_real_T(emxArray_real_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_real_T *)NULL) {
@@ -131,7 +117,7 @@ void emxInit_boolean_T(const emlrtStack *sp, emxArray_boolean_T **pEmxArray,
   int32_T i;
   *pEmxArray = (emxArray_boolean_T *)emlrtMallocMex(sizeof(emxArray_boolean_T));
   if ((void *)*pEmxArray == NULL) {
-    emlrtHeapAllocationErrorR2012b((emlrtRTEInfo *)srcLocation, sp);
+    emlrtHeapAllocationErrorR2012b(srcLocation, sp);
   }
 
   if (doPush) {
@@ -145,39 +131,7 @@ void emxInit_boolean_T(const emlrtStack *sp, emxArray_boolean_T **pEmxArray,
   emxArray->size = (int32_T *)emlrtMallocMex((uint32_T)(sizeof(int32_T)
     * numDimensions));
   if ((void *)emxArray->size == NULL) {
-    emlrtHeapAllocationErrorR2012b((emlrtRTEInfo *)srcLocation, sp);
-  }
-
-  emxArray->allocatedSize = 0;
-  emxArray->canFreeData = true;
-  for (i = 0; i < numDimensions; i++) {
-    emxArray->size[i] = 0;
-  }
-}
-
-void emxInit_int32_T(const emlrtStack *sp, emxArray_int32_T **pEmxArray, int32_T
-                     numDimensions, const emlrtRTEInfo *srcLocation, boolean_T
-                     doPush)
-{
-  emxArray_int32_T *emxArray;
-  int32_T i;
-  *pEmxArray = (emxArray_int32_T *)emlrtMallocMex(sizeof(emxArray_int32_T));
-  if ((void *)*pEmxArray == NULL) {
-    emlrtHeapAllocationErrorR2012b((emlrtRTEInfo *)srcLocation, sp);
-  }
-
-  if (doPush) {
-    emlrtPushHeapReferenceStackR2012b(sp, (void *)pEmxArray, (void (*)(void *))
-      emxFree_int32_T);
-  }
-
-  emxArray = *pEmxArray;
-  emxArray->data = (int32_T *)NULL;
-  emxArray->numDimensions = numDimensions;
-  emxArray->size = (int32_T *)emlrtMallocMex((uint32_T)(sizeof(int32_T)
-    * numDimensions));
-  if ((void *)emxArray->size == NULL) {
-    emlrtHeapAllocationErrorR2012b((emlrtRTEInfo *)srcLocation, sp);
+    emlrtHeapAllocationErrorR2012b(srcLocation, sp);
   }
 
   emxArray->allocatedSize = 0;
@@ -195,7 +149,7 @@ void emxInit_real_T(const emlrtStack *sp, emxArray_real_T **pEmxArray, int32_T
   int32_T i;
   *pEmxArray = (emxArray_real_T *)emlrtMallocMex(sizeof(emxArray_real_T));
   if ((void *)*pEmxArray == NULL) {
-    emlrtHeapAllocationErrorR2012b((emlrtRTEInfo *)srcLocation, sp);
+    emlrtHeapAllocationErrorR2012b(srcLocation, sp);
   }
 
   if (doPush) {
@@ -209,7 +163,7 @@ void emxInit_real_T(const emlrtStack *sp, emxArray_real_T **pEmxArray, int32_T
   emxArray->size = (int32_T *)emlrtMallocMex((uint32_T)(sizeof(int32_T)
     * numDimensions));
   if ((void *)emxArray->size == NULL) {
-    emlrtHeapAllocationErrorR2012b((emlrtRTEInfo *)srcLocation, sp);
+    emlrtHeapAllocationErrorR2012b(srcLocation, sp);
   }
 
   emxArray->allocatedSize = 0;
@@ -219,4 +173,4 @@ void emxInit_real_T(const emlrtStack *sp, emxArray_real_T **pEmxArray, int32_T
   }
 }
 
-/* End of code generation (SpringForce_emxutil.cpp) */
+/* End of code generation (SpringForce_emxutil.c) */

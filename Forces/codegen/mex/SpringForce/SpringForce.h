@@ -21,8 +21,8 @@
 
 /* Function Declarations */
 extern void SpringForce(const emlrtStack *sp, emxArray_real_T *particleDist,
-  real_T springConst, const emxArray_boolean_T *connectivityMap, real_T
-  minParticleDist, emxArray_real_T *force);
+  const emxArray_real_T *springConst, const emxArray_boolean_T *connectivityMap,
+  const emxArray_real_T *minParticleDist, emxArray_real_T *force);
 
 #endif
 

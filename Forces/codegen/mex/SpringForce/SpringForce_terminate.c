@@ -1,5 +1,5 @@
 /*
- * SpringForce_terminate.cpp
+ * SpringForce_terminate.c
  *
  * Code generation for function 'SpringForce_terminate'
  *
@@ -9,10 +9,9 @@
 #include "rt_nonfinite.h"
 #include "SpringForce.h"
 #include "SpringForce_terminate.h"
-#include "SpringForce_data.h"
 
 /* Function Definitions */
-void SpringForce_atexit()
+void SpringForce_atexit(void)
 {
   emlrtStack st = { NULL, NULL, NULL };
 
@@ -23,7 +22,7 @@ void SpringForce_atexit()
   emlrtDestroyRootTLS(&emlrtRootTLSGlobal);
 }
 
-void SpringForce_terminate()
+void SpringForce_terminate(void)
 {
   emlrtStack st = { NULL, NULL, NULL };
 
@@ -32,4 +31,4 @@ void SpringForce_terminate()
   emlrtDestroyRootTLS(&emlrtRootTLSGlobal);
 }
 
-/* End of code generation (SpringForce_terminate.cpp) */
+/* End of code generation (SpringForce_terminate.c) */

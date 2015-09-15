@@ -20,8 +20,8 @@
 #include "SpringForce_types.h"
 
 /* Function Declarations */
-extern void SpringForce_atexit();
-extern void SpringForce_terminate();
+extern void SpringForce_atexit(void);
+extern void SpringForce_terminate(void);
 
 #endif
 

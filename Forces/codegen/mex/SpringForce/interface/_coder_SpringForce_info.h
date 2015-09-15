@@ -14,7 +14,7 @@
 
 
 /* Function Declarations */
-extern const mxArray *emlrtMexFcnResolvedFunctionsInfo();
+extern const mxArray *emlrtMexFcnResolvedFunctionsInfo(void);
 
 #endif
 /* End of code generation (_coder_SpringForce_info.h) */
